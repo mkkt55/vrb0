@@ -1,23 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using dpn;
 
 public class PlayerController : MonoBehaviour
 {
 
 	private float moveSpeed;//摄像机的移动速度
-	public GameObject Eye;
 	void Start()
 	{
-		moveSpeed = 2;
-		Cursor.visible = false;//隐藏鼠标
-		Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
+		moveSpeed = 20;
+		//Cursor.visible = false;//隐藏鼠标
+		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 	}
 
 	Vector3 rot = new Vector3(0, 0, 0);
 
 	void Update()
 	{
+		
 		//键盘鼠标控制，wsad控制前后左右，qe分别为上升下降
 		if (Input.GetKey(KeyCode.W))
 		{
@@ -45,8 +46,23 @@ public class PlayerController : MonoBehaviour
 		{
 			gameObject.transform.Translate(Vector3.down * Time.deltaTime * moveSpeed);
 		}
-	}
+		
 
+		// vr control
+		if (DpnDaydreamController.ClickButton)
+		{
+			gameObject.transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
+		}
+		if (DpnDaydreamController.TriggerButton)
+		{
+			gameObject.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+		}
+		if (DpnDaydreamController.BackButton)
+		{
+			gameObject.transform.Translate(Vector3.up * Time.deltaTime * moveSpeed);
+		}
+	}
+	/*
 	/// <summary>
 	/// 鼠键控制player移动
 	/// </summary>
@@ -76,4 +92,5 @@ public class PlayerController : MonoBehaviour
 		}
 		
 	}
+	*/
 }

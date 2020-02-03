@@ -116,6 +116,9 @@
      <Compile Include="Assets\Scenes\Creator.cs" />
      <Compile Include="Assets\Scenes\PlayerController.cs" />
      <Compile Include="Assets\Scenes\PointCreator.cs" />
+     <Compile Include="Assets\Scripts\objCtrl.cs" />
+     <Compile Include="Assets\Scripts\ObjReaderInSence.cs" />
+     <Compile Include="Assets\Scripts\openOBJ.cs" />
      <None Include="Assets\DPN\Utilities\shdCube.shader" />
      <None Include="Assets\DPN\Utilities\hiddenmesh.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\ReticleShader.shader" />
