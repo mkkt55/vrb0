@@ -1,66 +1,143 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using dpn;
 
 public class PlayerController : MonoBehaviour
 {
+	private GameObject customModel;
+	private List<GameObject> curModels = new List<GameObject>(); //currently selected models.
+
+	private GameObject canvas;
+	private CanvasGroup canvasGroup;
+	private GameObject shouBing;
+
+	private Text txt;
+
+	private bool isShowingCanvas = true;
 
 	private float moveSpeed;//摄像机的移动速度
+	private float rotateSpeed;
 	void Start()
 	{
 		moveSpeed = 20;
+		rotateSpeed = 20;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
+
+		customModel = GameObject.Find("CustomModel");
+		canvas = GameObject.Find("Canvas");
+		canvasGroup = canvas.GetComponent<CanvasGroup>();
+		shouBing = GameObject.Find("ShouBing");
+
+		txt = GameObject.Find("DebugText").GetComponent<Text>();
+
+
+		if (customModel == null || canvas == null || canvasGroup == null)
+		{
+			// 显然程序出错了
+			Application.Quit();
+		}
+
+		curModels.Add(customModel);
+		
 	}
-
-	Vector3 rot = new Vector3(0, 0, 0);
-
+	void FixedUpdate()
+	{
+		// emmmm...
+	}
 	void Update()
 	{
-		
-		//键盘鼠标控制，wsad控制前后左右，qe分别为上升下降
-		if (Input.GetKey(KeyCode.W))
-		{
-			gameObject.transform.Translate(Vector3.forward * Time.deltaTime * moveSpeed);
-		}
-		if (Input.GetKey(KeyCode.S))
-		{
-			gameObject.transform.Translate(-Vector3.forward * Time.deltaTime * moveSpeed);
-		}
+		Vector3 rp = DpnDaydreamController.Gyro;
+		Vector3 acx = DpnDaydreamController.Accel;
+		Quaternion ori = DpnDaydreamController.Orientation;
 
+		shouBing.transform.Rotate(new Vector3(1, 0, 0));
+		shouBing.transform.rotation = ori;
+
+		txt.text = "Gyro: x = " + rp.x + ", y = " + rp.y + ", z = " + rp.z 
+			+ "\nAccel: x = " + acx.x + ", y = " + acx.y + ", z = " + acx.z
+			+ "\nOrientation: x = " + ori.x + ", y = " + ori.y + ", z = " + ori.z + ", w = " + ori.w;
+		
+		//键盘鼠标控制
 		if (Input.GetKey(KeyCode.A))
 		{
-			gameObject.transform.Translate(-Vector3.right * Time.deltaTime * moveSpeed);
+			customModel.transform.Translate(-Vector3.right * Time.deltaTime * moveSpeed);
 		}
 		if (Input.GetKey(KeyCode.D))
 		{
-			gameObject.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+			customModel.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
 		}
-
-		if (Input.GetKey(KeyCode.Q))
+		// To show and hide canvas, must use "GetKeyDown" not "GetKey".
+		if (Input.GetKeyDown(KeyCode.Q))
 		{
-			gameObject.transform.Translate(Vector3.up * Time.deltaTime * moveSpeed);
-		}
-		if (Input.GetKey(KeyCode.E))
-		{
-			gameObject.transform.Translate(Vector3.down * Time.deltaTime * moveSpeed);
+			if (isShowingCanvas)
+			{
+				hideCanvas();
+			}
+			else
+			{
+				showCanvas();
+			}
 		}
 		
 
-		// vr control
-		if (DpnDaydreamController.ClickButton)
+		// VR interaction
+		// ClickButton is used to show and hide operation panel.
+		if (DpnDaydreamController.ClickButtonDown)
 		{
-			gameObject.transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
+			if (isShowingCanvas)
+			{
+				hideCanvas();
+			}
+			else
+			{
+				showCanvas();
+			}
 		}
+		// Select a model.
 		if (DpnDaydreamController.TriggerButton)
 		{
-			gameObject.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+			curModels[0].transform.Translate(Vector3.down * Time.deltaTime * moveSpeed);
 		}
 		if (DpnDaydreamController.BackButton)
 		{
-			gameObject.transform.Translate(Vector3.up * Time.deltaTime * moveSpeed);
+			curModels[0].transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
 		}
+
+		// Rotate the models.
+		if (DpnDaydreamController.TouchGestureUp)
+		{
+			curModels[0].transform.Rotate(Vector3.up * Time.deltaTime * rotateSpeed);
+		}
+		if (DpnDaydreamController.TouchGestureDown)
+		{
+			curModels[0].transform.Rotate(Vector3.down * Time.deltaTime * rotateSpeed);
+		}
+		if (DpnDaydreamController.TouchGestureLeft)
+		{
+			curModels[0].transform.Rotate(Vector3.left * Time.deltaTime * rotateSpeed);
+		}
+		if (DpnDaydreamController.TouchGestureRight)
+		{
+			curModels[0].transform.Rotate(Vector3.right * Time.deltaTime * rotateSpeed);
+		}
+	}
+
+	void showCanvas()
+	{
+		canvasGroup.alpha = 1;
+		canvasGroup.interactable = true;
+		canvasGroup.blocksRaycasts = true;
+		isShowingCanvas = true;
+	}
+	void hideCanvas()
+	{
+		canvasGroup.alpha = 0;
+		canvasGroup.interactable = false;
+		canvasGroup.blocksRaycasts = false;
+		isShowingCanvas = false;
 	}
 	/*
 	/// <summary>
