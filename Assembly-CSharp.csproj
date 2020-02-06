@@ -53,6 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Core\Creator.cs" />
+     <Compile Include="Assets\Core\ModelControl.cs" />
+     <Compile Include="Assets\Core\OpenObj\objCtrl.cs" />
+     <Compile Include="Assets\Core\OpenObj\ObjReaderInSence.cs" />
+     <Compile Include="Assets\Core\OpenObj\openOBJ.cs" />
+     <Compile Include="Assets\Core\PlayerController.cs" />
+     <Compile Include="Assets\Core\PointCreator.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointer.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointerRaycaster.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnEventInterfacesExtension.cs" />
@@ -113,12 +120,6 @@
      <Compile Include="Assets\DPN\Utilities\SampleGUI.cs" />
      <Compile Include="Assets\DPN\Utilities\TestMotion.cs" />
      <Compile Include="Assets\DPN\Utilities\VolumeTips\DpnVolumeTips.cs" />
-     <Compile Include="Assets\Scenes\Creator.cs" />
-     <Compile Include="Assets\Scenes\PlayerController.cs" />
-     <Compile Include="Assets\Scenes\PointCreator.cs" />
-     <Compile Include="Assets\Scripts\objCtrl.cs" />
-     <Compile Include="Assets\Scripts\ObjReaderInSence.cs" />
-     <Compile Include="Assets\Scripts\openOBJ.cs" />
      <None Include="Assets\DPN\Utilities\shdCube.shader" />
      <None Include="Assets\DPN\Utilities\hiddenmesh.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\ReticleShader.shader" />
