@@ -19,7 +19,6 @@ public class ModelControl : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GetComponent<Renderer>().material.color = Color.red;
 		GameObject.Find("CustomModelController").GetComponent<PlayerController>().select(gameObject);
 	}
 }

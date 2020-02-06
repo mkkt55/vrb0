@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Core\ClearSelection.cs" />
      <Compile Include="Assets\Core\Creator.cs" />
      <Compile Include="Assets\Core\ModelControl.cs" />
      <Compile Include="Assets\Core\OpenObj\objCtrl.cs" />

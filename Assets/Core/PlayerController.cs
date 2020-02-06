@@ -11,11 +11,11 @@ public class PlayerController : MonoBehaviour
 
 	private GameObject modeCanvas;
 	private CanvasGroup modeCanvasGroup;
-	private bool isShowingModeCanvas = true;
+	private bool isShowingModeCanvas = false;
 
 	private GameObject mainMenu;
 	private CanvasGroup mainMenuGroup;
-	private bool isShowingMainMenu = true;
+	private bool isShowingMainMenu = false;
 
 	private Text txt;
 
@@ -39,7 +39,9 @@ public class PlayerController : MonoBehaviour
 
 		mainMenu = GameObject.Find("MainMenu");
 		mainMenuGroup = modeCanvas.GetComponent<CanvasGroup>();
-		txt = GameObject.Find("DebugText").GetComponent<Text>();
+		hideMainMenu();
+
+		//txt = GameObject.Find("DebugText").GetComponent<Text>();
 
 	}
 	void FixedUpdate()
@@ -52,7 +54,6 @@ public class PlayerController : MonoBehaviour
 		Vector3 acx = DpnDaydreamController.Accel;
 		Quaternion ori = DpnDaydreamController.Orientation;
 		Vector2 tp = DpnDaydreamController.TouchPos;
-		
 		
 		/*
 		 * 自己创建手柄交互缺少设备SDK提供的API
@@ -67,28 +68,35 @@ public class PlayerController : MonoBehaviour
 		}
 		*/
 
-		txt.text = "Gyro: x = " + rp.x + ", y = " + rp.y + ", z = " + rp.z
-			+ "\nAccel: x = " + acx.x + ", y = " + acx.y + ", z = " + acx.z
-			+ "\nOrientation: x = " + ori.x + ", y = " + ori.y + ", z = " + ori.z + ", w = " + ori.w
-			+ "\nTouchPos: x = " + tp.x + ", y = " + tp.y;
+		//txt.text = "Orientation: x = " + ori.x + ", y = " + ori.y + ", z = " + ori.z + ", w = " + ori.w;
+
 
 		//键盘鼠标控制
-		if (Input.GetKey(KeyCode.A))
+		if (mode == 0 && Input.GetKey(KeyCode.A))
 		{
-			customModel.transform.Translate(-Vector3.right * Time.deltaTime * moveSpeed);
+			selectedModel.transform.Translate(-Vector3.right * Time.deltaTime * moveSpeed);
 		}
-		if (Input.GetKey(KeyCode.D))
+		if (mode == 0 && Input.GetKey(KeyCode.D))
 		{
-			customModel.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+			selectedModel.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
 		}
-		
-		
-		
-		
+
+		if (mode == 1 && Input.GetKey(KeyCode.A))
+		{
+			selectedModel.transform.Rotate(-Vector3.right * Time.deltaTime * rotateSpeed);
+		}
+		if (mode == 1 && Input.GetKey(KeyCode.D))
+		{
+			selectedModel.transform.Rotate(Vector3.right * Time.deltaTime * rotateSpeed);
+		}
+
+
+
+
 		// VR手柄操作
 		// 显示隐藏界面菜单：按住TriggerButton时，按下ClickButton。
 		// 更改模式操作：未按住TriggerButton时，按下ClickButton。
-		if (DpnDaydreamController.ClickButtonDown || Input.GetKeyDown(KeyCode.Q))
+		if (DpnDaydreamController.TriggerButtonDown || Input.GetKeyDown(KeyCode.Q))
 		{
 			if (!isShowingModeCanvas)
 			{
@@ -117,9 +125,17 @@ public class PlayerController : MonoBehaviour
 		
 	}
 
-	public void select(GameObject gb)
+	public void select(GameObject target)
 	{
-		selectedModel = gb;
+		selectedModel.GetComponent<Renderer>().material.color = Color.white;
+		selectedModel = target;
+		selectedModel.GetComponent<Renderer>().material.color = Color.red;
+	}
+
+	public void clearSelection()
+	{
+		selectedModel.GetComponent<Renderer>().material.color = Color.white;
+		selectedModel = customModel;
 	}
 
 	void showModeCanvas()
@@ -129,12 +145,36 @@ public class PlayerController : MonoBehaviour
 		modeCanvasGroup.blocksRaycasts = true;
 		isShowingModeCanvas = true;
 	}
+
 	void hideModeCanvas()
 	{
 		modeCanvasGroup.alpha = 0;
 		modeCanvasGroup.interactable = false;
 		modeCanvasGroup.blocksRaycasts = false;
 		isShowingModeCanvas = false;
+	}
+
+	void showMainMenu()
+	{
+		mainMenu.SetActive(true);
+		/*
+		mainMenuGroup.alpha = 1;
+		mainMenuGroup.interactable = true;
+		mainMenuGroup.blocksRaycasts = true;
+		*/
+		isShowingMainMenu = true;
+		
+	}
+
+	void hideMainMenu()
+	{
+		mainMenu.SetActive(false);
+		/*
+		mainMenuGroup.alpha = 0;
+		mainMenuGroup.interactable = false;
+		mainMenuGroup.blocksRaycasts = false;
+		*/
+		isShowingMainMenu = false;
 	}
 
 	// 对应模式面板的四个模式，一个Cancel按钮
@@ -160,17 +200,11 @@ public class PlayerController : MonoBehaviour
 	{
 		if (isShowingMainMenu)
 		{
-			mainMenuGroup.alpha = 0;
-			mainMenuGroup.interactable = false;
-			mainMenuGroup.blocksRaycasts = false;
-			isShowingMainMenu = false;
+			hideMainMenu();
 		}
 		else
 		{
-			mainMenuGroup.alpha = 1;
-			mainMenuGroup.interactable = true;
-			mainMenuGroup.blocksRaycasts = true;
-			isShowingMainMenu = true;
+			showMainMenu();
 		}
 		hideModeCanvas();
 	}
