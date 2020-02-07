@@ -25,11 +25,11 @@ public class PlayerController : MonoBehaviour
 	private float rotateSpeed;
 	void Start()
 	{
-		moveSpeed = 20;
-		rotateSpeed = 10;
+		moveSpeed = 30;
+		rotateSpeed = 30;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
-
+		
 		customModel = GameObject.Find("CustomModel");
 		selectedModel = customModel;
 
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 		mainMenuGroup = modeCanvas.GetComponent<CanvasGroup>();
 		hideMainMenu();
 
-		//txt = GameObject.Find("DebugText").GetComponent<Text>();
+		txt = GameObject.Find("DebugText").GetComponent<Text>();
 
 	}
 	void FixedUpdate()
@@ -53,8 +53,23 @@ public class PlayerController : MonoBehaviour
 		Vector3 rp = DpnDaydreamController.Gyro;
 		Vector3 acx = DpnDaydreamController.Accel;
 		Quaternion ori = DpnDaydreamController.Orientation;
+
 		Vector2 tp = DpnDaydreamController.TouchPos;
-		
+		Vector2 touchVector = new Vector2((tp.x - 0.5f), (0.5f - tp.y));
+		Vector3 d0 = new Vector3();
+		d0.z = touchVector.y;
+		d0.x = touchVector.x;
+		d0.y = 0;
+		Vector3 pointerVector = ori * new Vector3(0, 0, 1);
+		Vector3 targetVector = ori * d0;
+
+		txt.text = "touchPos: " + tp
+			+ "\ntouchVector: " + touchVector
+			+ "\ntargetVector: " + targetVector
+			+ "\ncustomModel: " + customModel.transform;
+
+
+		GameObject.Find("Sphere").transform.rotation = ori;
 		/*
 		 * 自己创建手柄交互缺少设备SDK提供的API
 		shouBing.transform.rotation = ori;
@@ -104,16 +119,16 @@ public class PlayerController : MonoBehaviour
 			}
 		}
 
-		// 平移功能：根据TouchPos直接平移
+		// 平移功能,使用positon属性，直接修改世界坐标
 		if (mode == 0 && DpnDaydreamController.IsTouching)
 		{
-			customModel.transform.Translate(new Vector3((tp.x - 0.5f) * Time.deltaTime * moveSpeed, (tp.y - 0.5f) * Time.deltaTime * moveSpeed, 0));
+			selectedModel.transform.position += targetVector * moveSpeed * Time.deltaTime;
 		}
 
-		// 旋转功能：按住TriggerButton
-		if (mode == 1 && DpnDaydreamController.TriggerButton)
+		// 旋转功能，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
+		if (mode == 1 && DpnDaydreamController.IsTouching)
 		{
-			customModel.transform.Rotate(rotateSpeed * Time.deltaTime, 0, 0);
+			selectedModel.transform.Rotate(pointerVector * touchVector.x);
 		}
 
 

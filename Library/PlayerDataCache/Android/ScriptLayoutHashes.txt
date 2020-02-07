@@ -188,12 +188,14 @@ ae83e830e7a90c0aff918c4c2e520825 Assembly-CSharp.dll:dpn.DpnPointerGraphicRaycas
 a4f0a4f62100f1a4fb5cbe0e00dde83f Unity.TextMeshPro.dll:TMPro.TextMeshProUGUI
 dd210bf02f9f22d0edbebbf41740845e Assembly-CSharp.dll:dpn.DpnCameraRig
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.DpnDevice
+71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.ModelControl
 2c7a68820a77d6cda9896603e9c88215 Assembly-CSharp.dll:dpn.DPVRBaseSteamController
 5fc094978ce3e3591a7500ed380d854a Unity.Analytics.DataPrivacy.dll:UnityEngine.Analytics.DataPrivacyButton
 d251bf88db6c95a6b1aa0b69298da9ef UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 af0537dabf7072720b1497b88b975216 Assembly-CSharp.dll:.openOBJ
 35d42483cc1e2031e7ee40f2ed8f54ea Assembly-CSharp.dll:.SampleGUI
 3dd15a03b0e95d9402579e42d5a0bc6c Assembly-CSharp.dll:dpn.DpnHMDPointer
+71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.ClearSelection
 d791aa6007fa3640be1164ea75bb087d Unity.TextMeshPro.dll:TMPro.TMP_StyleSheet
 83880b13806e088d74be689469b026d6 Assembly-CSharp.dll:dpn.DpnDaydreamController
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.TestMotion
