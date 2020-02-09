@@ -54,13 +54,14 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Core\ClearSelection.cs" />
+     <Compile Include="Assets\Core\CreateZhengFangXing.cs" />
      <Compile Include="Assets\Core\Creator.cs" />
-     <Compile Include="Assets\Core\ModelControl.cs" />
      <Compile Include="Assets\Core\OpenObj\objCtrl.cs" />
      <Compile Include="Assets\Core\OpenObj\ObjReaderInSence.cs" />
      <Compile Include="Assets\Core\OpenObj\openOBJ.cs" />
      <Compile Include="Assets\Core\PlayerController.cs" />
      <Compile Include="Assets\Core\PointCreator.cs" />
+     <Compile Include="Assets\Core\Selectable.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointer.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointerRaycaster.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnEventInterfacesExtension.cs" />
