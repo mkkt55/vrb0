@@ -1684,7 +1684,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1280960360}
-  - component: {fileID: 1280960358}
   - component: {fileID: 1280960359}
   m_Layer: 0
   m_Name: Cube
@@ -1693,18 +1692,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1280960358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1280960356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1d5904aa9c85a1439cc7afc47f8c772, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1280960359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1794,6 +1781,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1378698197}
   - component: {fileID: 1378698198}
+  - component: {fileID: 1378698199}
   m_Layer: 0
   m_Name: CustomModelController
   m_TagString: Untagged
@@ -1829,6 +1817,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b63d209bc7139249a7ebfeaf20f591e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1378698199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1378698196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75fc568e0aa525d49b8569dbaff3c681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1413004576
@@ -2227,9 +2227,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 1846408724}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 667fe79dc867ee347b6959ce2fdafd6b, type: 3}
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1378698198}
+          m_MethodName: clearSelection
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []
 --- !u!1 &1939367279
 GameObject:
   m_ObjectHideFlags: 0
