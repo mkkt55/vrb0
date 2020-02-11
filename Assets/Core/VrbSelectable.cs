@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Selectable : MonoBehaviour, IPointerClickHandler
+public class VrbSelectable : MonoBehaviour, IPointerClickHandler
 {
 	// Start is called before the first frame update
 	void Start()
@@ -22,4 +22,3 @@ public class Selectable : MonoBehaviour, IPointerClickHandler
 		GameObject.Find("CustomModelController").GetComponent<PlayerController>().select(gameObject);
 	}
 }
-

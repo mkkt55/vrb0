@@ -7,7 +7,7 @@ using dpn;
 public class PlayerController : MonoBehaviour
 {
 	private GameObject customModel;
-	private GameObject selectedModel; // Currently selected models.
+	public GameObject selectedModel; // Currently selected models.
 
 	private GameObject modeCanvas;
 	private CanvasGroup modeCanvasGroup;
@@ -87,24 +87,23 @@ public class PlayerController : MonoBehaviour
 
 
 		//键盘鼠标控制
-		if (mode == 0 && Input.GetKey(KeyCode.A))
+		if (Input.GetKey(KeyCode.A))
 		{
-			selectedModel.transform.Translate(-Vector3.right * Time.deltaTime * moveSpeed);
+			VrbEditablePoint vrbEditable= selectedModel.GetComponent<VrbEditablePoint>();
+			if (vrbEditable != null)
+			{
+				vrbEditable.move(-Vector3.right * Time.deltaTime * moveSpeed);
+			}
 		}
-		if (mode == 0 && Input.GetKey(KeyCode.D))
+		if (Input.GetKey(KeyCode.D))
 		{
-			selectedModel.transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+			VrbEditablePoint vrbEditable = selectedModel.GetComponent<VrbEditablePoint>();
+			if (vrbEditable != null)
+			{
+				vrbEditable.move(-Vector3.left * Time.deltaTime * moveSpeed);
+			}
 		}
-
-		if (mode == 1 && Input.GetKey(KeyCode.A))
-		{
-			selectedModel.transform.Rotate(-Vector3.right * Time.deltaTime * rotateSpeed);
-		}
-		if (mode == 1 && Input.GetKey(KeyCode.D))
-		{
-			selectedModel.transform.Rotate(Vector3.right * Time.deltaTime * rotateSpeed);
-		}
-
+		
 
 
 
@@ -142,14 +141,14 @@ public class PlayerController : MonoBehaviour
 
 	public void select(GameObject target)
 	{
-		selectedModel.GetComponent<Renderer>().material.color = Color.white;
+		selectedModel.GetComponent<MeshRenderer>().material.color = Color.white;
 		selectedModel = target;
-		selectedModel.GetComponent<Renderer>().material.color = Color.red;
+		selectedModel.GetComponent<MeshRenderer>().material.color = Color.red;
 	}
 
 	public void clearSelection()
 	{
-		selectedModel.GetComponent<Renderer>().material.color = Color.white;
+		selectedModel.GetComponent<MeshRenderer>().material.color = Color.white;
 		selectedModel = customModel;
 	}
 
