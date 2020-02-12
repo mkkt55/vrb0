@@ -14,11 +14,15 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
     // Update is called once per frame
     void Update()
     {
-
+		for (int i = 0; i < f.fVertices.Count; i++)
+		{
+			f.fVectors[i] = f.fVertices[i].vector3;
+		}
+		f.mesh.SetVertices(f.fVectors);
 	}
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GameObject.Find("CustomModelController").GetComponent<PlayerController>().selectFace(f);
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectFace(f);
 	}
 }

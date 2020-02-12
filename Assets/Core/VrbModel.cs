@@ -20,8 +20,11 @@ public class VrbVertex
 	}
 
 	public Vector3 vector3;
-	public Transform transform;
-	public Material material;
+	private GameObject gameObject;
+	private Transform transform;
+	private Material material;
+	private bool constructed = false;
+	private bool displayed = false;
 
 	public VrbVertex(float _x, float _y, float _z)
 	{
@@ -30,26 +33,23 @@ public class VrbVertex
 		vector3 = new Vector3(_x, _y, _z);
 	}
 
-	public void constructModel()
+	private void constructModel()
 	{
 		GameObject vp = Resources.Load("VrbPoint") as GameObject;
-		GameObject go = GameObject.Instantiate(vp);
+		gameObject = GameObject.Instantiate(vp);
 
-		transform = go.transform;
-		transform.parent = GameObject.Find("CustomModel").transform;
+		transform = gameObject.transform;
+		transform.parent = GameObject.Find("EditableModel").transform;
 
-		material = go.GetComponent<MeshRenderer>().material;
+		material = gameObject.GetComponent<MeshRenderer>().material;
 
 		transform.position = vector3;
 		transform.localScale = new Vector3(5, 5, 5);
 
-		VrbEditableVertex ep = go.AddComponent<VrbEditableVertex>();
+		VrbEditableVertex ep = gameObject.AddComponent<VrbEditableVertex>();
 		ep.v = this;
-	}
 
-	public void updateMesh()
-	{
-		transform.position = vector3;
+		constructed = true;
 	}
 
 	public void move(Vector3 dv)
@@ -65,6 +65,28 @@ public class VrbVertex
 	public void deSelect()
 	{
 		material.color = Color.green;
+	}
+
+	public void displayModel()
+	{
+		if (constructed == false)
+		{
+			constructModel();
+		}
+		else
+		{
+			gameObject.SetActive(true);
+		}
+		displayed = true;
+	}
+
+	public void hideModel()
+	{
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+		displayed = false;
 	}
 }
 
@@ -121,7 +143,11 @@ public class VrbFace
 	public List<int> fTriangles; // 代表三角面片在自己的fVertices数组中的位置，是上一个的三倍
 
 	public Mesh mesh; // 用来展示的mesh
+	private GameObject gameObject;
 	public Material material;
+
+	private bool constructed = false;
+	private bool displayed = false;
 
 	public VrbFace(List<VrbTriangle> t)
 	{
@@ -178,21 +204,21 @@ public class VrbFace
 
 	public void constructModel()
 	{
-		GameObject go = new GameObject("DynamicallyAdded");
-		go.transform.parent = GameObject.Find("CustomModel").transform;
+		gameObject = new GameObject("face" + index);
+		gameObject.transform.parent = GameObject.Find("EditableModel").transform;
 
-		MeshFilter mf = go.AddComponent<MeshFilter>();
+		MeshFilter mf = gameObject.AddComponent<MeshFilter>();
 		if (mf != null)
 		{
 			mf.mesh = mesh;
 		}
 
 		// 展示Mesh，且可操作。
-		VrbEditableFace ef = go.AddComponent<VrbEditableFace>();
+		VrbEditableFace ef = gameObject.AddComponent<VrbEditableFace>();
 		ef.f = this;
 
-		MeshRenderer meshRender = go.AddComponent<MeshRenderer>();
-		MeshCollider meshCollider = go.AddComponent<MeshCollider>();
+		MeshRenderer meshRender = gameObject.AddComponent<MeshRenderer>();
+		MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
 
 		// 使用shader设置双面，并成为白色
 		Material mat = new Material(Shader.Find("Custom/DoubleSided"));
@@ -200,15 +226,8 @@ public class VrbFace
 		meshRender.material.color = Color.white;
 
 		material = meshRender.material;
-	}
 
-	public void updateMesh()
-	{
-		for (int i = 0; i < fVertices.Count; i++)
-		{
-			fVectors[i] = fVertices[i].vector3;
-		}
-		mesh.SetVertices(fVectors);
+		constructed = true;
 	}
 
 	public void move(Vector3 dv)
@@ -228,12 +247,35 @@ public class VrbFace
 	{
 		material.color = Color.white;
 	}
+
+	public void displayModel()
+	{
+		if (constructed == false)
+		{
+			constructModel();
+		}
+		else
+		{
+			gameObject.SetActive(true);
+		}
+		displayed = true;
+	}
+
+	public void hideModel()
+	{
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+		displayed = false;
+	}
 }
 
 
 public class VrbObject
 {
 	public static List<VrbObject> all = new List<VrbObject>();
+	public static VrbObject editingObject = null;
 
 	private int index;
 	public int getIndex()
@@ -247,31 +289,200 @@ public class VrbObject
 		all.Add(this);
 	}
 
-	public int x, y, z; // 位置
+	public Vector3 position; // 位置
 	public int rx, ry, rz; // 旋转
-	public int sx, sy, sz; // 三方向scale
+	public Vector3 scale; // 三方向scale
 
-	public List<VrbFace> faces = new List<VrbFace>();
+	public List<VrbFace> faces;
 
-	public VrbObject()
+	public List<VrbVertex> vertices;
+	public List<Vector3> vectors;
+	public List<int> triangles;
+	private GameObject gameObject;
+	public Mesh mesh;
+
+	public Material material;
+
+	private bool constructed = false;
+	private bool displayed = false;
+
+	public VrbObject(Vector3 p)
 	{
+		position = p;
+		faces = new List<VrbFace>();
 		addToStatic();
+		calSelf();
 	}
 
-	public VrbObject(List<VrbFace> _faces)
+	public VrbObject(float x, float y, float z)
 	{
+		position = new Vector3(x, y, z);
+		faces = new List<VrbFace>();
+		addToStatic();
+		calSelf();
+	}
+
+
+	public VrbObject(Vector3 p, List<VrbFace> _faces)
+	{
+		position = p;
 		faces = _faces;
 		addToStatic();
+		calSelf();
+	}
+
+	public VrbObject(float x, float y, float z, List<VrbFace> _faces)
+	{
+		position = new Vector3(x, y, z);
+		faces = _faces;
+		addToStatic();
+		calSelf();
+	}
+
+	private void calSelf()
+	{
+		vertices = new List<VrbVertex>();
+		vectors = new List<Vector3>();
+		triangles = new List<int>();
+
+		for (int i = 0; i < faces.Count; i++)
+		{
+			for (int j = 0; j < faces[i].fVertices.Count; j++)
+			{
+				if (vertices.IndexOf(faces[i].fVertices[j]) == -1)
+				{
+					vertices.Add(faces[i].fVertices[j]);
+					vectors.Add(faces[i].fVertices[j].vector3);
+				}
+			}
+		}
+
+		// 一个三角面片是不可能出现在两个面里的，所以可以直接遍历所有
+		for (int i = 0; i < faces.Count; i++)
+		{
+			for (int j = 0; j < faces[i].ftOriginal.Count; j++)
+			{
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
+			}
+		}
+
+		mesh = new Mesh();
+		mesh.SetVertices(vectors);
+		mesh.SetTriangles(triangles, 0);
+	}
+
+	public void constructModel()
+	{
+		gameObject = new GameObject("object" + index);
+		gameObject.transform.parent = GameObject.Find("Layout").transform;
+		gameObject.transform.position = position;
+
+		MeshFilter mf = gameObject.AddComponent<MeshFilter>();
+		if (mf != null)
+		{
+			mf.mesh = mesh;
+		}
+
+		// 展示Mesh，且可操作。
+		VrbSelectableObject so = gameObject.AddComponent<VrbSelectableObject>();
+		so.o = this;
+
+		MeshRenderer meshRender = gameObject.AddComponent<MeshRenderer>();
+		MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
+
+		// 使用shader设置双面，并成为白色
+		Material mat = new Material(Shader.Find("Custom/DoubleSided"));
+		meshRender.material = mat;
+		meshRender.material.color = Color.white;
+
+		material = meshRender.material;
+
+		constructed = true;
 	}
 
 	public void select()
 	{
-
+		material.color = Color.red;
 	}
 
 	public void deSelect()
 	{
+		material.color = Color.white;
+	}
 
+	public void displayModel()
+	{
+		if (constructed == false)
+		{
+			constructModel();
+		}
+		else
+		{
+			gameObject.SetActive(true);
+		}
+		displayed = true;
+	}
+
+	public void hideModel()
+	{
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+		displayed = false;
+	}
+
+	public void enterEdit()
+	{
+		hideAll();
+		for (int i = 0; i < faces.Count; i++)
+		{
+			faces[i].displayModel();
+		}
+		for (int i = 0; i < vertices.Count; i++)
+		{
+			vertices[i].displayModel();
+		}
+		editingObject = this;
+	}
+
+	public static void exitEdit()
+	{
+		if (editingObject != null)
+		{
+			for (int i = 0; i < editingObject.faces.Count; i++)
+			{
+				editingObject.faces[i].hideModel();
+			}
+			for (int i = 0; i < editingObject.vertices.Count; i++)
+			{
+				editingObject.vertices[i].hideModel();
+			}
+		}
+		displayAll();
+	}
+
+	public static void hideAll()
+	{
+		for (int i = 0; i < all.Count; i++)
+		{
+			all[i].hideModel();
+		}
+	}
+
+	public static void displayAll()
+	{
+		for (int i = 0; i < all.Count; i++)
+		{
+			all[i].displayModel();
+		}
+	}
+
+	public void move(Vector3 dv)
+	{
+		position += dv;
 	}
 }
 
@@ -279,35 +490,18 @@ public class VrbObject
 // 便于Unity中调试
 public class VrbModel : MonoBehaviour
 {
-	public static List<VrbObject> objects = new List<VrbObject>();
-	
-
 	void Start()
 	{
-		createCube(0, 100, 0, 200, 200, 200);
-		for (int i = 0; i < VrbVertex.all.Count; i++)
-		{
-			VrbVertex.all[i].constructModel();
-		}
-		for (int i = 0; i < VrbFace.all.Count; i++)
-		{
-			VrbFace.all[i].constructModel();
-		}
+		VrbObject o = createCube(0, 100, 0, 200, 200, 200);
+		o.displayModel();
 	}
 
 	void Update()
 	{
-		for (int i = 0; i < VrbVertex.all.Count; i++)
-		{
-			VrbVertex.all[i].updateMesh();
-		}
-		for (int i = 0; i < VrbFace.all.Count; i++)
-		{
-			VrbFace.all[i].updateMesh();
-		}
+
 	}
 
-	
+
 
 	// 三角形面片，记录顶点索引
 	//public void createQuad()
@@ -331,16 +525,16 @@ public class VrbModel : MonoBehaviour
 
 	// 前三个是位置坐标，后三个是大小
 
-	public void createCube(float xp, float yp, float zp, float xl, float yl, float zl)
+	public VrbObject createCube(float xp, float yp, float zp, float xl, float yl, float zl)
 	{
-		VrbVertex p0 = new VrbVertex(xp + xl / 2, yp + yl / 2, zp + zl / 2);
-		VrbVertex p1 = new VrbVertex(xp + xl / 2, yp + yl / 2, zp - zl / 2);
-		VrbVertex p2 = new VrbVertex(xp + xl / 2, yp - yl / 2, zp + zl / 2);
-		VrbVertex p3 = new VrbVertex(xp + xl / 2, yp - yl / 2, zp - zl / 2);
-		VrbVertex p4 = new VrbVertex(xp - xl / 2, yp + yl / 2, zp + zl / 2);
-		VrbVertex p5 = new VrbVertex(xp - xl / 2, yp + yl / 2, zp - zl / 2);
-		VrbVertex p6 = new VrbVertex(xp - xl / 2, yp - yl / 2, zp + zl / 2);
-		VrbVertex p7 = new VrbVertex(xp - xl / 2, yp - yl / 2, zp - zl / 2);
+		VrbVertex p0 = new VrbVertex(xl / 2, yl / 2, zl / 2);
+		VrbVertex p1 = new VrbVertex(xl / 2, yl / 2, -zl / 2);
+		VrbVertex p2 = new VrbVertex(xl / 2, -yl / 2, zl / 2);
+		VrbVertex p3 = new VrbVertex(xl / 2, -yl / 2, -zl / 2);
+		VrbVertex p4 = new VrbVertex(-xl / 2, yl / 2, zl / 2);
+		VrbVertex p5 = new VrbVertex(-xl / 2, yl / 2, -zl / 2);
+		VrbVertex p6 = new VrbVertex(-xl / 2, -yl / 2, zl / 2);
+		VrbVertex p7 = new VrbVertex(-xl / 2, -yl / 2, -zl / 2);
 
 		VrbTriangle t0 = new VrbTriangle(p0, p1, p3);
 		VrbTriangle t1 = new VrbTriangle(p0, p2, p3);
@@ -394,7 +588,7 @@ public class VrbModel : MonoBehaviour
 		fList.Add(f3);
 		fList.Add(f4);
 		fList.Add(f5);
-		new VrbObject(fList);
+		return new VrbObject(xp, yp, zp, fList);
 	}
 
 	public static bool readObj(string path)

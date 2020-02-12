@@ -15,12 +15,12 @@ public class VrbEditableVertex: MonoBehaviour, IPointerClickHandler
     // Update is called once per frame
     void Update()
     {
-		
-    }
+		transform.position = v.vector3;
+	}
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GameObject.Find("CustomModelController").GetComponent<PlayerController>().selectVertex(v);
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectVertex(v);
 	}
 
 }

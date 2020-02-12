@@ -12,14 +12,27 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 
 	}
 
+	void OnEnable()
+	{
+		if (o != null && o.mesh != null && o.vertices != null)
+		{
+			List<Vector3> vs = new List<Vector3>();
+			for (int i = 0; i < o.vertices.Count; i++)
+			{
+				vs.Add(o.vertices[i].vector3);
+			}
+			o.mesh.SetVertices(vs);
+		}
+	}
+
 	// Update is called once per frame
 	void Update()
 	{
-
+		transform.position = o.position;
 	}
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GameObject.Find("CustomModelController").GetComponent<PlayerController>().selectObject(o);
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectObject(o);
 	}
 }

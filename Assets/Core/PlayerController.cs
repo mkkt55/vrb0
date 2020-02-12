@@ -6,7 +6,7 @@ using dpn;
 
 public class PlayerController : MonoBehaviour
 {
-	private GameObject customModel;
+	private GameObject editableModel;
 	public VrbObject selectedObject = null; // Currently selected models.
 	public VrbVertex selectedVertex = null;
 	public VrbFace selectedFace = null;
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 		
-		customModel = GameObject.Find("CustomModel");
+		editableModel = GameObject.Find("EditableModel");
 
 		modeCanvas = GameObject.Find("ModeCanvas");
 		modeCanvasGroup = modeCanvas.GetComponent<CanvasGroup>();
@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
 		txt.text = "touchPos: " + tp
 			+ "\ntouchVector: " + touchVector
 			+ "\ntargetVector: " + targetVector
-			+ "\ncustomModel: " + customModel.transform;
+			+ "\neditableModel: " + editableModel.transform;
 
 
 		GameObject.Find("Sphere").transform.rotation = ori;
@@ -98,6 +98,10 @@ public class PlayerController : MonoBehaviour
 			{
 				selectedVertex.move(Vector3.left * Time.deltaTime * moveSpeed);
 			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
 		}
 		if (Input.GetKey(KeyCode.D))
 		{
@@ -108,6 +112,10 @@ public class PlayerController : MonoBehaviour
 			if (selectedVertex != null)
 			{
 				selectedVertex.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.right * Time.deltaTime * moveSpeed);
 			}
 		}
 		
@@ -123,6 +131,18 @@ public class PlayerController : MonoBehaviour
 			{
 				showModeCanvas();
 			}
+		}
+
+		if (Input.GetKeyDown(KeyCode.E))
+		{
+			if (selectedObject != null)
+			{
+				selectedObject.enterEdit();
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.R))
+		{
+			VrbObject.exitEdit();
 		}
 
 		// 平移功能,使用positon属性，直接修改世界坐标
