@@ -58,9 +58,9 @@
      <Compile Include="Assets\Core\OpenObj\openOBJ.cs" />
      <Compile Include="Assets\Core\PlayerController.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />
-     <Compile Include="Assets\Core\VrbEditablePoint.cs" />
+     <Compile Include="Assets\Core\VrbEditableVertex.cs" />
      <Compile Include="Assets\Core\VrbModel.cs" />
-     <Compile Include="Assets\Core\VrbSelectable.cs" />
+     <Compile Include="Assets\Core\VrbSelectableObject.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointer.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointerRaycaster.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnEventInterfacesExtension.cs" />

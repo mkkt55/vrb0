@@ -7,7 +7,9 @@ using dpn;
 public class PlayerController : MonoBehaviour
 {
 	private GameObject customModel;
-	public GameObject selectedModel; // Currently selected models.
+	public VrbObject selectedObject = null; // Currently selected models.
+	public VrbVertex selectedVertex = null;
+	public VrbFace selectedFace = null;
 
 	private GameObject modeCanvas;
 	private CanvasGroup modeCanvasGroup;
@@ -31,7 +33,6 @@ public class PlayerController : MonoBehaviour
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 		
 		customModel = GameObject.Find("CustomModel");
-		selectedModel = customModel;
 
 		modeCanvas = GameObject.Find("ModeCanvas");
 		modeCanvasGroup = modeCanvas.GetComponent<CanvasGroup>();
@@ -89,18 +90,24 @@ public class PlayerController : MonoBehaviour
 		//键盘鼠标控制
 		if (Input.GetKey(KeyCode.A))
 		{
-			VrbEditablePoint vrbEditable= selectedModel.GetComponent<VrbEditablePoint>();
-			if (vrbEditable != null)
+			if (selectedFace != null)
 			{
-				vrbEditable.move(-Vector3.right * Time.deltaTime * moveSpeed);
+				selectedFace.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.left * Time.deltaTime * moveSpeed);
 			}
 		}
 		if (Input.GetKey(KeyCode.D))
 		{
-			VrbEditablePoint vrbEditable = selectedModel.GetComponent<VrbEditablePoint>();
-			if (vrbEditable != null)
+			if (selectedFace != null)
 			{
-				vrbEditable.move(-Vector3.left * Time.deltaTime * moveSpeed);
+				selectedFace.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.right * Time.deltaTime * moveSpeed);
 			}
 		}
 		
@@ -121,13 +128,13 @@ public class PlayerController : MonoBehaviour
 		// 平移功能,使用positon属性，直接修改世界坐标
 		if (mode == 0 && DpnDaydreamController.IsTouching)
 		{
-			selectedModel.transform.position += targetVector * moveSpeed * Time.deltaTime;
+			//selectedObject.transform.position += targetVector * moveSpeed * Time.deltaTime;
 		}
 
 		// 旋转功能，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
 		if (mode == 1 && DpnDaydreamController.IsTouching)
 		{
-			selectedModel.transform.Rotate(pointerVector * touchVector.x);
+			//selectedObject.transform.Rotate(pointerVector * touchVector.x);
 		}
 
 
@@ -139,17 +146,44 @@ public class PlayerController : MonoBehaviour
 		
 	}
 
-	public void select(GameObject target)
+	public void selectVertex(VrbVertex v)
 	{
-		selectedModel.GetComponent<MeshRenderer>().material.color = Color.white;
-		selectedModel = target;
-		selectedModel.GetComponent<MeshRenderer>().material.color = Color.red;
+		clearSelection();
+		selectedVertex = v;
+		v.select();
+	}
+
+	public void selectFace(VrbFace f)
+	{
+		clearSelection();
+		selectedFace = f;
+		f.select();
+	}
+
+	public void selectObject(VrbObject o)
+	{
+		clearSelection();
+		selectedObject = o;
+		o.select();
 	}
 
 	public void clearSelection()
 	{
-		selectedModel.GetComponent<MeshRenderer>().material.color = Color.white;
-		selectedModel = customModel;
+		if (selectedVertex != null)
+		{
+			selectedVertex.deSelect();
+			selectedVertex = null;
+		}
+		if (selectedFace != null)
+		{
+			selectedFace.deSelect();
+			selectedFace = null;
+		}
+		if (selectedObject != null)
+		{
+			selectedObject.deSelect();
+			selectedObject = null;
+		}
 	}
 
 	void showModeCanvas()

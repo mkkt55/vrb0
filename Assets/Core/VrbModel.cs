@@ -2,6 +2,102 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public class VrbVertex
+{
+	public static List<VrbVertex> all = new List<VrbVertex>();
+
+	private int index;
+	public int getIndex()
+	{
+		return index;
+	}
+
+	private void addToStatic()
+	{
+		index = all.Count;
+		all.Add(this);
+	}
+
+	public Vector3 vector3;
+	public Transform transform;
+	public Material material;
+
+	public VrbVertex(float _x, float _y, float _z)
+	{
+		addToStatic();
+
+		vector3 = new Vector3(_x, _y, _z);
+	}
+
+	public void constructModel()
+	{
+		GameObject vp = Resources.Load("VrbPoint") as GameObject;
+		GameObject go = GameObject.Instantiate(vp);
+
+		transform = go.transform;
+		transform.parent = GameObject.Find("CustomModel").transform;
+
+		material = go.GetComponent<MeshRenderer>().material;
+
+		transform.position = vector3;
+		transform.localScale = new Vector3(5, 5, 5);
+
+		VrbEditableVertex ep = go.AddComponent<VrbEditableVertex>();
+		ep.v = this;
+	}
+
+	public void updateMesh()
+	{
+		transform.position = vector3;
+	}
+
+	public void move(Vector3 dv)
+	{
+		vector3 += dv;
+	}
+
+	public void select()
+	{
+		material.color = Color.red;
+	}
+
+	public void deSelect()
+	{
+		material.color = Color.green;
+	}
+}
+
+public class VrbTriangle
+{
+	public static List<VrbTriangle> all = new List<VrbTriangle>();
+
+	private int index;
+	public int getIndex()
+	{
+		return index;
+	}
+
+	private void addToStatic()
+	{
+		index = all.Count;
+		all.Add(this);
+	}
+
+	public VrbVertex v0;
+	public VrbVertex v1;
+	public VrbVertex v2;
+
+	public VrbTriangle(VrbVertex _v0, VrbVertex _v1, VrbVertex _v2)
+	{
+		v0 = _v0;
+		v1 = _v1;
+		v2 = _v2;
+
+		addToStatic();
+	}
+}
+
 public class VrbFace
 {
 	public static List<VrbFace> all = new List<VrbFace>();
@@ -18,15 +114,16 @@ public class VrbFace
 		all.Add(this);
 	}
 
-	public List<int> fVertexIndices; // 面的顶点在VrbModel中的索引是多少，即它是vertice中的哪一位。
-	public List<Vector3> fVertices; // 面的顶点的具体信息
+	public List<VrbVertex> fVertices; // 面的顶点
+	public List<Vector3> fVectors; // 面的顶点
 
-	public List<int> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
+	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
 	public List<int> fTriangles; // 代表三角面片在自己的fVertices数组中的位置，是上一个的三倍
 
 	public Mesh mesh; // 用来展示的mesh
+	public Material material;
 
-	public VrbFace(List<int> t)
+	public VrbFace(List<VrbTriangle> t)
 	{
 		addToStatic();
 
@@ -36,32 +133,29 @@ public class VrbFace
 
 	private void calSelf()
 	{
-		fVertexIndices = new List<int>();
-		fVertices = new List<Vector3>();
+		fVertices = new List<VrbVertex>();
+		fVectors = new List<Vector3>();
 		// 根据ftOriginal记录的原始面片索引，计算自己的所有顶点索引和顶点信息
 		for (int i = 0; i < ftOriginal.Count; i++)
 		{
-			int ti = ftOriginal[i]; // triangle index
-			int vi0 = VrbModel.triangles[ti]; // index of vertex 0 of the triangle, in VrbModel.vertices
-			int vi1 = VrbModel.triangles[ti + 1];
-			int vi2 = VrbModel.triangles[ti + 2];
+			VrbTriangle t = ftOriginal[i];
 
-			if (fVertexIndices.IndexOf(vi0) == -1)
+			if (fVertices.IndexOf(t.v0) == -1)
 			{
-				fVertexIndices.Add(vi0);
-				fVertices.Add(VrbModel.vertices[vi0]);
+				fVertices.Add(t.v0);
+				fVectors.Add(t.v0.vector3);
 			}
 
-			if (fVertexIndices.IndexOf(vi1) == -1)
+			if (fVertices.IndexOf(t.v1) == -1)
 			{
-				fVertexIndices.Add(vi1);
-				fVertices.Add(VrbModel.vertices[vi1]);
+				fVertices.Add(t.v1);
+				fVectors.Add(t.v1.vector3);
 			}
 
-			if (fVertexIndices.IndexOf(vi2) == -1)
+			if (fVertices.IndexOf(t.v2) == -1)
 			{
-				fVertexIndices.Add(vi2);
-				fVertices.Add(VrbModel.vertices[vi2]);
+				fVertices.Add(t.v2);
+				fVectors.Add(t.v2.vector3);
 			}
 		}
 
@@ -69,23 +163,19 @@ public class VrbFace
 		int[] temp = new int[ftOriginal.Count * 3];
 		for (int i = 0; i < ftOriginal.Count; i++)
 		{
-			int ti = ftOriginal[i]; // triangle index
-			int vi0 = VrbModel.triangles[ti]; // index of vertex 0 of the triangle
-			int vi1 = VrbModel.triangles[ti + 1];
-			int vi2 = VrbModel.triangles[ti + 2];
-
-			Debug.LogWarning("第" + index + "个面在算第" + i + "个三角形，vi0vi1vi2分别" + vi0 + "," + vi1 + "," + vi2);
-			temp[3 * i] = fVertexIndices.IndexOf(vi0);
-			temp[3 * i + 1] = fVertexIndices.IndexOf(vi1);
-			temp[3 * i + 2] = fVertexIndices.IndexOf(vi2);
+			VrbTriangle t = ftOriginal[i];
+			
+			temp[3 * i] = fVertices.IndexOf(t.v0);
+			temp[3 * i + 1] = fVertices.IndexOf(t.v1);
+			temp[3 * i + 2] = fVertices.IndexOf(t.v2);
 		}
 		fTriangles = new List<int>(temp);
 
 		mesh = new Mesh();
-		mesh.SetVertices(fVertices);
+		mesh.SetVertices(fVectors);
 		mesh.SetTriangles(fTriangles, 0);
 	}
-	
+
 	public void constructModel()
 	{
 		GameObject go = new GameObject("DynamicallyAdded");
@@ -96,13 +186,10 @@ public class VrbFace
 		{
 			mf.mesh = mesh;
 		}
-		
+
 		// 展示Mesh，且可操作。
 		VrbEditableFace ef = go.AddComponent<VrbEditableFace>();
-		ef.fIndex = index;
-		// 可选择面
-		VrbSelectable s = go.AddComponent<VrbSelectable>();
-		
+		ef.f = this;
 
 		MeshRenderer meshRender = go.AddComponent<MeshRenderer>();
 		MeshCollider meshCollider = go.AddComponent<MeshCollider>();
@@ -111,15 +198,35 @@ public class VrbFace
 		Material mat = new Material(Shader.Find("Custom/DoubleSided"));
 		meshRender.material = mat;
 		meshRender.material.color = Color.white;
+
+		material = meshRender.material;
 	}
 
 	public void updateMesh()
 	{
-		for(int i = 0; i < fVertexIndices.Count; i++)
+		for (int i = 0; i < fVertices.Count; i++)
 		{
-			fVertices[i] = VrbModel.vertices[fVertexIndices[i]];
+			fVectors[i] = fVertices[i].vector3;
 		}
-		mesh.SetVertices(fVertices);
+		mesh.SetVertices(fVectors);
+	}
+
+	public void move(Vector3 dv)
+	{
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			fVertices[i].move(dv);
+		}
+	}
+
+	public void select()
+	{
+		material.color = Color.red;
+	}
+
+	public void deSelect()
+	{
+		material.color = Color.white;
 	}
 }
 
@@ -144,34 +251,44 @@ public class VrbObject
 	public int rx, ry, rz; // 旋转
 	public int sx, sy, sz; // 三方向scale
 
-	public List<int> faces = new List<int>();
+	public List<VrbFace> faces = new List<VrbFace>();
 
 	public VrbObject()
 	{
 		addToStatic();
 	}
 
-	public VrbObject(List<int> _faces)
+	public VrbObject(List<VrbFace> _faces)
 	{
+		faces = _faces;
 		addToStatic();
+	}
+
+	public void select()
+	{
+
+	}
+
+	public void deSelect()
+	{
+
 	}
 }
 
 
 // 便于Unity中调试
-public class VrbModel: MonoBehaviour
+public class VrbModel : MonoBehaviour
 {
-	public static List<Vector3> vertices = new List<Vector3>();
-	public static List<int> triangles = new List<int>(); // 三个一组保存顶点坐标
 	public static List<VrbObject> objects = new List<VrbObject>();
-
-	public List<int> dt;
+	
 
 	void Start()
 	{
-		dt = triangles;
 		createCube(0, 100, 0, 200, 200, 200);
-		DisplayPoint();
+		for (int i = 0; i < VrbVertex.all.Count; i++)
+		{
+			VrbVertex.all[i].constructModel();
+		}
 		for (int i = 0; i < VrbFace.all.Count; i++)
 		{
 			VrbFace.all[i].constructModel();
@@ -180,62 +297,25 @@ public class VrbModel: MonoBehaviour
 
 	void Update()
 	{
+		for (int i = 0; i < VrbVertex.all.Count; i++)
+		{
+			VrbVertex.all[i].updateMesh();
+		}
 		for (int i = 0; i < VrbFace.all.Count; i++)
 		{
 			VrbFace.all[i].updateMesh();
 		}
 	}
 
-	public int createPoint(float x, float y, float z)
-	{
-		int startIndex = vertices.Count;
-		Vector3 v = new Vector3(x, y, z);
-		vertices.Add(v);
-		return startIndex;
-	}
-
-	public int createTriangle(int p1, int p2, int p3)
-	{
-		int startIndex = triangles.Count;
-		triangles.Add(p1);
-		triangles.Add(p2);
-		triangles.Add(p3);
-		return startIndex;
-	}
-
-	public int createFace(List<int> fTriangles)
-	{
-		VrbFace f = new VrbFace(fTriangles);
-		return f.getIndex();
-	}
 	
-	public int createObject(List<int> oFaces)
-	{
-		int oIndex = objects.Count;
-		objects.Add(new VrbObject(oFaces));
-		return oIndex;
-	}
-
-	public void DisplayPoint()
-	{
-		for (int i = 0; i < vertices.Count; i++)
-		{
-			GameObject vp = Resources.Load("VrbPoint") as GameObject;
-			GameObject go = Instantiate(vp);
-
-			VrbEditablePoint ep = go.AddComponent<VrbEditablePoint>();
-			ep.vertexIndex = i;
-		}
-		
-	}
 
 	// 三角形面片，记录顶点索引
 	//public void createQuad()
 	//{
-	//	Vector3 p0 = createPoint(100, 200, 0);
-	//	Vector3 p1 = createPoint(100, 0, 0);
-	//	Vector3 p2 = createPoint(-100, 0, 0);
-	//	Vector3 p3 = createPoint(-100, 200, 0);
+	//	Vector3 p0 = new VrbVertex(100, 200, 0);
+	//	Vector3 p1 = new VrbVertex(100, 0, 0);
+	//	Vector3 p2 = new VrbVertex(-100, 0, 0);
+	//	Vector3 p3 = new VrbVertex(-100, 200, 0);
 
 	//	int t0 = createTriangle(0, 1, 2);
 	//	int t1 = createTriangle(0, 2, 3);
@@ -250,70 +330,71 @@ public class VrbModel: MonoBehaviour
 	//}
 
 	// 前三个是位置坐标，后三个是大小
+
 	public void createCube(float xp, float yp, float zp, float xl, float yl, float zl)
 	{
-		int p0 = createPoint(xp + xl / 2, yp + yl / 2, zp + zl / 2);
-		int p1 = createPoint(xp + xl / 2, yp + yl / 2, zp - zl / 2);
-		int p2 = createPoint(xp + xl / 2, yp - yl / 2, zp + zl / 2);
-		int p3 = createPoint(xp + xl / 2, yp - yl / 2, zp - zl / 2);
-		int p4 = createPoint(xp - xl / 2, yp + yl / 2, zp + zl / 2);
-		int p5 = createPoint(xp - xl / 2, yp + yl / 2, zp - zl / 2);
-		int p6 = createPoint(xp - xl / 2, yp - yl / 2, zp + zl / 2);
-		int p7 = createPoint(xp - xl / 2, yp - yl / 2, zp - zl / 2);
+		VrbVertex p0 = new VrbVertex(xp + xl / 2, yp + yl / 2, zp + zl / 2);
+		VrbVertex p1 = new VrbVertex(xp + xl / 2, yp + yl / 2, zp - zl / 2);
+		VrbVertex p2 = new VrbVertex(xp + xl / 2, yp - yl / 2, zp + zl / 2);
+		VrbVertex p3 = new VrbVertex(xp + xl / 2, yp - yl / 2, zp - zl / 2);
+		VrbVertex p4 = new VrbVertex(xp - xl / 2, yp + yl / 2, zp + zl / 2);
+		VrbVertex p5 = new VrbVertex(xp - xl / 2, yp + yl / 2, zp - zl / 2);
+		VrbVertex p6 = new VrbVertex(xp - xl / 2, yp - yl / 2, zp + zl / 2);
+		VrbVertex p7 = new VrbVertex(xp - xl / 2, yp - yl / 2, zp - zl / 2);
 
-		int t0 = createTriangle(p0, p1, p3);
-		int t1 = createTriangle(p0, p2, p3);
-		int t2 = createTriangle(p0, p1, p4);
-		int t3 = createTriangle(p1, p4, p5);
-		int t4 = createTriangle(p1, p3, p5);
-		int t5 = createTriangle(p3, p5, p7);
-		int t6 = createTriangle(p4, p5, p6);
-		int t7 = createTriangle(p5, p6, p7);
-		int t8 = createTriangle(p0, p2, p4);
-		int t9 = createTriangle(p2, p4, p6);
-		int t10 = createTriangle(p2, p3, p7);
-		int t11 = createTriangle(p2, p6, p7);
+		VrbTriangle t0 = new VrbTriangle(p0, p1, p3);
+		VrbTriangle t1 = new VrbTriangle(p0, p2, p3);
+		VrbTriangle t2 = new VrbTriangle(p0, p1, p4);
+		VrbTriangle t3 = new VrbTriangle(p1, p4, p5);
+		VrbTriangle t4 = new VrbTriangle(p1, p3, p5);
+		VrbTriangle t5 = new VrbTriangle(p3, p5, p7);
+		VrbTriangle t6 = new VrbTriangle(p4, p5, p6);
+		VrbTriangle t7 = new VrbTriangle(p5, p6, p7);
+		VrbTriangle t8 = new VrbTriangle(p0, p2, p4);
+		VrbTriangle t9 = new VrbTriangle(p2, p4, p6);
+		VrbTriangle t10 = new VrbTriangle(p2, p3, p7);
+		VrbTriangle t11 = new VrbTriangle(p2, p6, p7);
 
-		List<int> list = new List<int>();
+		List<VrbTriangle> list = new List<VrbTriangle>();
 		list.Add(t0);
 		list.Add(t1);
-		int f0 = createFace(list);
+		VrbFace f0 = new VrbFace(list);
 
-		list = new List<int>();
+		list = new List<VrbTriangle>();
 		list.Add(t2);
 		list.Add(t3);
-		int f1 = createFace(list);
+		VrbFace f1 = new VrbFace(list);
 
-		list = new List<int>();
+		list = new List<VrbTriangle>();
 		list.Add(t4);
 		list.Add(t5);
-		int f2 = createFace(list);
+		VrbFace f2 = new VrbFace(list);
 
-		list = new List<int>();
+		list = new List<VrbTriangle>();
 		list.Add(t6);
 		list.Add(t7);
-		int f3 = createFace(list);
+		VrbFace f3 = new VrbFace(list);
 
-		list = new List<int>();
+		list = new List<VrbTriangle>();
 		list.Add(t8);
 		list.Add(t9);
-		int f4 = createFace(list);
+		VrbFace f4 = new VrbFace(list);
 
-		list = new List<int>();
+		list = new List<VrbTriangle>();
 		list.Add(t10);
 		list.Add(t11);
-		int f5 = createFace(list);
+		VrbFace f5 = new VrbFace(list);
 
 
 
-		List<int> fList = new List<int>();
+		List<VrbFace> fList = new List<VrbFace>();
 		fList.Add(f0);
 		fList.Add(f1);
 		fList.Add(f2);
 		fList.Add(f3);
 		fList.Add(f4);
 		fList.Add(f5);
-		createObject(fList);
+		new VrbObject(fList);
 	}
 
 	public static bool readObj(string path)
