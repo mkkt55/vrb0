@@ -5,22 +5,39 @@ using UnityEngine;
 public class VrbEditableFace : MonoBehaviour
 {
 	public List<Vector3> fVertices;
+	public List<int> fVertexIndices; // 面的顶点在VrbModel中原来的索引是多少，即它是vertice中的哪一位。
 	public List<int> fTriangles;
 	public Mesh mesh;
-	
+	private VrbModel vrbm;
+
 	// Start is called before the first frame update
 	void Start()
     {
+		vrbm = GameObject.Find("CustomModel").GetComponent<VrbModel>();
 		constructMesh();
     }
 
     // Update is called once per frame
     void Update()
     {
-		// 这两句是必要的，因为此时unity传递的是复制而不是引用，因为这些数据最终被保存在Unity的C++数据结构中而不是C#。
+		// 这两句是必要的，因为此时unity传递的是复制而不是引用，因为Vector3是struct。
 		// mesh.Clear();
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			fVertices[i] = vrbm.vertices[fVertexIndices[i]];
+		}
 		mesh.SetVertices(fVertices);
 		mesh.SetTriangles(fTriangles, 0);
+	}
+
+	public void updateVertices()
+	{
+
+	}
+
+	public void updateFace()
+	{
+
 	}
 
 	void constructMesh()

@@ -32,6 +32,19 @@ public class VrbModel: MonoBehaviour
 	public List<List<int>> faces = new List<List<int>>(); // 里面的List<int>代表一个面，面中的int代表三角面片在triangle数组的起始位置，即永远是3的倍数。
 	public List<List<int>> objects = new List<List<int>>();
 
+
+	void Start()
+	{
+		createCube(0, 100, 0, 200, 200, 200);
+		DisplayModel();
+	}
+
+	void Update()
+	{
+
+	}
+
+
 	public Vector3 createPoint(float x, float y, float z)
 	{
 		Vector3 v = new Vector3(x, y, z);
@@ -81,22 +94,37 @@ public class VrbModel: MonoBehaviour
 		return fVertices;
 	}
 
+	public List<int> getFaceVertexIndices(List<int> face)
+	{
+		List<int> fVertices = new List<int>();
+		foreach (int tIndex in face)
+		{
+			int p = triangles[tIndex];
+			if (fVertices.IndexOf(p) == -1)
+			{
+				fVertices.Add(p);
+			}
+
+			p = triangles[tIndex + 1];
+			if (fVertices.IndexOf(p) == -1)
+			{
+				fVertices.Add(p);
+			}
+
+			p = triangles[tIndex + 2];
+			if (fVertices.IndexOf(p) == -1)
+			{
+				fVertices.Add(p);
+			}
+		}
+		return fVertices;
+	}
+
 	public int createObject(List<int> oFaces)
 	{
 		int oIndex = objects.Count;
 		objects.Add(oFaces);
 		return oIndex;
-	}
-
-	void Start()
-	{
-		createCube(0, 100, 0, 200, 200, 200);
-		DisplayModel();
-	}
-	
-	void Update()
-	{
-
 	}
 
 	public void DisplayModel()
@@ -117,8 +145,36 @@ public class VrbModel: MonoBehaviour
 
 			// 展示Mesh，且可操作。
 			VrbEditableFace ef = go.AddComponent<VrbEditableFace>();
-			ef.fVertices = getFaceVertices(f);
-			ef.fTriangles = new List<int>();
+
+			// 这个面所有顶点在vertices中的索引。
+			List<int> fVertexIndices = getFaceVertexIndices(f);
+
+			List<Vector3> fVertices = new List<Vector3>();
+			int[] fTriangles = new int[f.Count * 3];
+			for (int j = 0; j < fVertexIndices.Count; j++)
+			{
+				int vIndex = fVertexIndices[j];
+				fVertices.Add(vertices[vIndex]);
+				for (int k = 0; k < f.Count; k++)
+				{
+					// f[k]是这个面f的第k个三角面片在triangles数组的起始位置
+					if (triangles[f[k]] == vIndex)
+					{
+						fTriangles[3 * k] = j;
+					}
+					if (triangles[f[k] + 1] == vIndex)
+					{
+						fTriangles[3 * k + 1] = j;
+					}
+					if (triangles[f[k] + 2] == vIndex)
+					{
+						fTriangles[3 * k + 2] = j;
+					}
+				}
+			}
+			ef.fVertexIndices = fVertexIndices;
+			ef.fVertices = fVertices;
+			ef.fTriangles = new List<int>(fTriangles);
 		}
 	}
 
