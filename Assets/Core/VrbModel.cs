@@ -194,37 +194,8 @@ public class VrbEdge
 
 		transform = gameObject.transform;
 		transform.parent = GameObject.Find("EditableModel").transform;
-		transform.position = (v0.vector3 + v1.vector3) / 2;
-
-		Vector3 dv = v1.vector3 - v0.vector3;
-		float length = dv.magnitude - 3;
-		Vector3 rv = new Vector3(0, 0, 0);
-		if (dv.x != 0)
-		{
-			rv = new Vector3(0, Mathf.Atan(dv.z / dv.x), 0);
-			rv = new Vector3(0, 0, Mathf.Atan(dv.y / dv.x));
-			transform.Rotate(rv);
-		}
-		else
-		{
-			if (dv.z != 0)
-			{
-				rv = new Vector3(0, 90, 0);
-				transform.Rotate(rv);
-				rv = new Vector3(dv.y / dv.z, 0, 0);
-				transform.Rotate(rv);
-			}
-			else
-			{
-				rv = new Vector3(0, 0, 90);
-				transform.Rotate(rv);
-			}
-		}
-
-		transform.localScale = new Vector3(length, 5, 5);
-
+		
 		material = gameObject.GetComponent<MeshRenderer>().material;
-		material.color = Color.black;
 		defaultColor = material.color;
 
 		VrbEditableEdge ep = gameObject.GetComponent<VrbEditableEdge>();

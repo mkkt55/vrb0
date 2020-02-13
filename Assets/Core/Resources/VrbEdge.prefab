@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 542863346412453818}
   - component: {fileID: 5616842028491297313}
   - component: {fileID: 677169498289731371}
-  - component: {fileID: 4156597874120342581}
+  - component: {fileID: 6199813129259180479}
   m_Layer: 0
   m_Name: VrbEdge
   m_TagString: Untagged
@@ -78,7 +78,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4193638818674158465}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &677169498289731371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f57ade184c93f4ca8c3671fcf3b1b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &4156597874120342581
+--- !u!65 &6199813129259180479
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,5 +102,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0000001, y: 2, z: 1.0000002}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}

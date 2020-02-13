@@ -124,7 +124,122 @@ public class PlayerController : MonoBehaviour
 				selectedObject.move(Vector3.right * Time.deltaTime * moveSpeed);
 			}
 		}
-		
+		if (Input.GetKey(KeyCode.A))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+		}
+		if (Input.GetKey(KeyCode.D))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+		}
+		if (Input.GetKey(KeyCode.W))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.forward * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.forward * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.forward * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.forward * Time.deltaTime * moveSpeed);
+			}
+		}
+		if (Input.GetKey(KeyCode.S))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.back * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.back * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.back * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.back * Time.deltaTime * moveSpeed);
+			}
+		}
+		if (Input.GetKey(KeyCode.Q))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.up * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.up * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.up * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.up * Time.deltaTime * moveSpeed);
+			}
+		}
+		if (Input.GetKey(KeyCode.E))
+		{
+			if (selectedVertex != null)
+			{
+				selectedVertex.move(Vector3.down * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.down * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.down * Time.deltaTime * moveSpeed);
+			}
+			if (selectedObject != null)
+			{
+				selectedObject.move(Vector3.down * Time.deltaTime * moveSpeed);
+			}
+		}
+
+
 
 
 
@@ -135,18 +250,7 @@ public class PlayerController : MonoBehaviour
 		{
 			
 		}
-
-		if (Input.GetKeyDown(KeyCode.E))
-		{
-			if (selectedObject != null)
-			{
-				selectedObject.enterEdit();
-			}
-		}
-		if (Input.GetKeyDown(KeyCode.R))
-		{
-			VrbObject.exitEdit();
-		}
+		
 
 		// 平移功能,使用positon属性，直接修改世界坐标
 		if (oMode == 0 && DpnDaydreamController.IsTouching)
