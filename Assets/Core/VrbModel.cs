@@ -23,6 +23,7 @@ public class VrbVertex
 	private GameObject gameObject;
 	private Transform transform;
 	private Material material;
+	private Color defaultColor;
 	private bool constructed = false;
 	private bool displayed = false;
 
@@ -35,18 +36,17 @@ public class VrbVertex
 
 	private void constructModel()
 	{
-		GameObject vp = Resources.Load("VrbPoint") as GameObject;
-		gameObject = GameObject.Instantiate(vp);
+		GameObject r = Resources.Load("VrbVertex") as GameObject;
+		gameObject = GameObject.Instantiate(r);
 
 		transform = gameObject.transform;
 		transform.parent = GameObject.Find("EditableModel").transform;
+		transform.position = vector3;
 
 		material = gameObject.GetComponent<MeshRenderer>().material;
+		defaultColor = material.color;
 
-		transform.position = vector3;
-		transform.localScale = new Vector3(5, 5, 5);
-
-		VrbEditableVertex ep = gameObject.AddComponent<VrbEditableVertex>();
+		VrbEditableVertex ep = gameObject.GetComponent<VrbEditableVertex>();
 		ep.v = this;
 
 		constructed = true;
@@ -64,7 +64,7 @@ public class VrbVertex
 
 	public void deSelect()
 	{
-		material.color = Color.green;
+		material.color = defaultColor;
 	}
 
 	public void displayModel()
@@ -109,6 +109,9 @@ public class VrbTriangle
 	public VrbVertex v0;
 	public VrbVertex v1;
 	public VrbVertex v2;
+	public VrbEdge e0;
+	public VrbEdge e1;
+	public VrbEdge e2;
 
 	public VrbTriangle(VrbVertex _v0, VrbVertex _v1, VrbVertex _v2)
 	{
@@ -117,8 +120,158 @@ public class VrbTriangle
 		v2 = _v2;
 
 		addToStatic();
+
+		e0 = VrbEdge.addEdge(v0, v1);
+		e1 = VrbEdge.addEdge(v1, v2);
+		e2 = VrbEdge.addEdge(v0, v2);
 	}
 }
+
+
+public class VrbEdge
+{
+	public static List<VrbEdge> all = new List<VrbEdge>();
+
+	private int index;
+	public int getIndex()
+	{
+		return index;
+	}
+
+	private void addToStatic()
+	{
+		index = all.Count;
+		all.Add(this);
+	}
+
+	public VrbVertex v0;
+	public VrbVertex v1;
+	private GameObject gameObject;
+	private Transform transform;
+	private Material material;
+	private Color defaultColor;
+	private bool constructed = false;
+	private bool displayed = false;
+
+	private VrbEdge(VrbVertex _v0, VrbVertex _v1)
+	{
+		addToStatic();
+		v0 = _v0;
+		v1 = _v1;
+	}
+	public static VrbEdge addEdge(VrbVertex _v0, VrbVertex _v1)
+	{
+		VrbEdge e = findEdgeByVertices(_v0, _v1);
+		if (e == null)
+		{
+			return new VrbEdge(_v0, _v1);
+		}
+		else
+		{
+			return e;
+		}
+	}
+	public static VrbEdge findEdgeByVertices(VrbVertex _v0, VrbVertex _v1)
+	{
+		for (int i = 0; i < all.Count; i++)
+		{
+			if (all[i].v0 == _v0 && all[i].v1 == _v1)
+			{
+				return all[i];
+			}
+			if (all[i].v0 == _v1 && all[i].v1 == _v0)
+			{
+				return all[i];
+			}
+		}
+		return null;
+	}
+
+	private void constructModel()
+	{
+		GameObject r = Resources.Load("VrbEdge") as GameObject;
+		gameObject = GameObject.Instantiate(r);
+
+		transform = gameObject.transform;
+		transform.parent = GameObject.Find("EditableModel").transform;
+		transform.position = (v0.vector3 + v1.vector3) / 2;
+
+		Vector3 dv = v1.vector3 - v0.vector3;
+		float length = dv.magnitude - 3;
+		Vector3 rv = new Vector3(0, 0, 0);
+		if (dv.x != 0)
+		{
+			rv = new Vector3(0, Mathf.Atan(dv.z / dv.x), 0);
+			rv = new Vector3(0, 0, Mathf.Atan(dv.y / dv.x));
+			transform.Rotate(rv);
+		}
+		else
+		{
+			if (dv.z != 0)
+			{
+				rv = new Vector3(0, 90, 0);
+				transform.Rotate(rv);
+				rv = new Vector3(dv.y / dv.z, 0, 0);
+				transform.Rotate(rv);
+			}
+			else
+			{
+				rv = new Vector3(0, 0, 90);
+				transform.Rotate(rv);
+			}
+		}
+
+		transform.localScale = new Vector3(length, 5, 5);
+
+		material = gameObject.GetComponent<MeshRenderer>().material;
+		material.color = Color.black;
+		defaultColor = material.color;
+
+		VrbEditableEdge ep = gameObject.GetComponent<VrbEditableEdge>();
+		ep.e = this;
+
+		constructed = true;
+	}
+
+	public void move(Vector3 dv)
+	{
+		v0.vector3 += dv;
+		v1.vector3 += dv;
+	}
+
+	public void select()
+	{
+		material.color = Color.red;
+	}
+
+	public void deSelect()
+	{
+		material.color = defaultColor;
+	}
+
+	public void displayModel()
+	{
+		if (constructed == false)
+		{
+			constructModel();
+		}
+		else
+		{
+			gameObject.SetActive(true);
+		}
+		displayed = true;
+	}
+
+	public void hideModel()
+	{
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+		displayed = false;
+	}
+}
+
 
 public class VrbFace
 {
@@ -140,11 +293,14 @@ public class VrbFace
 	public List<Vector3> fVectors; // 面的顶点
 
 	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
+	public List<VrbEdge> fEdges;
 	public List<int> fTriangles; // 代表三角面片在自己的fVertices数组中的位置，是上一个的三倍
 
 	public Mesh mesh; // 用来展示的mesh
+	public MeshCollider meshCollider;
 	private GameObject gameObject;
 	public Material material;
+	private Color defaultColor;
 
 	private bool constructed = false;
 	private bool displayed = false;
@@ -186,46 +342,92 @@ public class VrbFace
 		}
 
 		// 计算自己的三角面片的顶点，在自己的所有顶点中的索引。
-		int[] temp = new int[ftOriginal.Count * 3];
+		int[] temp = new int[ftOriginal.Count * 6];
+		fEdges = new List<VrbEdge>();
+		List<VrbEdge> allEdges = new List<VrbEdge>();
+		List<int> fEdgeCount = new List<int>();
 		for (int i = 0; i < ftOriginal.Count; i++)
 		{
 			VrbTriangle t = ftOriginal[i];
 			
-			temp[3 * i] = fVertices.IndexOf(t.v0);
-			temp[3 * i + 1] = fVertices.IndexOf(t.v1);
-			temp[3 * i + 2] = fVertices.IndexOf(t.v2);
+			temp[6 * i] = fVertices.IndexOf(t.v0);
+			temp[6 * i + 1] = fVertices.IndexOf(t.v1);
+			temp[6 * i + 2] = fVertices.IndexOf(t.v2);
+			temp[6 * i + 3] = fVertices.IndexOf(t.v2);
+			temp[6 * i + 4] = fVertices.IndexOf(t.v1);
+			temp[6 * i + 5] = fVertices.IndexOf(t.v0);
+
+			int eIndex = allEdges.IndexOf(t.e0);
+			if (eIndex == -1) {
+				allEdges.Add(t.e0);
+				fEdgeCount.Add(1);
+			}
+			else
+			{
+				fEdgeCount[eIndex] += 1;
+			}
+
+			eIndex = allEdges.IndexOf(t.e1);
+			if (eIndex == -1)
+			{
+				allEdges.Add(t.e1);
+				fEdgeCount.Add(1);
+			}
+			else
+			{
+				fEdgeCount[eIndex] += 1;
+			}
+
+			eIndex = allEdges.IndexOf(t.e2);
+			if (eIndex == -1)
+			{
+				allEdges.Add(t.e2);
+				fEdgeCount.Add(1);
+			}
+			else
+			{
+				fEdgeCount[eIndex] += 1;
+			}
 		}
 		fTriangles = new List<int>(temp);
+
+		for (int i = 0; i < allEdges.Count; i++)
+		{
+			if (fEdgeCount[i] == 1)
+			{
+				fEdges.Add(allEdges[i]);
+			}
+		}
 
 		mesh = new Mesh();
 		mesh.SetVertices(fVectors);
 		mesh.SetTriangles(fTriangles, 0);
+		mesh.RecalculateNormals();
 	}
 
 	public void constructModel()
 	{
-		gameObject = new GameObject("face" + index);
+		GameObject r = Resources.Load("VrbFace") as GameObject;
+		gameObject = GameObject.Instantiate(r);
+
 		gameObject.transform.parent = GameObject.Find("EditableModel").transform;
 
-		MeshFilter mf = gameObject.AddComponent<MeshFilter>();
+		MeshFilter mf = gameObject.GetComponent<MeshFilter>();
 		if (mf != null)
 		{
-			mf.mesh = mesh;
+			mf.sharedMesh = mesh;
 		}
-
 		// 展示Mesh，且可操作。
-		VrbEditableFace ef = gameObject.AddComponent<VrbEditableFace>();
+		VrbEditableFace ef = gameObject.GetComponent<VrbEditableFace>();
 		ef.f = this;
 
-		MeshRenderer meshRender = gameObject.AddComponent<MeshRenderer>();
-		MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
+		MeshRenderer meshRender = gameObject.GetComponent<MeshRenderer>();
 
-		// 使用shader设置双面，并成为白色
-		Material mat = new Material(Shader.Find("Custom/DoubleSided"));
-		meshRender.material = mat;
-		meshRender.material.color = Color.white;
+		meshCollider = gameObject.GetComponent<MeshCollider>();
+		meshCollider.sharedMesh = mesh;
 
 		material = meshRender.material;
+		defaultColor = material.color;
 
 		constructed = true;
 	}
@@ -245,7 +447,7 @@ public class VrbFace
 
 	public void deSelect()
 	{
-		material.color = Color.white;
+		material.color = defaultColor;
 	}
 
 	public void displayModel()
@@ -294,14 +496,15 @@ public class VrbObject
 	public Vector3 scale; // 三方向scale
 
 	public List<VrbFace> faces;
-
 	public List<VrbVertex> vertices;
+	public List<VrbEdge> edges;
 	public List<Vector3> vectors;
 	public List<int> triangles;
 	private GameObject gameObject;
 	public Mesh mesh;
 
 	public Material material;
+	private Color defaultColor;
 
 	private bool constructed = false;
 	private bool displayed = false;
@@ -344,6 +547,7 @@ public class VrbObject
 		vertices = new List<VrbVertex>();
 		vectors = new List<Vector3>();
 		triangles = new List<int>();
+		edges = new List<VrbEdge>();
 
 		for (int i = 0; i < faces.Count; i++)
 		{
@@ -365,12 +569,23 @@ public class VrbObject
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
+				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
+			}
+			for (int j = 0; j < faces[i].fEdges.Count; j++)
+			{
+				if (edges.IndexOf(faces[i].fEdges[j]) == -1)
+				{
+					edges.Add(faces[i].fEdges[j]);
+				}
 			}
 		}
 
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
 		mesh.SetTriangles(triangles, 0);
+		mesh.RecalculateNormals();
 	}
 
 	public void constructModel()
@@ -391,13 +606,9 @@ public class VrbObject
 
 		MeshRenderer meshRender = gameObject.AddComponent<MeshRenderer>();
 		MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
-
-		// 使用shader设置双面，并成为白色
-		Material mat = new Material(Shader.Find("Custom/DoubleSided"));
-		meshRender.material = mat;
-		meshRender.material.color = Color.white;
-
+		
 		material = meshRender.material;
+		defaultColor = material.color;
 
 		constructed = true;
 	}
@@ -409,7 +620,7 @@ public class VrbObject
 
 	public void deSelect()
 	{
-		material.color = Color.white;
+		material.color = defaultColor;
 	}
 
 	public void displayModel()
@@ -445,6 +656,10 @@ public class VrbObject
 		{
 			vertices[i].displayModel();
 		}
+		for (int i = 0; i < edges.Count; i++)
+		{
+			edges[i].displayModel();
+		}
 		editingObject = this;
 	}
 
@@ -460,8 +675,13 @@ public class VrbObject
 			{
 				editingObject.vertices[i].hideModel();
 			}
+			for (int i = 0; i < editingObject.edges.Count; i++)
+			{
+				editingObject.edges[i].hideModel();
+			}
+			displayAll();
+			editingObject = null;
 		}
-		displayAll();
 	}
 
 	public static void hideAll()
@@ -488,21 +708,8 @@ public class VrbObject
 
 
 // 便于Unity中调试
-public class VrbModel : MonoBehaviour
+public static class VrbModel
 {
-	void Start()
-	{
-		VrbObject o = createCube(0, 100, 0, 200, 200, 200);
-		o.displayModel();
-	}
-
-	void Update()
-	{
-
-	}
-
-
-
 	// 三角形面片，记录顶点索引
 	//public void createQuad()
 	//{
@@ -525,7 +732,7 @@ public class VrbModel : MonoBehaviour
 
 	// 前三个是位置坐标，后三个是大小
 
-	public VrbObject createCube(float xp, float yp, float zp, float xl, float yl, float zl)
+	public static VrbObject createCube(float xp, float yp, float zp, float xl, float yl, float zl)
 	{
 		VrbVertex p0 = new VrbVertex(xl / 2, yl / 2, zl / 2);
 		VrbVertex p1 = new VrbVertex(xl / 2, yl / 2, -zl / 2);
@@ -591,12 +798,12 @@ public class VrbModel : MonoBehaviour
 		return new VrbObject(xp, yp, zp, fList);
 	}
 
-	public static bool readObj(string path)
+	public static bool openModel(string path)
 	{
 		return true;
 	}
 
-	public static bool saveObj(string path)
+	public static bool saveModel(string path)
 	{
 		return true;
 	}

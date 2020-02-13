@@ -57,6 +57,7 @@
      <Compile Include="Assets\Core\OpenObj\ObjReaderInSence.cs" />
      <Compile Include="Assets\Core\OpenObj\openOBJ.cs" />
      <Compile Include="Assets\Core\PlayerController.cs" />
+     <Compile Include="Assets\Core\VrbEditableEdge.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />
      <Compile Include="Assets\Core\VrbEditableVertex.cs" />
      <Compile Include="Assets\Core\VrbModel.cs" />

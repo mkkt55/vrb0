@@ -8,23 +8,25 @@ public class PlayerController : MonoBehaviour
 {
 	private GameObject editableModel;
 	public VrbObject selectedObject = null; // Currently selected models.
+	public VrbEdge selectedEdge = null;
 	public VrbVertex selectedVertex = null;
 	public VrbFace selectedFace = null;
 
 	private GameObject modeCanvas;
-	private CanvasGroup modeCanvasGroup;
-	private bool isShowingModeCanvas = false;
 
 	private GameObject mainMenu;
-	private CanvasGroup mainMenuGroup;
 	private bool isShowingMainMenu = false;
+
+	private GameObject orientationIndicator;
 
 	private Text txt;
 
-	private int mode = 0; // 当前模式，0为平移模式，1为旋转模式，2为编辑模式
+	private int oMode = 0; // 当前操作模式，0为平移模式，1为旋转模式，2为伸缩模式
+	private bool isEditing = false;
 
 	private float moveSpeed;//摄像机的移动速度
 	private float rotateSpeed;
+
 	void Start()
 	{
 		moveSpeed = 30;
@@ -35,20 +37,16 @@ public class PlayerController : MonoBehaviour
 		editableModel = GameObject.Find("EditableModel");
 
 		modeCanvas = GameObject.Find("ModeCanvas");
-		modeCanvasGroup = modeCanvas.GetComponent<CanvasGroup>();
-		hideModeCanvas();
 
 		mainMenu = GameObject.Find("MainMenu");
-		mainMenuGroup = modeCanvas.GetComponent<CanvasGroup>();
-		hideMainMenu();
 
 		txt = GameObject.Find("DebugText").GetComponent<Text>();
+		orientationIndicator = GameObject.Find("OrientationIndicator");
 
+		VrbObject o = VrbModel.createCube(0, 100, 0, 200, 200, 200);
+		o.displayModel();
 	}
-	void FixedUpdate()
-	{
-		// emmmm...
-	}
+
 	void Update()
 	{
 		Vector3 rp = DpnDaydreamController.Gyro;
@@ -70,7 +68,7 @@ public class PlayerController : MonoBehaviour
 			+ "\neditableModel: " + editableModel.transform;
 
 
-		GameObject.Find("Sphere").transform.rotation = ori;
+		orientationIndicator.transform.rotation = ori;
 		/*
 		 * 自己创建手柄交互缺少设备SDK提供的API
 		shouBing.transform.rotation = ori;
@@ -90,13 +88,17 @@ public class PlayerController : MonoBehaviour
 		//键盘鼠标控制
 		if (Input.GetKey(KeyCode.A))
 		{
-			if (selectedFace != null)
-			{
-				selectedFace.move(Vector3.left * Time.deltaTime * moveSpeed);
-			}
 			if (selectedVertex != null)
 			{
 				selectedVertex.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.left * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.left * Time.deltaTime * moveSpeed);
 			}
 			if (selectedObject != null)
 			{
@@ -105,13 +107,17 @@ public class PlayerController : MonoBehaviour
 		}
 		if (Input.GetKey(KeyCode.D))
 		{
-			if (selectedFace != null)
-			{
-				selectedFace.move(Vector3.right * Time.deltaTime * moveSpeed);
-			}
 			if (selectedVertex != null)
 			{
 				selectedVertex.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedEdge != null)
+			{
+				selectedEdge.move(Vector3.right * Time.deltaTime * moveSpeed);
+			}
+			if (selectedFace != null)
+			{
+				selectedFace.move(Vector3.right * Time.deltaTime * moveSpeed);
 			}
 			if (selectedObject != null)
 			{
@@ -127,10 +133,7 @@ public class PlayerController : MonoBehaviour
 		// 更改模式操作：未按住TriggerButton时，按下ClickButton。
 		if (DpnDaydreamController.TriggerButtonDown || Input.GetKeyDown(KeyCode.Q))
 		{
-			if (!isShowingModeCanvas)
-			{
-				showModeCanvas();
-			}
+			
 		}
 
 		if (Input.GetKeyDown(KeyCode.E))
@@ -146,24 +149,21 @@ public class PlayerController : MonoBehaviour
 		}
 
 		// 平移功能,使用positon属性，直接修改世界坐标
-		if (mode == 0 && DpnDaydreamController.IsTouching)
+		if (oMode == 0 && DpnDaydreamController.IsTouching)
 		{
 			//selectedObject.transform.position += targetVector * moveSpeed * Time.deltaTime;
 		}
 
 		// 旋转功能，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
-		if (mode == 1 && DpnDaydreamController.IsTouching)
+		if (oMode == 1 && DpnDaydreamController.IsTouching)
 		{
 			//selectedObject.transform.Rotate(pointerVector * touchVector.x);
 		}
-
-
-
+		
 		if (DpnDaydreamController.BackButtonUp)
 		{
 			Application.Quit();
 		}
-		
 	}
 
 	public void selectVertex(VrbVertex v)
@@ -171,6 +171,13 @@ public class PlayerController : MonoBehaviour
 		clearSelection();
 		selectedVertex = v;
 		v.select();
+	}
+
+	public void selectEdge(VrbEdge e)
+	{
+		clearSelection();
+		selectedEdge = e;
+		e.select();
 	}
 
 	public void selectFace(VrbFace f)
@@ -194,6 +201,11 @@ public class PlayerController : MonoBehaviour
 			selectedVertex.deSelect();
 			selectedVertex = null;
 		}
+		if (selectedEdge != null)
+		{
+			selectedEdge.deSelect();
+			selectedEdge = null;
+		}
 		if (selectedFace != null)
 		{
 			selectedFace.deSelect();
@@ -206,82 +218,53 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	void showModeCanvas()
-	{
-		modeCanvasGroup.alpha = 1;
-		modeCanvasGroup.interactable = true;
-		modeCanvasGroup.blocksRaycasts = true;
-		isShowingModeCanvas = true;
-	}
-
-	void hideModeCanvas()
-	{
-		modeCanvasGroup.alpha = 0;
-		modeCanvasGroup.interactable = false;
-		modeCanvasGroup.blocksRaycasts = false;
-		isShowingModeCanvas = false;
-	}
-
-	void showMainMenu()
-	{
-		mainMenu.SetActive(true);
-		/*
-		mainMenuGroup.alpha = 1;
-		mainMenuGroup.interactable = true;
-		mainMenuGroup.blocksRaycasts = true;
-		*/
-		isShowingMainMenu = true;
-		
-	}
-
-	void hideMainMenu()
-	{
-		mainMenu.SetActive(false);
-		/*
-		mainMenuGroup.alpha = 0;
-		mainMenuGroup.interactable = false;
-		mainMenuGroup.blocksRaycasts = false;
-		*/
-		isShowingMainMenu = false;
-	}
-
 	// 对应模式面板的四个模式，一个Cancel按钮
 	public void setMoveMode()
 	{
-		mode = 0;
-		hideModeCanvas();
+		oMode = 0;
 	}
 
 	public void setRotateMode()
 	{
-		mode = 1;
-		hideModeCanvas();
+		oMode = 1;
 	}
 
-	public void setEditMode()
+	public void setScaleMode()
 	{
-		mode = 2;
-		hideModeCanvas();
+		oMode = 2;
 	}
 
-	public void setMainMenu()
+	public void switchEditMode()
 	{
-		if (isShowingMainMenu)
+		if (!isEditing)
 		{
-			hideMainMenu();
+			if (selectedObject != null)
+			{
+				selectedObject.enterEdit();
+			}
 		}
 		else
 		{
-			showMainMenu();
+			VrbObject.exitEdit();
 		}
-		hideModeCanvas();
+		isEditing = !isEditing;
 	}
 
-	public void cancelSetMode()
+	public void saveModel()
 	{
-		hideModeCanvas();
+		VrbModel.saveModel("/");
 	}
-	
+
+	public void openModel()
+	{
+		VrbModel.openModel("/");
+	}
+
+	public void placeObject()
+	{
+
+	}
+
 	/*
 	/// <summary>
 	/// 鼠键控制player移动

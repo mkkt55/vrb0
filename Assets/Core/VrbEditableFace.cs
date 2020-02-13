@@ -19,10 +19,13 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 			f.fVectors[i] = f.fVertices[i].vector3;
 		}
 		f.mesh.SetVertices(f.fVectors);
+		f.mesh.RecalculateNormals();
+		f.meshCollider.sharedMesh = f.mesh;
 	}
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
+		Debug.LogWarning("seleeef");
 		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectFace(f);
 	}
 }
