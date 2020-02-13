@@ -29,6 +29,7 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 
 		if (dv.x != 0 && dv.y != 0 & dv.z != 0)
 		{
+			// ok
 			if (dv.y > 0)
 			{
 				transform.Rotate(new Vector3(Mathf.Atan(dv.z / dv.y) * 180 / Mathf.PI, 0, 0));

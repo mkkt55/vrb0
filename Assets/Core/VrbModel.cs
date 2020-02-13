@@ -324,9 +324,9 @@ public class VrbFace
 			temp[6 * i] = fVertices.IndexOf(t.v0);
 			temp[6 * i + 1] = fVertices.IndexOf(t.v1);
 			temp[6 * i + 2] = fVertices.IndexOf(t.v2);
-			temp[6 * i + 3] = fVertices.IndexOf(t.v2);
-			temp[6 * i + 4] = fVertices.IndexOf(t.v1);
-			temp[6 * i + 5] = fVertices.IndexOf(t.v0);
+			//temp[6 * i + 3] = fVertices.IndexOf(t.v2);
+			//temp[6 * i + 4] = fVertices.IndexOf(t.v1);
+			//temp[6 * i + 5] = fVertices.IndexOf(t.v0);
 
 			int eIndex = allEdges.IndexOf(t.e0);
 			if (eIndex == -1) {
@@ -445,6 +445,16 @@ public class VrbFace
 }
 
 
+
+
+
+
+
+
+
+
+
+
 public class VrbObject
 {
 	public static List<VrbObject> all = new List<VrbObject>();
@@ -473,6 +483,8 @@ public class VrbObject
 	public List<int> triangles;
 	private GameObject gameObject;
 	public Mesh mesh;
+	public MeshCollider meshCollider;
+	public MeshRenderer meshRenderer;
 
 	public Material material;
 	private Color defaultColor;
@@ -540,9 +552,9 @@ public class VrbObject
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
 				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
+				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
+				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
+				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
 			}
 			for (int j = 0; j < faces[i].fEdges.Count; j++)
 			{
@@ -561,24 +573,27 @@ public class VrbObject
 
 	public void constructModel()
 	{
-		gameObject = new GameObject("object" + index);
+		GameObject r = Resources.Load("VrbObject") as GameObject;
+		gameObject = GameObject.Instantiate(r);
+
 		gameObject.transform.parent = GameObject.Find("Layout").transform;
 		gameObject.transform.position = position;
 
-		MeshFilter mf = gameObject.AddComponent<MeshFilter>();
+		MeshFilter mf = gameObject.GetComponent<MeshFilter>();
 		if (mf != null)
 		{
-			mf.mesh = mesh;
+			mf.sharedMesh = mesh;
 		}
 
 		// 展示Mesh，且可操作。
-		VrbSelectableObject so = gameObject.AddComponent<VrbSelectableObject>();
+		VrbSelectableObject so = gameObject.GetComponent<VrbSelectableObject>();
 		so.o = this;
 
-		MeshRenderer meshRender = gameObject.AddComponent<MeshRenderer>();
-		MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
-		
-		material = meshRender.material;
+		meshRenderer = gameObject.GetComponent<MeshRenderer>();
+		meshCollider = gameObject.GetComponent<MeshCollider>();
+
+		meshCollider.sharedMesh = mesh;
+		material = meshRenderer.material;
 		defaultColor = material.color;
 
 		constructed = true;
@@ -714,17 +729,17 @@ public static class VrbModel
 		VrbVertex p6 = new VrbVertex(-xl / 2, -yl / 2, zl / 2);
 		VrbVertex p7 = new VrbVertex(-xl / 2, -yl / 2, -zl / 2);
 
-		VrbTriangle t0 = new VrbTriangle(p0, p1, p3);
+		VrbTriangle t0 = new VrbTriangle(p0, p3, p1);
 		VrbTriangle t1 = new VrbTriangle(p0, p2, p3);
 		VrbTriangle t2 = new VrbTriangle(p0, p1, p4);
-		VrbTriangle t3 = new VrbTriangle(p1, p4, p5);
+		VrbTriangle t3 = new VrbTriangle(p1, p5, p4);
 		VrbTriangle t4 = new VrbTriangle(p1, p3, p5);
-		VrbTriangle t5 = new VrbTriangle(p3, p5, p7);
+		VrbTriangle t5 = new VrbTriangle(p3, p7, p5);
 		VrbTriangle t6 = new VrbTriangle(p4, p5, p6);
-		VrbTriangle t7 = new VrbTriangle(p5, p6, p7);
-		VrbTriangle t8 = new VrbTriangle(p0, p2, p4);
+		VrbTriangle t7 = new VrbTriangle(p5, p7, p6);
+		VrbTriangle t8 = new VrbTriangle(p0, p4, p2);
 		VrbTriangle t9 = new VrbTriangle(p2, p4, p6);
-		VrbTriangle t10 = new VrbTriangle(p2, p3, p7);
+		VrbTriangle t10 = new VrbTriangle(p2, p7, p3);
 		VrbTriangle t11 = new VrbTriangle(p2, p6, p7);
 
 		List<VrbTriangle> list = new List<VrbTriangle>();

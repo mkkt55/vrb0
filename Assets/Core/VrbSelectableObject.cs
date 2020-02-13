@@ -22,6 +22,8 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 				vs.Add(o.vertices[i].vector3);
 			}
 			o.mesh.SetVertices(vs);
+			o.mesh.RecalculateNormals();
+			o.meshCollider.sharedMesh = o.mesh;
 		}
 	}
 
@@ -33,6 +35,7 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
+		Debug.LogWarning("aaaaaa");
 		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectObject(o);
 	}
 }
