@@ -78,6 +78,6 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectEdge(e);
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(e);
 	}
 }

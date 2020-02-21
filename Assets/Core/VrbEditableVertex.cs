@@ -20,7 +20,7 @@ public class VrbEditableVertex : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		GameObject.Find("PlayerController").GetComponent<PlayerController>().selectVertex(v);
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(v);
 	}
 
 }

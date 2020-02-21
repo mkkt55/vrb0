@@ -3,7 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class VrbVertex
+public interface VrbTarget
+{
+	string getType();
+	void move(Vector3 d);
+	void rotate(Vector3 a);
+	void scale(Vector3 s);
+	void select();
+	void deSelect();
+	GameObject getGameObject();
+}
+
+public class VrbVertex : VrbTarget
 {
 	public static List<VrbVertex> all = new List<VrbVertex>();
 
@@ -52,11 +63,6 @@ public class VrbVertex
 		constructed = true;
 	}
 
-	public void move(Vector3 dv)
-	{
-		vector3 += dv;
-	}
-
 	public void select()
 	{
 		material.color = Color.red;
@@ -87,6 +93,31 @@ public class VrbVertex
 			gameObject.SetActive(false);
 		}
 		displayed = false;
+	}
+
+	public string getType()
+	{
+		return "vertex";
+	}
+
+	public void move(Vector3 dv)
+	{
+		vector3 += dv;
+	}
+
+	public void rotate(Vector3 a)
+	{
+		return;
+	}
+
+	public void scale(Vector3 s)
+	{
+		return;
+	}
+
+	public GameObject getGameObject()
+	{
+		return gameObject;
 	}
 }
 
@@ -128,7 +159,7 @@ public class VrbTriangle
 }
 
 
-public class VrbEdge
+public class VrbEdge : VrbTarget
 {
 	public static List<VrbEdge> all = new List<VrbEdge>();
 
@@ -204,12 +235,6 @@ public class VrbEdge
 		constructed = true;
 	}
 
-	public void move(Vector3 dv)
-	{
-		v0.vector3 += dv;
-		v1.vector3 += dv;
-	}
-
 	public void select()
 	{
 		material.color = Color.red;
@@ -241,10 +266,36 @@ public class VrbEdge
 		}
 		displayed = false;
 	}
+	
+	public string getType()
+	{
+		return "edge";
+	}
+
+	public void move(Vector3 dv)
+	{
+		v0.vector3 += dv;
+		v1.vector3 += dv;
+	}
+
+	public void rotate(Vector3 a)
+	{
+		return;
+	}
+
+	public void scale(Vector3 s)
+	{
+		return;
+	}
+
+	public GameObject getGameObject()
+	{
+		return gameObject;
+	}
 }
 
 
-public class VrbFace
+public class VrbFace : VrbTarget
 {
 	public static List<VrbFace> all = new List<VrbFace>();
 
@@ -403,14 +454,6 @@ public class VrbFace
 		constructed = true;
 	}
 
-	public void move(Vector3 dv)
-	{
-		for (int i = 0; i < fVertices.Count; i++)
-		{
-			fVertices[i].move(dv);
-		}
-	}
-
 	public void select()
 	{
 		material.color = Color.red;
@@ -442,20 +485,39 @@ public class VrbFace
 		}
 		displayed = false;
 	}
+
+	public string getType()
+	{
+		return "face";
+	}
+
+	public void move(Vector3 dv)
+	{
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			fVertices[i].move(dv);
+		}
+	}
+
+	public void rotate(Vector3 a)
+	{
+		return;
+	}
+
+	public void scale(Vector3 s)
+	{
+		return;
+	}
+
+	public GameObject getGameObject()
+	{
+		return gameObject;
+	}
 }
 
 
 
-
-
-
-
-
-
-
-
-
-public class VrbObject
+public class VrbObject : VrbTarget
 {
 	public static List<VrbObject> all = new List<VrbObject>();
 	public static VrbObject editingObject = null;
@@ -474,7 +536,7 @@ public class VrbObject
 
 	public Vector3 position; // 位置
 	public int rx, ry, rz; // 旋转
-	public Vector3 scale; // 三方向scale
+	public Vector3 scaleVector; // 三方向scale
 
 	public List<VrbFace> faces;
 	public List<VrbVertex> vertices;
@@ -686,9 +748,29 @@ public class VrbObject
 		}
 	}
 
+	public string getType()
+	{
+		return "object";
+	}
+
 	public void move(Vector3 dv)
 	{
 		position += dv;
+	}
+
+	public void rotate(Vector3 a)
+	{
+		return;
+	}
+
+	public void scale(Vector3 s)
+	{
+		return;
+	}
+
+	public GameObject getGameObject()
+	{
+		return gameObject;
 	}
 }
 
