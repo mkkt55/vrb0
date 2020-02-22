@@ -40,8 +40,8 @@ public class PlayerController : MonoBehaviour
 	{
 		moveSpeed = 30;
 		moveSelfSpeed = 20;
-		rotateSpeed = 30;
-		scaleSpeed = 30;
+		rotateSpeed = 10;
+		scaleSpeed = 0.5f;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 		
@@ -139,7 +139,7 @@ public class PlayerController : MonoBehaviour
 					Vector3 v = new Vector3(0, 0, 1);
 					Vector3 d = (orientation * v - orientationLastFrame * v) * selected.getGameObject().transform.position.magnitude;
 					d.z = 0;
-					if (Mathf.Abs(d.y) >= Mathf.Abs(d.x))
+					if (Mathf.Abs(d.y) <= Mathf.Abs(d.x))
 					{
 						Vector3 ra = new Vector3(0, d.y, 0);
 						selected.rotate(ra * rotateSpeed);
@@ -152,11 +152,11 @@ public class PlayerController : MonoBehaviour
 				}
 				if (DpnDaydreamController.TouchGestureLeft)
 				{
-					selected.rotate(Vector3.forward * Time.deltaTime * rotateSpeed);
+					selected.rotate(Vector3.forward * rotateSpeed);
 				}
 				if (DpnDaydreamController.TouchGestureRight)
 				{
-					selected.rotate(Vector3.back * Time.deltaTime * rotateSpeed);
+					selected.rotate(Vector3.back * rotateSpeed);
 				}
 			}
 			// 缩放模式
@@ -196,7 +196,7 @@ public class PlayerController : MonoBehaviour
 				Vector3 v = new Vector3(0, 0, 1);
 				Vector3 d = (orientation * v - orientationLastFrame * v) * selected.getGameObject().transform.position.magnitude;
 				d.z = 0;
-				if (Mathf.Abs(d.y) >= Mathf.Abs(d.x))
+				if (Mathf.Abs(d.y) <= Mathf.Abs(d.x))
 				{
 					Vector3 ra = new Vector3(0, d.y, 0);
 					gameObject.transform.Rotate(ra * rotateSpeed);
@@ -207,20 +207,20 @@ public class PlayerController : MonoBehaviour
 					gameObject.transform.Rotate(ra * rotateSpeed);
 				}
 			}
-			// 触摸触摸板但未按下后键，旋转
-			if (DpnDaydreamController.IsTouching && !DpnDaydreamController.TriggerButton)
-			{
-				if (touchVector.y >= 0)
-				{
-					gameObject.transform.Rotate(0, 0, -Time.deltaTime * moveSelfSpeed);
-				}
-				else
-				{
-					gameObject.transform.Rotate(0, 0, Time.deltaTime * moveSelfSpeed);
-				}
-			}
+			//// 触摸触摸板但未按下后键，旋转
+			//if (DpnDaydreamController.IsTouching && !DpnDaydreamController.TriggerButton)
+			//{
+			//	if (touchVector.y >= 0)
+			//	{
+			//		gameObject.transform.Rotate(0, 0, -Time.deltaTime * moveSelfSpeed);
+			//	}
+			//	else
+			//	{
+			//		gameObject.transform.Rotate(0, 0, Time.deltaTime * moveSelfSpeed);
+			//	}
+			//}
 			// 触摸触摸板，按下后键，移动
-			if (DpnDaydreamController.IsTouching && DpnDaydreamController.TriggerButton)
+			if (DpnDaydreamController.IsTouching && !DpnDaydreamController.TriggerButton)
 			{
 				if (touchVector.y >= 0)
 				{

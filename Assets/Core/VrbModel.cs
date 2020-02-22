@@ -280,12 +280,21 @@ public class VrbEdge : VrbTarget
 
 	public void rotate(Vector3 a)
 	{
-		return;
+		Vector3 center = (v0.vector3 + v1.vector3) / 2;
+		v0.vector3 = Quaternion.Euler(a) * (v0.vector3 - center) + v0.vector3;
+		v1.vector3 = Quaternion.Euler(a) * (v1.vector3 - center) + v1.vector3;
 	}
 
 	public void scale(Vector3 s)
 	{
-		return;
+		Vector3 center = (v0.vector3 + v1.vector3) / 2;
+		Vector3 dv = center - v0.vector3;
+		dv.x *= s.x;
+		dv.y *= s.y;
+		dv.z *= s.z;
+		
+		v0.vector3 = dv + v0.vector3;
+		v1.vector3 = -dv + v1.vector3;
 	}
 
 	public GameObject getGameObject()
@@ -501,12 +510,34 @@ public class VrbFace : VrbTarget
 
 	public void rotate(Vector3 a)
 	{
-		return;
+		Vector3 totalPos = Vector3.zero;
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			totalPos += fVertices[i].vector3;
+		}
+		Vector3 center = (totalPos) / fVertices.Count;
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			fVertices[i].vector3= Quaternion.Euler(a) * (fVertices[i].vector3 - center) + fVertices[i].vector3;
+		}
 	}
 
 	public void scale(Vector3 s)
 	{
-		return;
+		Vector3 totalPos = Vector3.zero;
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			totalPos += fVertices[i].vector3;
+		}
+		Vector3 center = (totalPos) / fVertices.Count;
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			Vector3 st = fVertices[i].vector3;
+			st.x *= s.x;
+			st.y *= s.y;
+			st.z *= s.z;
+			fVertices[i].vector3 = st;
+		}
 	}
 
 	public GameObject getGameObject()
@@ -760,12 +791,12 @@ public class VrbObject : VrbTarget
 
 	public void rotate(Vector3 a)
 	{
-		return;
+		gameObject.transform.Rotate(a);
 	}
 
 	public void scale(Vector3 s)
 	{
-		return;
+		gameObject.transform.localScale += s;
 	}
 
 	public GameObject getGameObject()
