@@ -796,7 +796,11 @@ public class VrbObject : VrbTarget
 
 	public void scale(Vector3 s)
 	{
-		gameObject.transform.localScale += s;
+		Vector3 sv = gameObject.transform.localScale;
+		sv.x *= s.x;
+		sv.y *= s.y;
+		sv.z *= s.z;
+		gameObject.transform.localScale = sv;
 	}
 
 	public GameObject getGameObject()
