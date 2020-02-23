@@ -6,28 +6,68 @@ using dpn;
 
 public class PlayerController : MonoBehaviour
 {
-	private GameObject editableModel;
-	public VrbTarget selected;
+	public GameObject editableModel;
+	public List<VrbTarget> selected = new List<VrbTarget>();
+	public bool isMultiSelect = false;
 
-	private GameObject modeCanvas;
+	public GameObject mainMenu;
 
-	private GameObject mainMenu;
-	private bool isShowingMainMenu = false;
+	public GameObject moveButton;
+	public GameObject moveButtonSubCanvas;
+	public GameObject mbx;
+	public GameObject mby;
+	public GameObject mbz;
+	public bool mbxe = true;
+	public bool mbye = true;
+	public bool mbze = true;
 
-	private GameObject dpnCamera;
+	public GameObject rotateButton;
+	public GameObject rotateButtonSubCanvas;
+	public GameObject rbx;
+	public GameObject rby;
+	public GameObject rbz;
+	public bool rbxe = true;
+	public bool rbye = true;
+	public bool rbze = true;
 
-	private GameObject orientationIndicator;
+	public GameObject scaleButton;
+	public GameObject scaleButtonSubCanvas;
+	public GameObject sbx;
+	public GameObject sby;
+	public GameObject sbz;
+	public bool sbxe = true;
+	public bool sbye = true;
+	public bool sbze = true;
 
-	private Text txt;
 
-	private int oMode = 0; // 当前操作模式，0为平移模式，1为旋转模式，2为伸缩模式
-	private bool isEditing = false;
+	public Color disableColor = Color.black;
 
-	private float moveSpeed; //操作物体时的移动速度
-	private float moveSelfSpeed; //摄像机的移动速度
-	private float rotateSelfSpeed;
-	private float rotateSpeed;
-	private float scaleSpeed;
+	public GameObject placeButton;
+	public GameObject placeButtonSubCanvas;
+
+	public GameObject editButton;
+	public GameObject editButtonSubCanvas;
+
+	public GameObject multiSelectButton;
+	public GameObject multiSelectButtonSubCanvas;
+
+	public GameObject dpnCamera;
+
+	public GameObject orientationIndicator;
+
+	public Text txt;
+
+	public int oMode = 0; // 当前操作模式，0为平移模式，1为旋转模式，2为伸缩模式
+	public bool isEditing = false;
+
+	public float moveSpeed; //操作物体时的移动速度
+	public float moveSelfSpeed; //摄像机的移动速度
+	public float rotateSelfSpeed;
+	public float rotateSpeed;
+	public float scaleSpeed;
+
+	public Color defaultButtonColor = Color.white;
+	public Color selectedButtonColor = Color.red;
 
 	// 获取手柄的输入参数
 	Vector3 rp;
@@ -51,17 +91,49 @@ public class PlayerController : MonoBehaviour
 		
 		editableModel = GameObject.Find("EditableModel");
 
-		modeCanvas = GameObject.Find("ModeCanvas");
-
 		mainMenu = GameObject.Find("MainMenu");
 
-		dpnCamera = GameObject.Find("DpnCameraRig");
+		moveButton = GameObject.Find("MainMenu/MoveButton");
+		moveButtonSubCanvas = GameObject.Find("MainMenu/MoveButton/SubCanvas");
+		mbx = GameObject.Find("MainMenu/MoveButton/SubCanvas/X");
+		mby = GameObject.Find("MainMenu/MoveButton/SubCanvas/Y");
+		mbz = GameObject.Find("MainMenu/MoveButton/SubCanvas/Z");
+
+		rotateButton = GameObject.Find("MainMenu/RotateButton");
+		rotateButtonSubCanvas = GameObject.Find("MainMenu/RotateButton/SubCanvas");
+		rbx = GameObject.Find("MainMenu/RotateButton/SubCanvas/X");
+		rby = GameObject.Find("MainMenu/RotateButton/SubCanvas/Y");
+		rbz = GameObject.Find("MainMenu/RotateButton/SubCanvas/Z");
+
+		scaleButton = GameObject.Find("MainMenu/ScaleButton");
+		scaleButtonSubCanvas = GameObject.Find("MainMenu/ScaleButton/SubCanvas");
+		sbx = GameObject.Find("MainMenu/ScaleButton/SubCanvas/X");
+		sby = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Y");
+		sbz = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Z");
+
+		placeButton = GameObject.Find("MainMenu/PlaceButton");
+		placeButtonSubCanvas = GameObject.Find("MainMenu/PlaceButton/SubCanvas");
+
+		editButton = GameObject.Find("MainMenu/EditButton");
+		editButtonSubCanvas = GameObject.Find("MainMenu/EditButton/SubCanvas");
+
+		multiSelectButton = GameObject.Find("MainMenu/MultiSelectButton");
+		multiSelectButtonSubCanvas = GameObject.Find("MainMenu/MultiSelectButton/SubCanvas");
+
+		dpnCamera = GameObject.Find("PlayerController/DpnCameraRig");
 
 		txt = GameObject.Find("DebugText").GetComponent<Text>();
 		orientationIndicator = GameObject.Find("OrientationIndicator");
 
+		setMoveMode();
+		exitEdit();
+		exitMultiSelect();
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
+		VrbObject o1 = VrbModel.createCube(160, -60, 0, 100, 100, 100);
+		o1.displayModel();
+		VrbObject o2 = VrbModel.createCube(-160, -60, 0, 100, 100, 100);
+		o2.displayModel();
 	}
 
 	void Update()
@@ -88,27 +160,27 @@ public class PlayerController : MonoBehaviour
 		//键盘鼠标控制
 		if (Input.GetKey(KeyCode.A))
 		{
-			selected.move(Vector3.left);
+			moveSelected(Vector3.left);
 		}
 		if (Input.GetKey(KeyCode.D))
 		{
-			selected.move(Vector3.right);
+			moveSelected(Vector3.right);
 		}
 		if (Input.GetKey(KeyCode.W))
 		{
-			selected.move(Vector3.forward);
+			moveSelected(Vector3.forward);
 		}
 		if (Input.GetKey(KeyCode.S))
 		{
-			selected.move(Vector3.back);
+			moveSelected(Vector3.back);
 		}
 		if (Input.GetKey(KeyCode.Q))
 		{
-			selected.move(Vector3.up);
+			moveSelected(Vector3.up);
 		}
 		if (Input.GetKey(KeyCode.E))
 		{
-			selected.move(Vector3.down);
+			moveSelected(Vector3.down);
 		}
 
 
@@ -117,26 +189,26 @@ public class PlayerController : MonoBehaviour
 
 		// VR手柄操作
 		// 平移模式
-		if (selected != null)
+		if (selected.Count > 0)
 		{
 			if (oMode == 0)
 			{
 				if (DpnDaydreamController.TriggerButton && !DpnDaydreamController.TriggerButtonDown && !DpnDaydreamController.TriggerButtonUp)
 				{
 					Vector3 v = new Vector3(0, 0, 1);
-					Vector3 d = (orientation * v - orientationLastFrame * v) * (selected.getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+					Vector3 d = (orientation * v - orientationLastFrame * v) * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
 					d.z = 0;
-					selected.move(d);
+					moveSelected(d);
 				}
 				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
 				{ 
 					if (touchVector.y >= 0)
 					{
-						selected.move(Vector3.forward * Time.deltaTime * moveSpeed);
+						moveSelected(Vector3.forward * Time.deltaTime * moveSpeed);
 					}
 					else
 					{
-						selected.move(Vector3.back * Time.deltaTime * moveSpeed);
+						moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
 					}
 				}
 			}
@@ -147,11 +219,11 @@ public class PlayerController : MonoBehaviour
 				{
 					if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
 					{
-						selected.rotate(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
+						rotateSelected(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
 					}
 					else
 					{
-						selected.rotate(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
+						rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
 					}
 				}
 			}
@@ -162,11 +234,11 @@ public class PlayerController : MonoBehaviour
 				{
 					if (touchVector.x < 0)
 					{
-						selected.scale(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
+						scaleSelected(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
 					}
 					else
 					{
-						selected.scale(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
+						scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
 					}
 				}
 			}
@@ -174,7 +246,7 @@ public class PlayerController : MonoBehaviour
 		// 未选中物体，控制自己
 		else
 		{
-			if (DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching)
+			if (DpnDaydreamController.ClickButton && DpnDaydreamController.IsTouching)
 			{
 				if (touchVector.y > 0)
 				{
@@ -229,58 +301,308 @@ public class PlayerController : MonoBehaviour
 		orientationIndicator.transform.rotation = orientation;
 	}
 
-	public void moveCamera(Vector3 direction)
+	public void moveSelected(Vector3 _v)
 	{
-		gameObject.transform.position += direction * Time.deltaTime * moveSpeed;
+		if (!mbxe)
+		{
+			_v.x = 0;
+		}
+		if (!mbye)
+		{
+			_v.y = 0;
+		}
+		if (!mbze)
+		{
+			_v.z = 0;
+		}
+		for (int i = 0; i < selected.Count; i++)
+		{
+			selected[i].move(_v);
+		}
 	}
 
+	public void rotateSelected(Vector3 _v)
+	{
+		if (!rbxe)
+		{
+			_v.x = 0;
+		}
+		if (!rbye)
+		{
+			_v.y = 0;
+		}
+		if (!rbze)
+		{
+			_v.z = 0;
+		}
+		for (int i = 0; i < selected.Count; i++)
+		{
+			selected[i].rotate(_v);
+		}
+	}
+
+	public void scaleSelected(Vector3 _v)
+	{
+		if (!sbxe)
+		{
+			_v.x = 0;
+		}
+		if (!sbye)
+		{
+			_v.y = 0;
+		}
+		if (!sbze)
+		{
+			_v.z = 0;
+		}
+		for (int i = 0; i < selected.Count; i++)
+		{
+			selected[i].scale(_v);
+		}
+	}
 
 	public void select(VrbTarget t)
 	{
-		clearSelection();
-		selected = t;
+		if (isMultiSelect)
+		{
+			selected.Add(t);
+		}
+		else
+		{
+			clearAllSelection();
+			selected.Add(t);
+		}
 		t.select();
 	}
 
-	public void clearSelection()
+	public void clearSingleSelection()
 	{
-		if (selected != null)
+		if (!isMultiSelect && selected.Count > 0)
 		{
-			selected.deSelect();
+			selected[0].deSelect();
+			selected.Clear();
 		}
-		selected = null;
+	}
+
+	public void clearAllSelection()
+	{
+		for (int i = 0; i < selected.Count; i++)
+		{
+			selected[i].deSelect();
+		}
+		selected.Clear();
+	}
+
+	public void switchMultiSelect()
+	{
+		if (!isMultiSelect)
+		{
+			enterMultiSelect();
+		}
+		else
+		{
+			exitMultiSelect();
+		}
+	}
+
+	public void enterMultiSelect()
+	{
+		multiSelectButton.GetComponent<Image>().color = selectedButtonColor;
+		multiSelectButtonSubCanvas.SetActive(true);
+		isMultiSelect = true;
+	}
+
+	public void exitMultiSelect()
+	{
+		multiSelectButton.GetComponent<Image>().color = defaultButtonColor;
+		multiSelectButtonSubCanvas.SetActive(false);
+		isMultiSelect = false;
 	}
 
 	// 对应模式面板的四个模式，一个Cancel按钮
 	public void setMoveMode()
 	{
+		clearMRSButton();
+		moveButton.GetComponent<Image>().color = selectedButtonColor;
+		moveButtonSubCanvas.SetActive(true);
 		oMode = 0;
 	}
 
 	public void setRotateMode()
 	{
+		clearMRSButton();
+		rotateButton.GetComponent<Image>().color = selectedButtonColor;
+		rotateButtonSubCanvas.SetActive(true);
 		oMode = 1;
 	}
 
 	public void setScaleMode()
 	{
+		clearMRSButton();
+		scaleButton.GetComponent<Image>().color = selectedButtonColor;
+		scaleButtonSubCanvas.SetActive(true);
 		oMode = 2;
+	}
+
+	public void switchMBX()
+	{
+		if (!mbxe)
+		{
+			mbx.GetComponent<Image>().color = defaultButtonColor;
+			mbxe = true;
+		}
+		else
+		{
+			mbx.GetComponent<Image>().color = disableColor;
+			mbxe = false;
+		}
+	}
+	public void switchMBY()
+	{
+		if (!mbye)
+		{
+			mby.GetComponent<Image>().color = defaultButtonColor;
+			mbye = true;
+		}
+		else
+		{
+			mby.GetComponent<Image>().color = disableColor;
+			mbye = false;
+		}
+	}
+	public void switchMBZ()
+	{
+		if (!mbze)
+		{
+			mbz.GetComponent<Image>().color = defaultButtonColor;
+			mbze = true;
+		}
+		else
+		{
+			mbz.GetComponent<Image>().color = disableColor;
+			mbze = false;
+		}
+	}
+
+	public void switchRBX()
+	{
+		if (!rbxe)
+		{
+			rbx.GetComponent<Image>().color = defaultButtonColor;
+			rbxe = true;
+		}
+		else
+		{
+			rbx.GetComponent<Image>().color = disableColor;
+			rbxe = false;
+		}
+	}
+	public void switchRBY()
+	{
+		if (!rbye)
+		{
+			rby.GetComponent<Image>().color = defaultButtonColor;
+			rbye = true;
+		}
+		else
+		{
+			rby.GetComponent<Image>().color = disableColor;
+			rbye = false;
+		}
+	}
+	public void switchRBZ()
+	{
+		if (!rbze)
+		{
+			rbz.GetComponent<Image>().color = defaultButtonColor;
+			rbze = true;
+		}
+		else
+		{
+			rbz.GetComponent<Image>().color = disableColor;
+			rbze = false;
+		}
+	}
+
+	public void switchSBX()
+	{
+		if (!sbxe)
+		{
+			sbx.GetComponent<Image>().color = defaultButtonColor;
+			sbxe = true;
+		}
+		else
+		{
+			sbx.GetComponent<Image>().color = disableColor;
+			sbxe = false;
+		}
+	}
+	public void switchSBY()
+	{
+		if (!sbye)
+		{
+			sby.GetComponent<Image>().color = defaultButtonColor;
+			sbye = true;
+		}
+		else
+		{
+			sby.GetComponent<Image>().color = disableColor;
+			sbye = false;
+		}
+	}
+	public void switchSBZ()
+	{
+		if (!sbze)
+		{
+			sbz.GetComponent<Image>().color = defaultButtonColor;
+			sbze = true;
+		}
+		else
+		{
+			sbz.GetComponent<Image>().color = disableColor;
+			sbze = false;
+		}
+	}
+
+	public void clearMRSButton()
+	{
+		moveButton.GetComponent<Image>().color = defaultButtonColor;
+		moveButtonSubCanvas.SetActive(false);
+		rotateButton.GetComponent<Image>().color = defaultButtonColor;
+		rotateButtonSubCanvas.SetActive(false);
+		scaleButton.GetComponent<Image>().color = defaultButtonColor;
+		scaleButtonSubCanvas.SetActive(false);
 	}
 
 	public void switchEditMode()
 	{
 		if (!isEditing)
 		{
-			if (selected != null && selected.getType() == "object")
-			{
-				((VrbObject)selected).enterEdit();
-			}
+			enterEdit();
 		}
 		else
 		{
-			VrbObject.exitEdit();
+			exitEdit();
 		}
-		isEditing = !isEditing;
+	}
+
+	public void enterEdit()
+	{
+		editButton.GetComponent<Image>().color = selectedButtonColor;
+		editButtonSubCanvas.SetActive(true);
+		if (selected.Count > 0 && selected[0].getType() == "object")
+		{
+			((VrbObject)selected[0]).enterEdit();
+		}
+		isEditing = true;
+	}
+
+	public void exitEdit()
+	{
+		editButton.GetComponent<Image>().color = defaultButtonColor;
+		editButtonSubCanvas.SetActive(false);
+		VrbObject.exitEdit();
+		isEditing = false;
 	}
 
 	public void saveModel()

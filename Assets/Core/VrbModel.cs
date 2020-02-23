@@ -288,13 +288,13 @@ public class VrbEdge : VrbTarget
 	public void scale(Vector3 s)
 	{
 		Vector3 center = (v0.vector3 + v1.vector3) / 2;
-		Vector3 dv = center - v0.vector3;
+		Vector3 dv = v0.vector3 - center;
 		dv.x *= s.x;
 		dv.y *= s.y;
 		dv.z *= s.z;
-		
-		v0.vector3 = dv + v0.vector3;
-		v1.vector3 = -dv + v1.vector3;
+
+		v0.vector3 = dv + center;
+		v1.vector3 = -dv + center;
 	}
 
 	public GameObject getGameObject()
@@ -518,7 +518,7 @@ public class VrbFace : VrbTarget
 		Vector3 center = (totalPos) / fVertices.Count;
 		for (int i = 0; i < fVertices.Count; i++)
 		{
-			fVertices[i].vector3= Quaternion.Euler(a) * (fVertices[i].vector3 - center) + fVertices[i].vector3;
+			fVertices[i].vector3= Quaternion.Euler(a) * (fVertices[i].vector3 - center) + center;
 		}
 	}
 
@@ -532,11 +532,11 @@ public class VrbFace : VrbTarget
 		Vector3 center = (totalPos) / fVertices.Count;
 		for (int i = 0; i < fVertices.Count; i++)
 		{
-			Vector3 st = fVertices[i].vector3;
-			st.x *= s.x;
-			st.y *= s.y;
-			st.z *= s.z;
-			fVertices[i].vector3 = st;
+			Vector3 dv = fVertices[i].vector3 - center;
+			dv.x *= s.x;
+			dv.y *= s.y;
+			dv.z *= s.z;
+			fVertices[i].vector3 = dv + center;
 		}
 	}
 
