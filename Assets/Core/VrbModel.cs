@@ -642,9 +642,12 @@ public class VrbObject : VrbTarget
 		{
 			for (int j = 0; j < faces[i].ftOriginal.Count; j++)
 			{
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
-				triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
+				vectors.Add(faces[i].ftOriginal[j].v0.vector3);
+				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v0.vector3));
+				vectors.Add(faces[i].ftOriginal[j].v1.vector3);
+				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v1.vector3));
+				vectors.Add(faces[i].ftOriginal[j].v2.vector3);
+				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v2.vector3));
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
@@ -661,7 +664,9 @@ public class VrbObject : VrbTarget
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
 		mesh.SetTriangles(triangles, 0);
+		mesh.RecalculateBounds();
 		mesh.RecalculateNormals();
+		mesh.RecalculateTangents();
 	}
 
 	public void constructModel()

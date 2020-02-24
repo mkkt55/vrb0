@@ -22,6 +22,7 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 				vs.Add(o.vertices[i].vector3);
 			}
 			o.mesh.SetVertices(vs);
+			o.mesh.RecalculateBounds();
 			o.mesh.RecalculateNormals();
 			o.meshCollider.sharedMesh = o.mesh;
 		}

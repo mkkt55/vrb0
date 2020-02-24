@@ -130,10 +130,6 @@ public class PlayerController : MonoBehaviour
 		exitMultiSelect();
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
-		VrbObject o1 = VrbModel.createCube(160, -60, 0, 100, 100, 100);
-		o1.displayModel();
-		VrbObject o2 = VrbModel.createCube(-160, -60, 0, 100, 100, 100);
-		o2.displayModel();
 	}
 
 	void Update()
