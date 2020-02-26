@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 
@@ -578,6 +580,7 @@ public class VrbObject : VrbTarget
 	public Mesh mesh;
 	public MeshCollider meshCollider;
 	public MeshRenderer meshRenderer;
+	public MeshFilter meshFilter;
 
 	public Material material;
 	private Color defaultColor;
@@ -632,7 +635,6 @@ public class VrbObject : VrbTarget
 				if (vertices.IndexOf(faces[i].fVertices[j]) == -1)
 				{
 					vertices.Add(faces[i].fVertices[j]);
-					vectors.Add(faces[i].fVertices[j].vector3);
 				}
 			}
 		}
@@ -643,11 +645,11 @@ public class VrbObject : VrbTarget
 			for (int j = 0; j < faces[i].ftOriginal.Count; j++)
 			{
 				vectors.Add(faces[i].ftOriginal[j].v0.vector3);
-				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v0.vector3));
+				triangles.Add(vectors.Count - 1);
 				vectors.Add(faces[i].ftOriginal[j].v1.vector3);
-				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v1.vector3));
+				triangles.Add(vectors.Count - 1);
 				vectors.Add(faces[i].ftOriginal[j].v2.vector3);
-				triangles.Add(vectors.LastIndexOf(faces[i].ftOriginal[j].v2.vector3));
+				triangles.Add(vectors.Count - 1);
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
 				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
@@ -660,6 +662,8 @@ public class VrbObject : VrbTarget
 				}
 			}
 		}
+		Debug.LogWarning(vectors.Count);
+		Debug.LogWarning(triangles.Count);
 
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
@@ -677,10 +681,10 @@ public class VrbObject : VrbTarget
 		gameObject.transform.parent = GameObject.Find("Layout").transform;
 		gameObject.transform.position = position;
 
-		MeshFilter mf = gameObject.GetComponent<MeshFilter>();
-		if (mf != null)
+		meshFilter = gameObject.GetComponent<MeshFilter>();
+		if (meshFilter != null)
 		{
-			mf.sharedMesh = mesh;
+			meshFilter.sharedMesh = mesh;
 		}
 
 		// 展示Mesh，且可操作。
@@ -913,7 +917,52 @@ public static class VrbModel
 
 	public static bool saveModel(string path)
 	{
+		if (VrbObject.all.Count > 0)
+		{
+			//string data = ObjExporterScript.MeshToString(VrbObject.all[0].meshFilter, VrbObject.all[0].meshRenderer, VrbObject.all[0].getGameObject().transform);
+			//ObjExporter.WriteToFile(data, "D:/zz.obj");
+			string s = MeshToString(VrbObject.all[0].mesh , null);
+			using (StreamWriter sw = new StreamWriter(path))
+			{
+				sw.Write(s);
+			}
+		}
 		return true;
+	}
+
+	public static string MeshToString(Mesh m, List<Material> mats)
+	{
+		if (!m)
+		{
+			return "####Error####";
+		}
+		StringBuilder sb = new StringBuilder();
+
+		foreach (Vector3 v in m.vertices)
+		{
+			sb.Append(string.Format("v {0} {1} {2}\n", v.x, v.y, v.z));
+		}
+		sb.Append("\n");
+
+		foreach (Vector3 n in m.normals)
+		{
+			sb.Append(string.Format("vn {0} {1} {2}\n", n.x, n.y, n.z));
+		}
+		sb.Append("\n");
+
+		foreach (Vector3 t in m.vertices)
+		{
+			sb.Append(string.Format("vt {0} {1}\n", "0.29", "0.74"));
+		}
+		sb.Append("\n");
+
+		for (int i = 0; i < m.triangles.Length; i += 3)
+		{
+			sb.Append(string.Format("f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n", m.triangles[i] + 1, m.triangles[i + 1] + 1, m.triangles[i + 2] + 1));
+		}
+		sb.Append("\n");
+		
+		return sb.ToString();
 	}
 
 }

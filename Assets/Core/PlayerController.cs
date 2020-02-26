@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using dpn;
@@ -130,6 +132,8 @@ public class PlayerController : MonoBehaviour
 		exitMultiSelect();
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
+
+		
 	}
 
 	void Update()
@@ -603,12 +607,16 @@ public class PlayerController : MonoBehaviour
 
 	public void saveModel()
 	{
-		VrbModel.saveModel("/");
+		string filePath;
+		filePath = "/vrb/zz.obj";
+		VrbModel.saveModel(filePath);
 	}
 
 	public void openModel()
 	{
-		VrbModel.openModel("/");
+		string filePath;
+		filePath = "/vrb/zz.obj";
+		VrbModel.openModel(filePath);
 	}
 
 	public void placeObject()
