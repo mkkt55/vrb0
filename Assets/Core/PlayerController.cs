@@ -12,6 +12,16 @@ public class PlayerController : MonoBehaviour
 	public List<VrbTarget> selected = new List<VrbTarget>();
 	public bool isMultiSelect = false;
 
+	public GameObject objectPanel;
+	public GameObject scrollView;
+	public GameObject scrollContent;
+
+	public GameObject infoCanvas;
+	public GameObject transformPanel;
+	public GameObject positionPanel;
+	public GameObject rotatePanel;
+	public GameObject scalePanel;
+
 	public GameObject mainMenu;
 
 	public GameObject moveButton;
@@ -93,6 +103,19 @@ public class PlayerController : MonoBehaviour
 		
 		editableModel = GameObject.Find("EditableModel");
 
+		infoCanvas = GameObject.Find("PlayerController/InfoCanvas");
+
+		objectPanel = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel");
+
+		scrollView = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel/ScrollView");
+		scrollContent = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel/ScrollView/Viewport/Content");
+
+		transformPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel");
+
+		positionPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/PositionPanel");
+		rotatePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/RotatePanel");
+		scalePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/ScalePanel");
+		
 		mainMenu = GameObject.Find("MainMenu");
 
 		moveButton = GameObject.Find("MainMenu/MoveButton");
@@ -372,11 +395,34 @@ public class PlayerController : MonoBehaviour
 			clearAllSelection();
 			selected.Add(t);
 		}
+		if (t.getType().Equals("object"))
+		{
+			transformPanel.SetActive(true);
+		}
+		if (t.getType().Equals("face"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(false);
+			scalePanel.SetActive(false);
+		}
+		if (t.getType().Equals("edge"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(false);
+			scalePanel.SetActive(false);
+		}
+		if (t.getType().Equals("vertex"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(false);
+			scalePanel.SetActive(false);
+		}
 		t.select();
 	}
 
 	public void clearSingleSelection()
 	{
+		transformPanel.SetActive(false);
 		if (!isMultiSelect && selected.Count > 0)
 		{
 			selected[0].deSelect();
@@ -386,6 +432,7 @@ public class PlayerController : MonoBehaviour
 
 	public void clearAllSelection()
 	{
+		transformPanel.SetActive(false);
 		for (int i = 0; i < selected.Count; i++)
 		{
 			selected[i].deSelect();
@@ -624,6 +671,160 @@ public class PlayerController : MonoBehaviour
 
 	}
 
+	public void updatePosXfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			Debug.LogWarning("pos x empty");
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getPosition();
+			t.x = n - t.x;
+			t.y = 0;
+			t.z = 0;
+			selected[0].move(t);
+		}
+	}
+
+	public void updatePosYfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getPosition();
+			t.x = 0;
+			t.y = n - t.x;
+			t.z = 0;
+			selected[0].move(t);
+		}
+	}
+
+	public void updatePosZfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getPosition();
+			t.x = 0;
+			t.y = 0;
+			t.z = n - t.x;
+			selected[0].move(t);
+		}
+	}
+
+	public void updateRottXfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getRotate();
+			t.x = n - t.x;
+			t.y = 0;
+			t.z = 0;
+			selected[0].rotate(t);
+		}
+	}
+
+	public void updateRottYfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getRotate();
+			t.x = 0;
+			t.y = n - t.x;
+			t.z = 0;
+			selected[0].rotate(t);
+		}
+	}
+
+	public void updateRottZfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getRotate();
+			t.x = 0;
+			t.y = 0;
+			t.z = n - t.x;
+			selected[0].rotate(t);
+		}
+	}
+
+	public void updateScaXfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getScale();
+			t.x = n - t.x;
+			t.y = 0;
+			t.z = 0;
+			selected[0].scale(t);
+		}
+	}
+
+	public void updateScaYfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getScale();
+			t.x = 0;
+			t.y = n - t.x;
+			t.z = 0;
+			selected[0].scale(t);
+		}
+	}
+
+	public void updateScaZfromInput(string s)
+	{
+		if (s.Equals(""))
+		{
+			return;
+		}
+		if (selected.Count > 0)
+		{
+			float n = float.Parse(s);
+			Vector3 t = selected[0].getScale();
+			t.x = 0;
+			t.y = 0;
+			t.z = n - t.x;
+			selected[0].scale(t);
+		}
+	}
+	
 	/*
 	/// <summary>
 	/// 鼠键控制player移动

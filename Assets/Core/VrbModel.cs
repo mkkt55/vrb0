@@ -8,9 +8,14 @@ using UnityEngine;
 public interface VrbTarget
 {
 	string getType();
-	void move(Vector3 d);
+	void move(Vector3 m);
 	void rotate(Vector3 a);
 	void scale(Vector3 s);
+
+	Vector3 getPosition();
+	Vector3 getRotate();
+	Vector3 getScale();
+
 	void select();
 	void deSelect();
 	GameObject getGameObject();
@@ -120,6 +125,21 @@ public class VrbVertex : VrbTarget
 	public GameObject getGameObject()
 	{
 		return gameObject;
+	}
+
+	public Vector3 getPosition()
+	{
+		return vector3;
+	}
+
+	public Vector3 getRotate()
+	{
+		return Vector3.zero;
+	}
+
+	public Vector3 getScale()
+	{
+		return Vector3.zero;
 	}
 }
 
@@ -302,6 +322,21 @@ public class VrbEdge : VrbTarget
 	public GameObject getGameObject()
 	{
 		return gameObject;
+	}
+
+	public Vector3 getPosition()
+	{
+		return (v0.vector3 + v1.vector3) / 2;
+	}
+
+	public Vector3 getRotate()
+	{
+		return gameObject.transform.rotation * Vector3.forward;
+	}
+
+	public Vector3 getScale()
+	{
+		return Vector3.one;
 	}
 }
 
@@ -546,6 +581,27 @@ public class VrbFace : VrbTarget
 	{
 		return gameObject;
 	}
+
+	public Vector3 getPosition()
+	{
+		Vector3 totalPos = Vector3.zero;
+		for (int i = 0; i < fVertices.Count; i++)
+		{
+			totalPos += fVertices[i].vector3;
+		}
+		Vector3 center = (totalPos) / fVertices.Count;
+		return center;
+	}
+
+	public Vector3 getRotate()
+	{
+		return Vector3.zero;
+	}
+
+	public Vector3 getScale()
+	{
+		return Vector3.one;
+	}
 }
 
 
@@ -584,6 +640,8 @@ public class VrbObject : VrbTarget
 
 	public Material material;
 	private Color defaultColor;
+
+	public GameObject UiItem;
 
 	private bool constructed = false;
 	private bool displayed = false;
@@ -697,6 +755,10 @@ public class VrbObject : VrbTarget
 		meshCollider.sharedMesh = mesh;
 		material = meshRenderer.material;
 		defaultColor = material.color;
+
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
 
 		constructed = true;
 	}
@@ -815,6 +877,21 @@ public class VrbObject : VrbTarget
 	public GameObject getGameObject()
 	{
 		return gameObject;
+	}
+
+	public Vector3 getPosition()
+	{
+		return gameObject.transform.position;
+	}
+
+	public Vector3 getRotate()
+	{
+		return gameObject.transform.rotation * Vector3.forward;
+	}
+
+	public Vector3 getScale()
+	{
+		return gameObject.transform.localScale;
 	}
 }
 

@@ -36,7 +36,6 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		Debug.LogWarning("aaaaaa");
 		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(o);
 	}
 }

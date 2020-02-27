@@ -11,7 +11,7 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 	// Start is called before the first frame update
 	void Start()
     {
-        
+		
     }
 
     // Update is called once per frame
@@ -23,7 +23,7 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 
 		Vector3 dv = e.v1.vector3 - e.v0.vector3;
 		float length = dv.magnitude;
-		transform.localScale = new Vector3(3, length / 2 - 3, 3);
+		transform.localScale = new Vector3(3, length / 2f - 2f, 3);
 
 		transform.rotation = new Quaternion();
 
