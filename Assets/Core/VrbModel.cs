@@ -639,7 +639,10 @@ public class VrbObject : VrbTarget
 	public MeshFilter meshFilter;
 
 	public Material material;
-	private Color defaultColor;
+	public Material defaultMat;
+	public Color defaultColor;
+	private Material selectedMat;
+	private Color selectedColor;
 
 	public GameObject UiItem;
 
@@ -720,8 +723,6 @@ public class VrbObject : VrbTarget
 				}
 			}
 		}
-		Debug.LogWarning(vectors.Count);
-		Debug.LogWarning(triangles.Count);
 
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
@@ -755,6 +756,9 @@ public class VrbObject : VrbTarget
 		meshCollider.sharedMesh = mesh;
 		material = meshRenderer.material;
 		defaultColor = material.color;
+		defaultMat = material;
+		selectedColor = Color.red;
+		selectedMat = new Material(Shader.Find("Custom/SelectedEffect"));
 
 		GameObject rui = Resources.Load("Object-UI") as GameObject;
 		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
@@ -765,7 +769,7 @@ public class VrbObject : VrbTarget
 
 	public void select()
 	{
-		material.color = Color.red;
+		material.color = selectedColor;
 	}
 
 	public void deSelect()

@@ -150,13 +150,22 @@ public class PlayerController : MonoBehaviour
 		txt = GameObject.Find("DebugText").GetComponent<Text>();
 		orientationIndicator = GameObject.Find("OrientationIndicator");
 
+
+		positionPanel.GetComponent<PosInput>().init();
+		rotatePanel.GetComponent<RottInput>().init();
+		scalePanel.GetComponent<ScaleInput>().init();
+
+
 		setMoveMode();
 		exitEdit();
 		exitMultiSelect();
+
+		transformPanel.SetActive(false);
+
+
+
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
-
-		
 	}
 
 	void Update()
@@ -222,6 +231,7 @@ public class PlayerController : MonoBehaviour
 					Vector3 d = (orientation * v - orientationLastFrame * v) * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
 					d.z = 0;
 					moveSelected(d);
+					positionPanel.GetComponent<PosInput>().updateValue();
 				}
 				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
 				{ 
@@ -233,6 +243,7 @@ public class PlayerController : MonoBehaviour
 					{
 						moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
 					}
+					positionPanel.GetComponent<PosInput>().updateValue();
 				}
 			}
 			// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
@@ -248,6 +259,7 @@ public class PlayerController : MonoBehaviour
 					{
 						rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
 					}
+					rotatePanel.GetComponent<RottInput>().updateValue();
 				}
 			}
 			// 缩放模式
@@ -263,6 +275,7 @@ public class PlayerController : MonoBehaviour
 					{
 						scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
 					}
+					scalePanel.GetComponent<ScaleInput>().updateValue();
 				}
 			}
 		}
@@ -361,6 +374,7 @@ public class PlayerController : MonoBehaviour
 		for (int i = 0; i < selected.Count; i++)
 		{
 			selected[i].rotate(_v);
+			selected[i].rotate(_v);
 		}
 	}
 
@@ -386,6 +400,10 @@ public class PlayerController : MonoBehaviour
 
 	public void select(VrbTarget t)
 	{
+		if (isEditing && t.getType().Equals("object"))
+		{
+			return;
+		}
 		if (isMultiSelect)
 		{
 			selected.Add(t);
@@ -635,13 +653,13 @@ public class PlayerController : MonoBehaviour
 
 	public void enterEdit()
 	{
-		editButton.GetComponent<Image>().color = selectedButtonColor;
-		editButtonSubCanvas.SetActive(true);
 		if (selected.Count > 0 && selected[0].getType() == "object")
 		{
+			editButton.GetComponent<Image>().color = selectedButtonColor;
+			editButtonSubCanvas.SetActive(true);
 			((VrbObject)selected[0]).enterEdit();
+			isEditing = true;
 		}
-		isEditing = true;
 	}
 
 	public void exitEdit()
@@ -671,11 +689,11 @@ public class PlayerController : MonoBehaviour
 
 	}
 
-	public void updatePosXfromInput(string s)
+	public void updatePosXfromInput()
 	{
-		if (s.Equals(""))
+		string s = positionPanel.GetComponent<PosInput>().xText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
-			Debug.LogWarning("pos x empty");
 			return;
 		}
 		if (selected.Count > 0)
@@ -689,26 +707,29 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updatePosYfromInput(string s)
+	public void updatePosYfromInput()
 	{
-		if (s.Equals(""))
+		string s = positionPanel.GetComponent<PosInput>().yText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
 		if (selected.Count > 0)
 		{
+			Debug.LogWarning("now move, " + s + "->" + selected[0].getPosition());
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getPosition();
 			t.x = 0;
-			t.y = n - t.x;
+			t.y = n - t.y;
 			t.z = 0;
 			selected[0].move(t);
 		}
 	}
 
-	public void updatePosZfromInput(string s)
+	public void updatePosZfromInput()
 	{
-		if (s.Equals(""))
+		string s = positionPanel.GetComponent<PosInput>().zText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -718,14 +739,15 @@ public class PlayerController : MonoBehaviour
 			Vector3 t = selected[0].getPosition();
 			t.x = 0;
 			t.y = 0;
-			t.z = n - t.x;
+			t.z = n - t.z;
 			selected[0].move(t);
 		}
 	}
 
-	public void updateRottXfromInput(string s)
+	public void updateRottXfromInput()
 	{
-		if (s.Equals(""))
+		string s = rotatePanel.GetComponent<RottInput>().xText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -740,9 +762,10 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateRottYfromInput(string s)
+	public void updateRottYfromInput()
 	{
-		if (s.Equals(""))
+		string s = rotatePanel.GetComponent<RottInput>().yText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -751,15 +774,16 @@ public class PlayerController : MonoBehaviour
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getRotate();
 			t.x = 0;
-			t.y = n - t.x;
+			t.y = n - t.y;
 			t.z = 0;
 			selected[0].rotate(t);
 		}
 	}
 
-	public void updateRottZfromInput(string s)
+	public void updateRottZfromInput()
 	{
-		if (s.Equals(""))
+		string s = rotatePanel.GetComponent<RottInput>().zText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -769,14 +793,15 @@ public class PlayerController : MonoBehaviour
 			Vector3 t = selected[0].getRotate();
 			t.x = 0;
 			t.y = 0;
-			t.z = n - t.x;
+			t.z = n - t.z;
 			selected[0].rotate(t);
 		}
 	}
 
-	public void updateScaXfromInput(string s)
+	public void updateScaXfromInput()
 	{
-		if (s.Equals(""))
+		string s = scalePanel.GetComponent<ScaleInput>().xText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -784,16 +809,17 @@ public class PlayerController : MonoBehaviour
 		{
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getScale();
-			t.x = n - t.x;
-			t.y = 0;
-			t.z = 0;
+			t.x = n / t.x;
+			t.y = 1;
+			t.z = 1;
 			selected[0].scale(t);
 		}
 	}
 
-	public void updateScaYfromInput(string s)
+	public void updateScaYfromInput()
 	{
-		if (s.Equals(""))
+		string s = scalePanel.GetComponent<ScaleInput>().yText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -801,16 +827,17 @@ public class PlayerController : MonoBehaviour
 		{
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getScale();
-			t.x = 0;
-			t.y = n - t.x;
-			t.z = 0;
+			t.x = 1;
+			t.y = n / t.y;
+			t.z = 1;
 			selected[0].scale(t);
 		}
 	}
 
-	public void updateScaZfromInput(string s)
+	public void updateScaZfromInput()
 	{
-		if (s.Equals(""))
+		string s = scalePanel.GetComponent<ScaleInput>().zText.text;
+		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
 		}
@@ -818,9 +845,9 @@ public class PlayerController : MonoBehaviour
 		{
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getScale();
-			t.x = 0;
-			t.y = 0;
-			t.z = n - t.x;
+			t.x = 1;
+			t.y = 1;
+			t.z = n / t.z;
 			selected[0].scale(t);
 		}
 	}
