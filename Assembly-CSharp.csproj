@@ -54,6 +54,10 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Core\PlayerController.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightIntensityPanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightPanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightRangePanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightTypePanel.cs" />
      <Compile Include="Assets\Core\SubScripts\PosInput.cs" />
      <Compile Include="Assets\Core\SubScripts\RottInput.cs" />
      <Compile Include="Assets\Core\SubScripts\ScaleInput.cs" />

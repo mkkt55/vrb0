@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 	public GameObject positionPanel;
 	public GameObject rotatePanel;
 	public GameObject scalePanel;
+	public GameObject lightPanel;
 
 	public GameObject mainMenu;
 
@@ -57,6 +58,9 @@ public class PlayerController : MonoBehaviour
 	public GameObject placeButton;
 	public GameObject placeButtonSubCanvas;
 
+	public GameObject lightButton;
+	public GameObject lightButtonSubCanvas;
+
 	public GameObject editButton;
 	public GameObject editButtonSubCanvas;
 
@@ -67,10 +71,13 @@ public class PlayerController : MonoBehaviour
 
 	public GameObject orientationIndicator;
 
+	public GameObject placementTarget;
+
 	public Text txt;
 
 	public int oMode = 0; // 当前操作模式，0为平移模式，1为旋转模式，2为伸缩模式
 	public bool isEditing = false;
+	public bool isPlacement = false;
 
 	public float moveSpeed; //操作物体时的移动速度
 	public float moveSelfSpeed; //摄像机的移动速度
@@ -111,11 +118,15 @@ public class PlayerController : MonoBehaviour
 		scrollContent = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel/ScrollView/Viewport/Content");
 
 		transformPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel");
+		transformPanel.SetActive(false);
 
 		positionPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/PositionPanel");
 		rotatePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/RotatePanel");
 		scalePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/ScalePanel");
-		
+
+		lightPanel = GameObject.Find("PlayerController/InfoCanvas/LightPanel");
+		lightPanel.SetActive(false);
+
 		mainMenu = GameObject.Find("MainMenu");
 
 		moveButton = GameObject.Find("MainMenu/MoveButton");
@@ -138,6 +149,11 @@ public class PlayerController : MonoBehaviour
 
 		placeButton = GameObject.Find("MainMenu/PlaceButton");
 		placeButtonSubCanvas = GameObject.Find("MainMenu/PlaceButton/SubCanvas");
+		placeButtonSubCanvas.SetActive(false);
+
+		lightButton = GameObject.Find("MainMenu/LightButton");
+		lightButtonSubCanvas = GameObject.Find("MainMenu/LightButton/SubCanvas");
+		lightButtonSubCanvas.SetActive(false);
 
 		editButton = GameObject.Find("MainMenu/EditButton");
 		editButtonSubCanvas = GameObject.Find("MainMenu/EditButton/SubCanvas");
@@ -148,8 +164,11 @@ public class PlayerController : MonoBehaviour
 		dpnCamera = GameObject.Find("PlayerController/DpnCameraRig");
 
 		txt = GameObject.Find("DebugText").GetComponent<Text>();
+
 		orientationIndicator = GameObject.Find("OrientationIndicator");
 
+		placementTarget = GameObject.Find("PlacementTarget");
+		placementTarget.SetActive(false);
 
 		positionPanel.GetComponent<PosInput>().init();
 		rotatePanel.GetComponent<RottInput>().init();
@@ -160,10 +179,7 @@ public class PlayerController : MonoBehaviour
 		exitEdit();
 		exitMultiSelect();
 
-		transformPanel.SetActive(false);
-
-
-
+		
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
 	}
@@ -217,91 +233,108 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-
-		// VR手柄操作
-		// 平移模式
-		if (selected.Count > 0)
+		if (isPlacement)
 		{
-			if (oMode == 0)
+			if (DpnDaydreamController.TriggerButton)
 			{
-				if (DpnDaydreamController.TriggerButton && !DpnDaydreamController.TriggerButtonDown && !DpnDaydreamController.TriggerButtonUp)
-				{
-					Vector3 v = new Vector3(0, 0, 1);
-					Vector3 d = (orientation * v - orientationLastFrame * v) * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
-					d.z = 0;
-					moveSelected(d);
-					positionPanel.GetComponent<PosInput>().updateValue();
-				}
-				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
-				{ 
-					if (touchVector.y >= 0)
-					{
-						moveSelected(Vector3.forward * Time.deltaTime * moveSpeed);
-					}
-					else
-					{
-						moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
-					}
-					positionPanel.GetComponent<PosInput>().updateValue();
-				}
-			}
-			// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
-			else if (oMode == 1)
-			{
-				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
-				{
-					if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
-					{
-						rotateSelected(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
-					}
-					else
-					{
-						rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
-					}
-					rotatePanel.GetComponent<RottInput>().updateValue();
-				}
-			}
-			// 缩放模式
-			else if (oMode == 2)
-			{
-				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
-				{
-					if (touchVector.x < 0)
-					{
-						scaleSelected(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
-					}
-					else
-					{
-						scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
-					}
-					scalePanel.GetComponent<ScaleInput>().updateValue();
-				}
+				// 假设手柄指向前方距离为1的x-y平面上，手柄与平面的交点
+				Vector3 pointOnXyPlane = orientation * Vector3.forward * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+				pointOnXyPlane.x = pointOnXyPlane.x * Mathf.Sqrt(pointOnXyPlane.x * pointOnXyPlane.x + pointOnXyPlane.z * pointOnXyPlane.z) / Mathf.Abs(pointOnXyPlane.z);
+				pointOnXyPlane.y = pointOnXyPlane.y * Mathf.Sqrt(pointOnXyPlane.y * pointOnXyPlane.y + pointOnXyPlane.z * pointOnXyPlane.z) / Mathf.Abs(pointOnXyPlane.z);
+				pointOnXyPlane.z = 0;
+				placementTarget.transform.position = pointOnXyPlane;
 			}
 		}
-		// 未选中物体，控制自己
 		else
 		{
-			if (DpnDaydreamController.ClickButton && DpnDaydreamController.IsTouching)
+			// VR手柄操作
+			// 平移模式
+			if (selected.Count > 0)
 			{
-				if (touchVector.y > 0)
+				if (oMode == 0)
 				{
-					dpnCamera.transform.Translate(0, 0, Time.deltaTime * moveSelfSpeed);
+					if (DpnDaydreamController.TriggerButton && !DpnDaydreamController.TriggerButtonDown && !DpnDaydreamController.TriggerButtonUp)
+					{
+						// 假设手柄指向前方距离为1的x-y平面上，手柄射线与这个面的交点和上一帧相比，在平面上的向量移动长度。
+						Vector3 dvPerDist = (orientation * Vector3.forward - orientationLastFrame * Vector3.forward);
+						dvPerDist.x = dvPerDist.x * Mathf.Sqrt(dvPerDist.x * dvPerDist.x + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+						dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+						dvPerDist.z = 0;
+						// 乘以z方向的距离即可
+						Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+						moveSelected(d);
+						positionPanel.GetComponent<PosInput>().updateValue();
+					}
+					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
+					{
+						if (touchVector.y >= 0)
+						{
+							moveSelected(Vector3.forward * Time.deltaTime * moveSpeed);
+						}
+						else
+						{
+							moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
+						}
+						positionPanel.GetComponent<PosInput>().updateValue();
+					}
 				}
-				else
+				// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
+				else if (oMode == 1)
 				{
-					dpnCamera.transform.Translate(0, 0, -Time.deltaTime * moveSelfSpeed);
+					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+					{
+						if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
+						{
+							rotateSelected(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
+						}
+						else
+						{
+							rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
+						}
+						rotatePanel.GetComponent<RottInput>().updateValue();
+					}
+				}
+				// 缩放模式
+				else if (oMode == 2)
+				{
+					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+					{
+						if (touchVector.x < 0)
+						{
+							scaleSelected(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
+						}
+						else
+						{
+							scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
+						}
+						scalePanel.GetComponent<ScaleInput>().updateValue();
+					}
 				}
 			}
-			if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+			// 未选中物体，控制自己
+			else
 			{
-				if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
+				if (DpnDaydreamController.ClickButton && DpnDaydreamController.IsTouching)
 				{
-					gameObject.transform.Rotate(0, -touchVector.x * Time.deltaTime * rotateSelfSpeed, 0);
+					if (touchVector.y > 0)
+					{
+						dpnCamera.transform.Translate(0, 0, Time.deltaTime * moveSelfSpeed);
+					}
+					else
+					{
+						dpnCamera.transform.Translate(0, 0, -Time.deltaTime * moveSelfSpeed);
+					}
 				}
-				else
+				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
 				{
-					gameObject.transform.Rotate(touchVector.y * Time.deltaTime * rotateSelfSpeed, 0, 0);
+					if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
+					{
+						gameObject.transform.Rotate(0, -touchVector.x * Time.deltaTime * rotateSelfSpeed, 0);
+					}
+					else
+					{
+						gameObject.transform.Rotate(touchVector.y * Time.deltaTime * rotateSelfSpeed, 0, 0);
+					}
 				}
 			}
 		}
@@ -400,6 +433,7 @@ public class PlayerController : MonoBehaviour
 
 	public void select(VrbTarget t)
 	{
+		// 如果在编辑模式下选中，则只能是选中了InfoCanvas上的物体。
 		if (isEditing && t.getType().Equals("object"))
 		{
 			return;
@@ -417,19 +451,24 @@ public class PlayerController : MonoBehaviour
 		{
 			transformPanel.SetActive(true);
 		}
-		if (t.getType().Equals("face"))
+		else if (t.getType().Equals("light"))
+		{
+			transformPanel.SetActive(true);
+			lightPanel.SetActive(true);
+		}
+		else if (t.getType().Equals("face"))
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
 			scalePanel.SetActive(false);
 		}
-		if (t.getType().Equals("edge"))
+		else if (t.getType().Equals("edge"))
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
 			scalePanel.SetActive(false);
 		}
-		if (t.getType().Equals("vertex"))
+		else if (t.getType().Equals("vertex"))
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
@@ -684,9 +723,55 @@ public class PlayerController : MonoBehaviour
 		VrbModel.openModel(filePath);
 	}
 
-	public void placeObject()
+	public void placeObject(string s)
 	{
+		if (s.Equals("Cube"))
+		{
+			VrbModel.createCube(placementTarget.transform.position.x, placementTarget.transform.position.y, 0, 100, 100, 100).displayModel();
+		}
 
+		if (s.Equals("Directional") || s.Equals("Point") || s.Equals("Spot"))
+		{
+			(new VrbLight(placementTarget.transform.position.x, placementTarget.transform.position.y, 0, s)).displayModel();
+		}
+	}
+
+	public void switchLightButton()
+	{
+		if (!lightButtonSubCanvas.activeSelf)
+		{
+			isPlacement = true;
+			placementTarget.SetActive(true);
+			lightButtonSubCanvas.SetActive(true);
+		}
+		else
+		{
+			if (!placeButtonSubCanvas.activeSelf)
+			{
+				isPlacement = false;
+				placementTarget.SetActive(false);
+			}
+			lightButtonSubCanvas.SetActive(false);
+		}
+	}
+
+	public void switchPlacement()
+	{
+		if (!placeButtonSubCanvas.activeSelf)
+		{
+			isPlacement = true;
+			placementTarget.SetActive(true);
+			placeButtonSubCanvas.SetActive(true);
+		}
+		else
+		{
+			if (!lightButtonSubCanvas.activeSelf)
+			{
+				isPlacement = false;
+				placementTarget.SetActive(false);
+			}
+			placeButtonSubCanvas.SetActive(false);
+		}
 	}
 
 	public void updatePosXfromInput()

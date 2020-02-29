@@ -25,25 +25,25 @@ public class VrbVertex : VrbTarget
 {
 	public static List<VrbVertex> all = new List<VrbVertex>();
 
-	private int index;
+	public int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	private void addToStatic()
+	public void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
 	}
 
 	public Vector3 vector3;
-	private GameObject gameObject;
-	private Transform transform;
-	private Material material;
-	private Color defaultColor;
-	private bool constructed = false;
-	private bool displayed = false;
+	public GameObject gameObject;
+	public Transform transform;
+	public Material material;
+	public Color defaultColor;
+	public bool constructed = false;
+	public bool displayed = false;
 
 	public VrbVertex(float _x, float _y, float _z)
 	{
@@ -52,7 +52,7 @@ public class VrbVertex : VrbTarget
 		vector3 = new Vector3(_x, _y, _z);
 	}
 
-	private void constructModel()
+	public void constructModel()
 	{
 		GameObject r = Resources.Load("VrbVertex") as GameObject;
 		gameObject = GameObject.Instantiate(r);
@@ -147,13 +147,13 @@ public class VrbTriangle
 {
 	public static List<VrbTriangle> all = new List<VrbTriangle>();
 
-	private int index;
+	public int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	private void addToStatic()
+	public void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
@@ -185,13 +185,13 @@ public class VrbEdge : VrbTarget
 {
 	public static List<VrbEdge> all = new List<VrbEdge>();
 
-	private int index;
+	public int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	private void addToStatic()
+	public void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
@@ -199,14 +199,14 @@ public class VrbEdge : VrbTarget
 
 	public VrbVertex v0;
 	public VrbVertex v1;
-	private GameObject gameObject;
-	private Transform transform;
-	private Material material;
-	private Color defaultColor;
-	private bool constructed = false;
-	private bool displayed = false;
+	public GameObject gameObject;
+	public Transform transform;
+	public Material material;
+	public Color defaultColor;
+	public bool constructed = false;
+	public bool displayed = false;
 
-	private VrbEdge(VrbVertex _v0, VrbVertex _v1)
+	public VrbEdge(VrbVertex _v0, VrbVertex _v1)
 	{
 		addToStatic();
 		v0 = _v0;
@@ -240,7 +240,7 @@ public class VrbEdge : VrbTarget
 		return null;
 	}
 
-	private void constructModel()
+	public void constructModel()
 	{
 		GameObject r = Resources.Load("VrbEdge") as GameObject;
 		gameObject = GameObject.Instantiate(r);
@@ -345,13 +345,13 @@ public class VrbFace : VrbTarget
 {
 	public static List<VrbFace> all = new List<VrbFace>();
 
-	private int index;
+	public int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	private void addToStatic()
+	public void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
@@ -366,12 +366,12 @@ public class VrbFace : VrbTarget
 
 	public Mesh mesh; // 用来展示的mesh
 	public MeshCollider meshCollider;
-	private GameObject gameObject;
+	public GameObject gameObject;
 	public Material material;
-	private Color defaultColor;
+	public Color defaultColor;
 
-	private bool constructed = false;
-	private bool displayed = false;
+	public bool constructed = false;
+	public bool displayed = false;
 
 	public VrbFace(List<VrbTriangle> t)
 	{
@@ -381,7 +381,7 @@ public class VrbFace : VrbTarget
 		calSelf();
 	}
 
-	private void calSelf()
+	public void calSelf()
 	{
 		fVertices = new List<VrbVertex>();
 		fVectors = new List<Vector3>();
@@ -611,13 +611,13 @@ public class VrbObject : VrbTarget
 	public static List<VrbObject> all = new List<VrbObject>();
 	public static VrbObject editingObject = null;
 
-	private int index;
+	public int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	private void addToStatic()
+	public void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
@@ -632,7 +632,7 @@ public class VrbObject : VrbTarget
 	public List<VrbEdge> edges;
 	public List<Vector3> vectors;
 	public List<int> triangles;
-	private GameObject gameObject;
+	public GameObject gameObject;
 	public Mesh mesh;
 	public MeshCollider meshCollider;
 	public MeshRenderer meshRenderer;
@@ -641,13 +641,13 @@ public class VrbObject : VrbTarget
 	public Material material;
 	public Material defaultMat;
 	public Color defaultColor;
-	private Material selectedMat;
-	private Color selectedColor;
+	public Material selectedMat;
+	public Color selectedColor;
 
 	public GameObject UiItem;
 
-	private bool constructed = false;
-	private bool displayed = false;
+	public bool constructed = false;
+	public bool displayed = false;
 
 	public VrbObject(Vector3 p)
 	{
@@ -682,7 +682,7 @@ public class VrbObject : VrbTarget
 		calSelf();
 	}
 
-	private void calSelf()
+	public void calSelf()
 	{
 		vertices = new List<VrbVertex>();
 		vectors = new List<Vector3>();
@@ -732,7 +732,7 @@ public class VrbObject : VrbTarget
 		mesh.RecalculateTangents();
 	}
 
-	public void constructModel()
+	public virtual void constructModel()
 	{
 		GameObject r = Resources.Load("VrbObject") as GameObject;
 		gameObject = GameObject.Instantiate(r);
@@ -854,7 +854,7 @@ public class VrbObject : VrbTarget
 		}
 	}
 
-	public string getType()
+	public virtual string getType()
 	{
 		return "object";
 	}
@@ -896,6 +896,86 @@ public class VrbObject : VrbTarget
 	public Vector3 getScale()
 	{
 		return gameObject.transform.localScale;
+	}
+}
+
+
+public class VrbLight : VrbObject
+{
+	public Light light;
+	public LightType type
+	{
+		get
+		{
+			return light.type;
+		}
+		set
+		{
+			light.type = value;
+		}
+	}
+
+	public float range
+	{
+		get
+		{
+			return light.range;
+		}
+		set
+		{
+			light.range = value;
+		}
+	}
+
+	public float intensity
+	{
+		get
+		{
+			return light.intensity;
+		}
+		set
+		{
+			light.intensity = value;
+		}
+	}
+
+	public VrbLight(float x, float y, float z, string t = "Direction", float r = 500, float i = 100):base(x,y,z,new List<VrbFace>())
+	{
+		GameObject g = Resources.Load("VrbLight") as GameObject;
+		gameObject = GameObject.Instantiate(g);
+		light = gameObject.GetComponent<Light>();
+		range = r;
+		intensity = i;
+		if (t.Equals("Directional"))
+		{
+			light.type = LightType.Directional;
+		}
+		else if (t.Equals("Point"))
+		{
+			light.type = LightType.Point;
+		}
+		else if (t.Equals("Spot"))
+		{
+			light.type = LightType.Spot;
+		}
+	}
+
+	public override void constructModel()
+	{
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
+
+		material = new Material(Shader.Find("Custom/DoubleSided"));
+		defaultColor = material.color;
+		selectedColor = Color.red;
+
+		constructed = true;
+	}
+
+	public override string getType()
+	{
+		return "light";
 	}
 }
 
