@@ -170,6 +170,7 @@ public class PlayerController : MonoBehaviour
 		placementTarget = GameObject.Find("PlacementTarget");
 		placementTarget.SetActive(false);
 
+		lightPanel.GetComponent<LightPanel>().init();
 		positionPanel.GetComponent<PosInput>().init();
 		rotatePanel.GetComponent<RottInput>().init();
 		scalePanel.GetComponent<ScaleInput>().init();
@@ -480,6 +481,7 @@ public class PlayerController : MonoBehaviour
 	public void clearSingleSelection()
 	{
 		transformPanel.SetActive(false);
+		lightPanel.SetActive(false);
 		if (!isMultiSelect && selected.Count > 0)
 		{
 			selected[0].deSelect();
@@ -490,6 +492,7 @@ public class PlayerController : MonoBehaviour
 	public void clearAllSelection()
 	{
 		transformPanel.SetActive(false);
+		lightPanel.SetActive(false);
 		for (int i = 0; i < selected.Count; i++)
 		{
 			selected[i].deSelect();

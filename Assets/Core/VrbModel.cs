@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 public interface VrbTarget
 {
@@ -72,7 +72,7 @@ public class VrbVertex : VrbTarget
 
 	public void select()
 	{
-		material.color = Color.red;
+		material.color = new Color(1f, 0.6f, 0.6f);
 	}
 
 	public void deSelect()
@@ -259,7 +259,7 @@ public class VrbEdge : VrbTarget
 
 	public void select()
 	{
-		material.color = Color.red;
+		material.color = new Color(1f, 0.6f, 0.6f);
 	}
 
 	public void deSelect()
@@ -331,7 +331,8 @@ public class VrbEdge : VrbTarget
 
 	public Vector3 getRotate()
 	{
-		return gameObject.transform.rotation * Vector3.forward;
+		//return gameObject.transform.rotation * Vector3.forward;
+		return Vector3.zero;
 	}
 
 	public Vector3 getScale()
@@ -502,7 +503,7 @@ public class VrbFace : VrbTarget
 
 	public void select()
 	{
-		material.color = Color.red;
+		material.color = new Color(1f, 0.6f, 0.6f);
 	}
 
 	public void deSelect()
@@ -627,6 +628,8 @@ public class VrbObject : VrbTarget
 	public int rx, ry, rz; // 旋转
 	public Vector3 scaleVector; // 三方向scale
 
+	public string name;
+
 	public List<VrbFace> faces;
 	public List<VrbVertex> vertices;
 	public List<VrbEdge> edges;
@@ -649,16 +652,18 @@ public class VrbObject : VrbTarget
 	public bool constructed = false;
 	public bool displayed = false;
 
-	public VrbObject(Vector3 p)
+	public VrbObject(Vector3 p, string _name = "")
 	{
+		name = _name;
 		position = p;
 		faces = new List<VrbFace>();
 		addToStatic();
 		calSelf();
 	}
 
-	public VrbObject(float x, float y, float z)
+	public VrbObject(float x, float y, float z, string _name = "")
 	{
+		name = _name;
 		position = new Vector3(x, y, z);
 		faces = new List<VrbFace>();
 		addToStatic();
@@ -666,20 +671,27 @@ public class VrbObject : VrbTarget
 	}
 
 
-	public VrbObject(Vector3 p, List<VrbFace> _faces)
+	public VrbObject(Vector3 p, List<VrbFace> _faces, string _name = "")
 	{
+		name = _name;
 		position = p;
 		faces = _faces;
 		addToStatic();
 		calSelf();
 	}
 
-	public VrbObject(float x, float y, float z, List<VrbFace> _faces)
+	public VrbObject(float x, float y, float z, List<VrbFace> _faces, string _name = "")
 	{
+		name = _name;
 		position = new Vector3(x, y, z);
 		faces = _faces;
 		addToStatic();
 		calSelf();
+	}
+
+	public void setName(string _name)
+	{
+		name = _name;
 	}
 
 	public void calSelf()
@@ -757,7 +769,7 @@ public class VrbObject : VrbTarget
 		material = meshRenderer.material;
 		defaultColor = material.color;
 		defaultMat = material;
-		selectedColor = Color.red;
+		selectedColor = new Color(1f, 0.6f, 0.6f);
 		selectedMat = new Material(Shader.Find("Custom/SelectedEffect"));
 
 		GameObject rui = Resources.Load("Object-UI") as GameObject;
@@ -767,14 +779,18 @@ public class VrbObject : VrbTarget
 		constructed = true;
 	}
 
-	public void select()
+	public virtual void select()
 	{
 		material.color = selectedColor;
+		UiItem.GetComponent<Image>().color = new Color(1f, 0.6f, 0.6f);
+		UiItem.GetComponent<VrbObjectUI>().isSelected = true;
 	}
 
-	public void deSelect()
+	public virtual void deSelect()
 	{
 		material.color = defaultColor;
+		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+		UiItem.GetComponent<VrbObjectUI>().isSelected = false;
 	}
 
 	public void displayModel()
@@ -890,7 +906,7 @@ public class VrbObject : VrbTarget
 
 	public Vector3 getRotate()
 	{
-		return gameObject.transform.rotation * Vector3.forward;
+		return gameObject.transform.rotation.eulerAngles;
 	}
 
 	public Vector3 getScale()
@@ -939,7 +955,7 @@ public class VrbLight : VrbObject
 		}
 	}
 
-	public VrbLight(float x, float y, float z, string t = "Direction", float r = 500, float i = 100):base(x,y,z,new List<VrbFace>())
+	public VrbLight(float x, float y, float z, string t = "Direction", float r = 500, float i = 1):base(x,y,z,new List<VrbFace>())
 	{
 		GameObject g = Resources.Load("VrbLight") as GameObject;
 		gameObject = GameObject.Instantiate(g);
@@ -968,7 +984,7 @@ public class VrbLight : VrbObject
 
 		material = new Material(Shader.Find("Custom/DoubleSided"));
 		defaultColor = material.color;
-		selectedColor = Color.red;
+		selectedColor = new Color(1f, 0.6f, 0.6f);
 
 		constructed = true;
 	}
@@ -1068,7 +1084,7 @@ public static class VrbModel
 		fList.Add(f3);
 		fList.Add(f4);
 		fList.Add(f5);
-		return new VrbObject(xp, yp, zp, fList);
+		return new VrbObject(xp, yp, zp, fList, "Cube");
 	}
 
 	public static bool openModel(string path)
