@@ -804,7 +804,7 @@ public class PlayerController : MonoBehaviour
 		}
 		if (selected.Count > 0)
 		{
-			Debug.LogWarning("now move, " + s + "->" + selected[0].getPosition());
+			//Debug.LogWarning("now move, " + s + "->" + selected[0].getPosition());
 			float n = float.Parse(s);
 			Vector3 t = selected[0].getPosition();
 			t.x = 0;
@@ -940,6 +940,32 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 	
+	public void deleteSelection()
+	{
+		for (int i = 0; i < selected.Count; i++)
+		{
+			if (selected[i].getType().Equals("light") || selected[i].getType().Equals("object"))
+			{
+				VrbModel.deleteObject((VrbObject)selected[i]);
+			}
+			else if (selected[i].getType().Equals("face"))
+			{
+				VrbModel.deleteFace((VrbFace)selected[i]);
+			}
+			else if (selected[i].getType().Equals("vertex"))
+			{
+				VrbModel.deleteVertex((VrbVertex)selected[i]);
+			}
+			else if (selected[i].getType().Equals("edge"))
+			{
+				VrbModel.deleteEdge((VrbEdge)selected[i]);
+			}
+		}
+
+		transformPanel.SetActive(false);
+		lightPanel.SetActive(false);
+		selected.Clear();
+	}
 	/*
 	/// <summary>
 	/// 鼠键控制player移动

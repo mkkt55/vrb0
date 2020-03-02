@@ -70,6 +70,18 @@ public class VrbVertex : VrbTarget
 		constructed = true;
 	}
 
+	public bool isIsolate()
+	{
+		for (int i = 0; i < VrbTriangle.all.Count; i++)
+		{
+			if (VrbTriangle.all[i].v0 == this || VrbTriangle.all[i].v1 == this || VrbTriangle.all[i].v2 == this)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void select()
 	{
 		material.color = new Color(1f, 0.6f, 0.6f);
@@ -849,6 +861,11 @@ public class VrbObject : VrbTarget
 			{
 				editingObject.edges[i].hideModel();
 			}
+			GameObject.Destroy(editingObject.gameObject);
+			GameObject.Destroy(editingObject.UiItem);
+			editingObject.constructed = false;
+			editingObject.calSelf();
+			editingObject.displayModel();
 			displayAll();
 			editingObject = null;
 		}
@@ -958,20 +975,23 @@ public class VrbLight : VrbObject
 	public VrbLight(float x, float y, float z, string t = "Direction", float r = 500, float i = 1):base(x,y,z,new List<VrbFace>())
 	{
 		GameObject g = Resources.Load("VrbLight") as GameObject;
-		gameObject = GameObject.Instantiate(g);
+		gameObject = GameObject.Instantiate(g, GameObject.Find("Layout").transform);
 		light = gameObject.GetComponent<Light>();
 		range = r;
 		intensity = i;
 		if (t.Equals("Directional"))
 		{
+			name = "Directional";
 			light.type = LightType.Directional;
 		}
 		else if (t.Equals("Point"))
 		{
+			name = "Point";
 			light.type = LightType.Point;
 		}
 		else if (t.Equals("Spot"))
 		{
+			name = "Spot";
 			light.type = LightType.Spot;
 		}
 	}
@@ -1140,6 +1160,148 @@ public static class VrbModel
 		sb.Append("\n");
 		
 		return sb.ToString();
+	}
+
+	public static void deleteVertex(VrbVertex v)
+	{
+		// 删掉面在object中的引用和面的gameObject，并记录位置以便从VrbFace.all中删除
+		List<VrbFace> fToDelete = new List<VrbFace>();
+		for (int i = 0; i < VrbFace.all.Count; i++)
+		{
+			for (int j = 0; j < VrbFace.all[i].fVertices.Count; j++)
+			{
+				if (VrbFace.all[i].fVertices[j] == v)
+				{
+					GameObject.Destroy(VrbFace.all[i].gameObject);
+					VrbObject.editingObject.faces.Remove(VrbFace.all[i]);
+					fToDelete.Add(VrbFace.all[i]);
+					break;
+				}
+			}
+		}
+		// 从VrbFace.all中删掉，顺便删掉所有VrbTriangle
+		for (int i=0; i < VrbFace.all.Count; i++)
+		{
+			for (int j = 0; j < fToDelete.Count; j++)
+			{
+				if (VrbFace.all[i] == fToDelete[j])
+				{
+					foreach (VrbTriangle t in VrbFace.all[i].ftOriginal)
+					{
+						VrbTriangle.all.Remove(t);
+					}
+					VrbFace.all.RemoveAt(i);
+					break;
+				}
+			}
+		}
+
+		// 删除边的gameObject
+		for (int i = 0; i < VrbEdge.all.Count; i++)
+		{
+			if (VrbEdge.all[i].v0 == v || VrbEdge.all[i].v1 == v)
+			{
+				GameObject.Destroy(VrbEdge.all[i].gameObject);
+			}
+		}
+		// 删除边
+		VrbEdge.all.RemoveAll(e => e.v0 == v || e.v1 == v);
+
+		GameObject.Destroy(v.gameObject);
+	}
+
+	public static void deleteEdge(VrbEdge e)
+	{
+		List<VrbFace> fToDelete = new List<VrbFace>();
+		for (int i = 0; i < VrbFace.all.Count; i++)
+		{
+			for (int j = 0; j < VrbFace.all[i].fEdges.Count; j++)
+			{
+				if (VrbFace.all[i].fEdges[j] == e)
+				{
+					GameObject.Destroy(VrbFace.all[i].gameObject);
+					VrbObject.editingObject.faces.Remove(VrbFace.all[i]);
+					fToDelete.Add(VrbFace.all[i]);
+					break;
+				}
+			}
+		}
+		// 从VrbFace.all中删掉，顺便删掉所有VrbTriangle
+		for (int i = 0; i < VrbFace.all.Count; i++)
+		{
+			for (int j = 0; j < fToDelete.Count; j++)
+			{
+				if (VrbFace.all[i] == fToDelete[j])
+				{
+					foreach (VrbTriangle t in VrbFace.all[i].ftOriginal)
+					{
+						VrbTriangle.all.Remove(t);
+					}
+					VrbFace.all.RemoveAt(i);
+					break;
+				}
+			}
+		}
+
+		// 查找对triangle对vertex的引用，如果没有引用就删掉这个点
+		if (e.v0.isIsolate())
+		{
+			deleteVertex(e.v0);
+		}
+		if (e.v1.isIsolate())
+		{
+			deleteVertex(e.v1);
+		}
+
+		GameObject.Destroy(e.gameObject);
+	}
+
+	public static void deleteFace(VrbFace f)
+	{
+		GameObject.Destroy(f.gameObject);
+		VrbObject.editingObject.faces.Remove(f);
+		// 从f中删掉所有VrbTriangle
+		foreach (VrbTriangle t in f.ftOriginal)
+		{
+			VrbTriangle.all.Remove(t);
+		}
+
+		for (int i=0;i< f.fVertices.Count; i++)
+		{
+			if (f.fVertices[i].isIsolate())
+			{
+				deleteVertex(f.fVertices[i]);
+			}
+		}
+		VrbFace.all.Remove(f);
+	}
+
+	public static void deleteObject(VrbObject o)
+	{
+		// 删面、三角和边
+		for (int i = 0; i < o.faces.Count; i++)
+		{
+			foreach (VrbTriangle t in o.faces[i].ftOriginal)
+			{
+				VrbTriangle.all.Remove(t);
+			}
+			foreach (VrbEdge e in o.faces[i].fEdges)
+			{
+				GameObject.Destroy(e.gameObject);
+				VrbEdge.all.Remove(e);
+			}
+			GameObject.Destroy(o.faces[i].gameObject);
+			VrbFace.all.Remove(o.faces[i]);
+		}
+		// 删掉所有点就OK了
+		for (int i = 0; i < o.vertices.Count; i++)
+		{
+			GameObject.Destroy(o.vertices[i].gameObject);
+			VrbVertex.all.Remove(o.vertices[i]);
+		}
+		GameObject.Destroy(o.gameObject);
+		GameObject.Destroy(o.UiItem);
+		VrbObject.all.Remove(o);
 	}
 
 }
