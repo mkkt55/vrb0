@@ -58,6 +58,7 @@
      <Compile Include="Assets\Core\SubScripts\PosInput.cs" />
      <Compile Include="Assets\Core\SubScripts\RottInput.cs" />
      <Compile Include="Assets\Core\SubScripts\ScaleInput.cs" />
+     <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
      <Compile Include="Assets\Core\VrbEditableEdge.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />
      <Compile Include="Assets\Core\VrbEditableVertex.cs" />
@@ -65,6 +66,7 @@
      <Compile Include="Assets\Core\VrbObjectUI.cs" />
      <Compile Include="Assets\Core\VrbSelectableLight.cs" />
      <Compile Include="Assets\Core\VrbSelectableObject.cs" />
+     <Compile Include="Assets\Core\VrbSetting.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointer.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnBasePointerRaycaster.cs" />
      <Compile Include="Assets\DPN\GazeCursor\DpnEventInterfacesExtension.cs" />

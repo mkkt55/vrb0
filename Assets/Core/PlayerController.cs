@@ -55,6 +55,11 @@ public class PlayerController : MonoBehaviour
 
 	public Color disableColor = Color.black;
 
+	public GameObject projectButton;
+	public GameObject projectButtonSubCanvas;
+
+	public GameObject settingButtonSubCanvas;
+
 	public GameObject placeButton;
 	public GameObject placeButtonSubCanvas;
 
@@ -72,6 +77,8 @@ public class PlayerController : MonoBehaviour
 	public GameObject orientationIndicator;
 
 	public GameObject placementTarget;
+
+	public GameObject textIndicator;
 
 	public Text txt;
 
@@ -147,6 +154,13 @@ public class PlayerController : MonoBehaviour
 		sby = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Y");
 		sbz = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Z");
 
+		projectButton = GameObject.Find("MainMenu/ProjectButton");
+		projectButtonSubCanvas = GameObject.Find("MainMenu/ProjectButton/SubCanvas");
+		projectButtonSubCanvas.SetActive(false);
+
+		settingButtonSubCanvas = GameObject.Find("PlayerController/SettingCanvas");
+		settingButtonSubCanvas.SetActive(false);
+
 		placeButton = GameObject.Find("MainMenu/PlaceButton");
 		placeButtonSubCanvas = GameObject.Find("MainMenu/PlaceButton/SubCanvas");
 		placeButtonSubCanvas.SetActive(false);
@@ -175,6 +189,8 @@ public class PlayerController : MonoBehaviour
 		rotatePanel.GetComponent<RottInput>().init();
 		scalePanel.GetComponent<ScaleInput>().init();
 
+		textIndicator = GameObject.Find("PlayerController/DpnCameraRig/Canvas/Panel");
+		textIndicator.SetActive(false);
 
 		setMoveMode();
 		exitEdit();
@@ -183,6 +199,9 @@ public class PlayerController : MonoBehaviour
 		
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
+
+		select((VrbTarget)GameObject.Find("Layout/VrbObject(Clone)").GetComponent<VrbSelectableObject>().o);
+		saveModel();
 	}
 
 	void Update()
@@ -715,8 +734,9 @@ public class PlayerController : MonoBehaviour
 	public void saveModel()
 	{
 		string filePath;
-		filePath = "/vrb/zz.obj";
+		filePath = "d:/zz.obj";
 		VrbModel.saveModel(filePath);
+		textIndicator.GetComponent<TextIndicator>().display("Object exported to " + filePath);
 	}
 
 	public void openModel()
@@ -755,6 +775,30 @@ public class PlayerController : MonoBehaviour
 				placementTarget.SetActive(false);
 			}
 			lightButtonSubCanvas.SetActive(false);
+		}
+	}
+
+	public void switchProjectSubCanvas()
+	{
+		if (!projectButtonSubCanvas.activeSelf)
+		{
+			projectButtonSubCanvas.SetActive(true);
+		}
+		else
+		{
+			projectButtonSubCanvas.SetActive(false);
+		}
+	}
+
+	public void switchSettingSubCanvas()
+	{
+		if (!settingButtonSubCanvas.activeSelf)
+		{
+			settingButtonSubCanvas.SetActive(true);
+		}
+		else
+		{
+			settingButtonSubCanvas.SetActive(false);
 		}
 	}
 
