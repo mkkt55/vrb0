@@ -178,6 +178,30 @@ public class VrbTriangle
 	public VrbEdge e1;
 	public VrbEdge e2;
 
+	public List<Vector3> vectors
+	{
+		get
+		{
+			Vector3 normal_0 = Vector3.Cross(v0.vector3 - v1.vector3, v0.vector3 - v2.vector3).normalized;
+
+			Vector3 normal_1 = -normal_0;
+
+			List<Vector3> list = new List<Vector3>();
+
+			list.Add(v0.vector3 + 0.1f * normal_0);
+			list.Add(v1.vector3 + 0.1f * normal_0);
+			list.Add(v2.vector3 + 0.1f * normal_0);
+
+			list.Add(v0.vector3 + 0.1f * normal_1);
+			list.Add(v2.vector3 + 0.1f * normal_1);
+			list.Add(v1.vector3 + 0.1f * normal_1);
+			return list;
+		}
+	}
+
+	public Color color_0;
+	public Color color_1;
+
 	public VrbTriangle(VrbVertex _v0, VrbVertex _v1, VrbVertex _v2)
 	{
 		v0 = _v0;
@@ -370,12 +394,59 @@ public class VrbFace : VrbTarget
 		all.Add(this);
 	}
 
-	public List<VrbVertex> fVertices; // 面的顶点
-	public List<Vector3> fVectors; // 面的顶点
-
 	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
+
+	public List<VrbVertex> fVertices // 面的顶点
+	{
+		get
+		{
+			List<VrbVertex> list = new List<VrbVertex>();
+			for (int i = 0; i < ftOriginal.Count; i++)
+			{
+				if (list.IndexOf(ftOriginal[i].v0) == -1)
+				{
+					list.Add(ftOriginal[i].v0);
+				}
+				if (list.IndexOf(ftOriginal[i].v1) == -1)
+				{
+					list.Add(ftOriginal[i].v1);
+				}
+				if (list.IndexOf(ftOriginal[i].v2) == -1)
+				{
+					list.Add(ftOriginal[i].v2);
+				}
+			}
+			return list;
+		}
+	}
+
 	public List<VrbEdge> fEdges;
-	public List<int> fTriangles; // 代表三角面片在自己的fVertices数组中的位置，是上一个的三倍
+
+	public List<Vector3> fVectors // 面的顶点
+	{
+		get
+		{
+			List<Vector3> list = new List<Vector3>();
+			for (int i = 0; i < ftOriginal.Count; i++)
+			{
+				list.AddRange(ftOriginal[i].vectors);
+			}
+			return list;
+		}
+	}
+	public List<int> fTriangles // 代表三角面片在自己的fVertices数组中的位置，是上一个的三倍
+	{
+		get
+		{
+			List<int> list = new List<int>();
+			for (int i = 0; i < 6 * ftOriginal.Count; i++)
+			{
+				list.Add(i);
+			}
+			return list;
+		}
+	}
+	public List<Color> fColors; // 三角形的颜色
 
 	public Mesh mesh; // 用来展示的mesh
 	public MeshCollider meshCollider;
@@ -391,52 +462,20 @@ public class VrbFace : VrbTarget
 		addToStatic();
 
 		ftOriginal = t;
-		calSelf();
+		calEdge();
+		calMesh();
 	}
 
-	public void calSelf()
+	public void calEdge()
 	{
-		fVertices = new List<VrbVertex>();
-		fVectors = new List<Vector3>();
-		// 根据ftOriginal记录的原始面片索引，计算自己的所有顶点索引和顶点信息
-		for (int i = 0; i < ftOriginal.Count; i++)
-		{
-			VrbTriangle t = ftOriginal[i];
-
-			if (fVertices.IndexOf(t.v0) == -1)
-			{
-				fVertices.Add(t.v0);
-				fVectors.Add(t.v0.vector3);
-			}
-
-			if (fVertices.IndexOf(t.v1) == -1)
-			{
-				fVertices.Add(t.v1);
-				fVectors.Add(t.v1.vector3);
-			}
-
-			if (fVertices.IndexOf(t.v2) == -1)
-			{
-				fVertices.Add(t.v2);
-				fVectors.Add(t.v2.vector3);
-			}
-		}
-
-		// 计算自己的三角面片的顶点，在自己的所有顶点中的索引。
-		int[] temp = new int[ftOriginal.Count * 6];
+		// 计算所有边。
 		fEdges = new List<VrbEdge>();
+		// 面的所有边
 		List<VrbEdge> allEdges = new List<VrbEdge>();
 		List<int> fEdgeCount = new List<int>();
 		for (int i = 0; i < ftOriginal.Count; i++)
 		{
 			VrbTriangle t = ftOriginal[i];
-			
-			temp[6 * i] = fVertices.IndexOf(t.v0);
-			temp[6 * i + 1] = fVertices.IndexOf(t.v1);
-			temp[6 * i + 2] = fVertices.IndexOf(t.v2);
-			//temp[6 * i + 3] = fVertices.IndexOf(t.v2);
-			//temp[6 * i + 4] = fVertices.IndexOf(t.v1);
-			//temp[6 * i + 5] = fVertices.IndexOf(t.v0);
 
 			int eIndex = allEdges.IndexOf(t.e0);
 			if (eIndex == -1) {
@@ -470,7 +509,6 @@ public class VrbFace : VrbTarget
 				fEdgeCount[eIndex] += 1;
 			}
 		}
-		fTriangles = new List<int>(temp);
 
 		for (int i = 0; i < allEdges.Count; i++)
 		{
@@ -479,7 +517,10 @@ public class VrbFace : VrbTarget
 				fEdges.Add(allEdges[i]);
 			}
 		}
+	}
 
+	public void calMesh()
+	{
 		mesh = new Mesh();
 		mesh.SetVertices(fVectors);
 		mesh.SetTriangles(fTriangles, 0);
@@ -636,9 +677,9 @@ public class VrbObject : VrbTarget
 		all.Add(this);
 	}
 
-	public Vector3 position; // 位置
-	public int rx, ry, rz; // 旋转
-	public Vector3 scaleVector; // 三方向scale
+	public Vector3 positionVector; // 位置
+	public Vector3 rotationVector = Vector3.zero; // 旋转
+	public Vector3 scaleVector = Vector3.one; // 三方向scale
 
 	public string name;
 
@@ -667,7 +708,7 @@ public class VrbObject : VrbTarget
 	public VrbObject(Vector3 p, string _name = "")
 	{
 		name = _name;
-		position = p;
+		positionVector = p;
 		faces = new List<VrbFace>();
 		addToStatic();
 		calSelf();
@@ -676,7 +717,7 @@ public class VrbObject : VrbTarget
 	public VrbObject(float x, float y, float z, string _name = "")
 	{
 		name = _name;
-		position = new Vector3(x, y, z);
+		positionVector = new Vector3(x, y, z);
 		faces = new List<VrbFace>();
 		addToStatic();
 		calSelf();
@@ -686,7 +727,7 @@ public class VrbObject : VrbTarget
 	public VrbObject(Vector3 p, List<VrbFace> _faces, string _name = "")
 	{
 		name = _name;
-		position = p;
+		positionVector = p;
 		faces = _faces;
 		addToStatic();
 		calSelf();
@@ -695,7 +736,7 @@ public class VrbObject : VrbTarget
 	public VrbObject(float x, float y, float z, List<VrbFace> _faces, string _name = "")
 	{
 		name = _name;
-		position = new Vector3(x, y, z);
+		positionVector = new Vector3(x, y, z);
 		faces = _faces;
 		addToStatic();
 		calSelf();
@@ -715,11 +756,13 @@ public class VrbObject : VrbTarget
 
 		for (int i = 0; i < faces.Count; i++)
 		{
-			for (int j = 0; j < faces[i].fVertices.Count; j++)
+			List<VrbVertex> list = faces[i].fVertices;
+			int n = list.Count;
+			for (int j = 0; j < n; j++)
 			{
-				if (vertices.IndexOf(faces[i].fVertices[j]) == -1)
+				if (vertices.IndexOf(list[j]) == -1)
 				{
-					vertices.Add(faces[i].fVertices[j]);
+					vertices.Add(list[j]);
 				}
 			}
 		}
@@ -729,15 +772,15 @@ public class VrbObject : VrbTarget
 		{
 			for (int j = 0; j < faces[i].ftOriginal.Count; j++)
 			{
-				vectors.Add(faces[i].ftOriginal[j].v0.vector3);
-				triangles.Add(vectors.Count - 1);
-				vectors.Add(faces[i].ftOriginal[j].v1.vector3);
-				triangles.Add(vectors.Count - 1);
-				vectors.Add(faces[i].ftOriginal[j].v2.vector3);
-				triangles.Add(vectors.Count - 1);
-				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v2));
-				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v1));
-				//triangles.Add(vertices.IndexOf(faces[i].ftOriginal[j].v0));
+				vectors.AddRange(faces[i].ftOriginal[j].vectors);
+
+				triangles.Add(triangles.Count);
+				triangles.Add(triangles.Count);
+				triangles.Add(triangles.Count);
+
+				triangles.Add(triangles.Count);
+				triangles.Add(triangles.Count);
+				triangles.Add(triangles.Count);
 			}
 			for (int j = 0; j < faces[i].fEdges.Count; j++)
 			{
@@ -751,9 +794,7 @@ public class VrbObject : VrbTarget
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
 		mesh.SetTriangles(triangles, 0);
-		mesh.RecalculateBounds();
 		mesh.RecalculateNormals();
-		mesh.RecalculateTangents();
 	}
 
 	public virtual void constructModel()
@@ -762,7 +803,9 @@ public class VrbObject : VrbTarget
 		gameObject = GameObject.Instantiate(r);
 
 		gameObject.transform.parent = GameObject.Find("Layout").transform;
-		gameObject.transform.position = position;
+		gameObject.transform.position = positionVector;
+		gameObject.transform.rotation = Quaternion.Euler(rotationVector);
+		gameObject.transform.localScale = scaleVector;
 
 		meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter != null)
@@ -894,12 +937,14 @@ public class VrbObject : VrbTarget
 
 	public void move(Vector3 dv)
 	{
-		position += dv;
+		gameObject.transform.position += dv;
+		positionVector += dv;
 	}
 
 	public void rotate(Vector3 a)
 	{
 		gameObject.transform.Rotate(a);
+		rotationVector += a;
 	}
 
 	public void scale(Vector3 s)
@@ -909,6 +954,7 @@ public class VrbObject : VrbTarget
 		sv.y *= s.y;
 		sv.z *= s.z;
 		gameObject.transform.localScale = sv;
+		scaleVector = sv;
 	}
 
 	public GameObject getGameObject()

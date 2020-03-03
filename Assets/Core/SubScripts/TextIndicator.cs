@@ -20,9 +20,16 @@ public class TextIndicator : MonoBehaviour
 
 	public void display(string s)
 	{
-		gameObject.SetActive(true);
-		t.text = s;
-		Invoke("disappear", 5);
+		if (t == null)
+		{
+			t = GetComponentInChildren<Text>();
+		}
+		if (t != null)
+		{
+			gameObject.SetActive(true);
+			t.text = s;
+			Invoke("disappear", 5);
+		}
 	}
 
 	public void disappear()

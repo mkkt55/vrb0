@@ -199,9 +199,6 @@ public class PlayerController : MonoBehaviour
 		
 		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
 		o.displayModel();
-
-		select((VrbTarget)GameObject.Find("Layout/VrbObject(Clone)").GetComponent<VrbSelectableObject>().o);
-		saveModel();
 	}
 
 	void Update()
@@ -470,11 +467,15 @@ public class PlayerController : MonoBehaviour
 		if (t.getType().Equals("object"))
 		{
 			transformPanel.SetActive(true);
+			rotatePanel.SetActive(true);
+			scalePanel.SetActive(true);
 		}
 		else if (t.getType().Equals("light"))
 		{
 			transformPanel.SetActive(true);
 			lightPanel.SetActive(true);
+			rotatePanel.SetActive(true);
+			scalePanel.SetActive(true);
 		}
 		else if (t.getType().Equals("face"))
 		{

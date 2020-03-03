@@ -14,11 +14,8 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
     // Update is called once per frame
     void Update()
     {
-		for (int i = 0; i < f.fVertices.Count; i++)
-		{
-			f.fVectors[i] = f.fVertices[i].vector3;
-		}
 		f.mesh.SetVertices(f.fVectors);
+		f.mesh.SetTriangles(f.fTriangles, 0);
 		f.mesh.RecalculateNormals();
 		f.meshCollider.sharedMesh = f.mesh;
 	}
