@@ -8,15 +8,11 @@ public class LightPanel : MonoBehaviour
 {
 	public GameObject playerController;
 	public Dropdown typeDropdown;
-	public InputField rInputfield;
-	public InputField iInputfield;
 
 	public void init()
 	{
 		playerController = GameObject.Find("PlayerController");
 		typeDropdown = GameObject.Find("PlayerController/InfoCanvas/LightPanel/TypePanel/Dropdown").GetComponent<Dropdown>();
-		rInputfield = GameObject.Find("PlayerController/InfoCanvas/LightPanel/RangePanel/InputField").GetComponent<InputField>();
-		iInputfield = GameObject.Find("PlayerController/InfoCanvas/LightPanel/IntensityPanel/InputField").GetComponent<InputField>();
 	}
 
 	void OnEnable()
@@ -46,8 +42,6 @@ public class LightPanel : MonoBehaviour
 					break;
 				}
 			}
-			rInputfield.text = vrbl.range.ToString();
-			iInputfield.text = vrbl.intensity.ToString();
 		}
 	}
 
@@ -69,23 +63,6 @@ public class LightPanel : MonoBehaviour
 			{
 				vrbl.type = LightType.Spot;
 			}
-			try
-			{
-				vrbl.range = float.Parse(rInputfield.text);
-			}
-			catch (Exception e)
-			{
-				print(e);
-			}
-			try
-			{
-				vrbl.intensity = float.Parse(iInputfield.text);
-			}
-			catch (Exception e)
-			{
-				print(e);
-			}
-
 		}
 	}
 }

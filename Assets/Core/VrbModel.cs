@@ -177,6 +177,7 @@ public class VrbTriangle
 	public VrbEdge e0;
 	public VrbEdge e1;
 	public VrbEdge e2;
+	public VrbColor vrbc;
 
 	public List<Vector3> vectors
 	{
@@ -394,6 +395,15 @@ public class VrbFace : VrbTarget
 		all.Add(this);
 	}
 
+	public VrbColor vrbc = new VrbColor();
+	public void updateColor()
+	{
+		for (int i = 0; i < ftOriginal.Count; i++)
+		{
+			ftOriginal[i].vrbc = vrbc;
+		}
+	}
+
 	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
 
 	public List<VrbVertex> fVertices // 面的顶点
@@ -446,13 +456,24 @@ public class VrbFace : VrbTarget
 			return list;
 		}
 	}
-	public List<Color> fColors; // 三角形的颜色
+
+	public List<Color> fColors // 三角形的颜色
+	{
+		get
+		{
+			Color[] c = new Color[6 * ftOriginal.Count];
+			for (int i = 0; i < c.Length; i++)
+			{
+				c[i] = vrbc.color;
+			}
+			return new List<Color>(c);
+		}
+	}
 
 	public Mesh mesh; // 用来展示的mesh
 	public MeshCollider meshCollider;
 	public GameObject gameObject;
 	public Material material;
-	public Color defaultColor;
 
 	public bool constructed = false;
 	public bool displayed = false;
@@ -462,6 +483,11 @@ public class VrbFace : VrbTarget
 		addToStatic();
 
 		ftOriginal = t;
+		calSelf();
+	}
+
+	public void calSelf()
+	{
 		calEdge();
 		calMesh();
 	}
@@ -521,10 +547,12 @@ public class VrbFace : VrbTarget
 
 	public void calMesh()
 	{
+		vrbc.color = new Color(1f, 1f, 1f);
 		mesh = new Mesh();
 		mesh.SetVertices(fVectors);
 		mesh.SetTriangles(fTriangles, 0);
 		mesh.RecalculateNormals();
+		mesh.SetColors(fColors);
 	}
 
 	public void constructModel()
@@ -549,7 +577,6 @@ public class VrbFace : VrbTarget
 		meshCollider.sharedMesh = mesh;
 
 		material = meshRender.material;
-		defaultColor = material.color;
 
 		constructed = true;
 	}
@@ -561,7 +588,7 @@ public class VrbFace : VrbTarget
 
 	public void deSelect()
 	{
-		material.color = defaultColor;
+		material.color = vrbc.color;
 	}
 
 	public void displayModel()
@@ -753,6 +780,7 @@ public class VrbObject : VrbTarget
 		vectors = new List<Vector3>();
 		triangles = new List<int>();
 		edges = new List<VrbEdge>();
+		List<Color> color = new List<Color>();
 
 		for (int i = 0; i < faces.Count; i++)
 		{
@@ -782,6 +810,8 @@ public class VrbObject : VrbTarget
 				triangles.Add(triangles.Count);
 				triangles.Add(triangles.Count);
 			}
+			color.AddRange(faces[i].fColors);
+
 			for (int j = 0; j < faces[i].fEdges.Count; j++)
 			{
 				if (edges.IndexOf(faces[i].fEdges[j]) == -1)
@@ -794,6 +824,7 @@ public class VrbObject : VrbTarget
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
 		mesh.SetTriangles(triangles, 0);
+		mesh.SetColors(color);
 		mesh.RecalculateNormals();
 	}
 
@@ -994,15 +1025,15 @@ public class VrbLight : VrbObject
 		}
 	}
 
-	public float range
+	public Color color
 	{
 		get
 		{
-			return light.range;
+			return light.color;
 		}
 		set
 		{
-			light.range = value;
+			light.color = value;
 		}
 	}
 
@@ -1018,12 +1049,12 @@ public class VrbLight : VrbObject
 		}
 	}
 
-	public VrbLight(float x, float y, float z, string t = "Direction", float r = 500, float i = 1):base(x,y,z,new List<VrbFace>())
+	public VrbLight(float x, float y, float z, string t = "Direction", float i = 0.1f):base(x,y,z,new List<VrbFace>())
 	{
 		GameObject g = Resources.Load("VrbLight") as GameObject;
 		gameObject = GameObject.Instantiate(g, GameObject.Find("Layout").transform);
 		light = gameObject.GetComponent<Light>();
-		range = r;
+		gameObject.GetComponent<VrbSelectableLight>().l = this;
 		intensity = i;
 		if (t.Equals("Directional"))
 		{

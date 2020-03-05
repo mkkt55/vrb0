@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 {
 	public VrbFace f;
+	public Color colorLastFrame;
 	void Start()
 	{
 
@@ -18,6 +19,13 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 		f.mesh.SetTriangles(f.fTriangles, 0);
 		f.mesh.RecalculateNormals();
 		f.meshCollider.sharedMesh = f.mesh;
+
+		if (colorLastFrame != f.vrbc.color)
+		{
+			f.updateColor();
+			colorLastFrame = f.vrbc.color;
+			f.mesh.SetColors(f.fColors);
+		}
 	}
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)

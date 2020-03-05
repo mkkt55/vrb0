@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class VrbObjectUI : MonoBehaviour, IPointerClickHandler
 {
 	public VrbObject o;
-	public GameObject inf;
+	//public GameObject inf;
 	public GameObject text;
 
 	public bool isSelected = false;
@@ -15,14 +15,14 @@ public class VrbObjectUI : MonoBehaviour, IPointerClickHandler
 	// Start is called before the first frame update
 	void Start()
 	{
-		inf = transform.Find("InputField").gameObject;
-		inf.GetComponent<InputField>().text = o.name;
-		inf.GetComponent<InputField>().onEndEdit.AddListener(delegate { o.setName(inf.GetComponent<InputField>().text); inf.SetActive(false);text.SetActive(true);text.GetComponent<Text>().text = o.name; });
+		//inf = transform.Find("InputField").gameObject;
+		//inf.GetComponent<InputField>().text = o.name;
+		//inf.GetComponent<InputField>().onEndEdit.AddListener(delegate { o.setName(inf.GetComponent<InputField>().text); inf.SetActive(false);text.SetActive(true);text.GetComponent<Text>().text = o.name; });
 
 		text = transform.Find("Text").gameObject;
 		text.GetComponent<Text>().text = o.name;
 
-		inf.SetActive(false);
+		//inf.SetActive(false);
 	}
 
 	// Update is called once per frame
@@ -33,14 +33,14 @@ public class VrbObjectUI : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		if (!isSelected)
+		//if (!isSelected)
 		{
 			GameObject.Find("PlayerController").GetComponent<PlayerController>().select(o);
 		}
-		else
-		{
-			inf.SetActive(true);
-			text.SetActive(false);
-		}
+		//else
+		//{
+		//	inf.SetActive(true);
+		//	text.SetActive(false);
+		//}
 	}
 }

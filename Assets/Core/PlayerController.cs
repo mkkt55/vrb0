@@ -4,13 +4,19 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using TalesFromTheRift;
 using dpn;
 
 public class PlayerController : MonoBehaviour
 {
 	public GameObject editableModel;
+	PointerEventData eventData;
+
 	public List<VrbTarget> selected = new List<VrbTarget>();
 	public bool isMultiSelect = false;
+
+	public static GameObject colorPanel;
 
 	public GameObject objectPanel;
 	public GameObject scrollView;
@@ -107,9 +113,13 @@ public class PlayerController : MonoBehaviour
 
 	void Start()
 	{
+		eventData = new PointerEventData(EventSystem.current);
+		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas/ColorPanel");
+		colorPanel.SetActive(false);
+
 		moveSpeed = 30;
 		moveSelfSpeed = 20;
-		rotateSelfSpeed = 10;
+		rotateSelfSpeed = 30;
 		rotateSpeed = 20;
 		scaleSpeed = 0.1f;
 		//Cursor.visible = false;//隐藏鼠标
@@ -185,9 +195,6 @@ public class PlayerController : MonoBehaviour
 		placementTarget.SetActive(false);
 
 		lightPanel.GetComponent<LightPanel>().init();
-		positionPanel.GetComponent<PosInput>().init();
-		rotatePanel.GetComponent<RottInput>().init();
-		scalePanel.GetComponent<ScaleInput>().init();
 
 		textIndicator = GameObject.Find("PlayerController/DpnCameraRig/Canvas/Panel");
 		textIndicator.SetActive(false);
@@ -205,19 +212,29 @@ public class PlayerController : MonoBehaviour
 	{
 		updateInputValue();
 		
-		
-		/*
-		 * 自己创建手柄交互缺少设备SDK提供的API
-		shouBing.transform.rotation = ori;
-		RaycastHit hit;
-		Physics.Raycast(new Vector3(0, 100, -200), new Vector3(0, 0, 1), out hit);
-		
-		if (hit.collider != null)
-		{
-			Debug.Log(hit.point);
-			Debug.DrawRay(new Vector3(0, 100, -200), hit.point, Color.red);
-		}
-		*/
+		//RaycastHit hit;
+		//Physics.Raycast(new Vector3(0, -20, -400), dpnCamera.transform.rotation * Vector3.forward, out hit);
+
+		//#if UNITY_ANDROID || UNITY_IPHONE
+		//if (EventSystem.current.IsPointerOverGameObject())
+		//#else
+		//if (EventSystem.current.IsPointerOverGameObject())
+		//#endif
+		//	Debug.Log("当前触摸在UI上");
+		//else
+		//	Debug.Log("当前没有触摸在UI上");
+		//if (hit.collider != null)
+		//{
+		//	Debug.LogWarning(hit.point);
+		//	Debug.LogWarning(hit.collider.gameObject.name);
+		//	Debug.LogWarning(dpnCamera.transform.rotation* Vector3.forward);
+		//	Debug.DrawRay(new Vector3(0, -20, -400), dpnCamera.transform.rotation * Vector3.forward, Color.red);
+		//}
+
+		//if (Input.GetKeyDown(KeyCode.G))
+		//{
+		//	ExecuteEvents.Execute<IPointerClickHandler>(hit.collider.gameObject, eventData, ExecuteEvents.pointerClickHandler);
+		//}
 
 		//txt.text = "Orientation: x = " + ori.x + ", y = " + ori.y + ", z = " + ori.z + ", w = " + ori.w;
 
@@ -262,7 +279,7 @@ public class PlayerController : MonoBehaviour
 				placementTarget.transform.position = pointOnXyPlane;
 			}
 		}
-		else
+		else if (!OpenCanvasKeyboard.isOpening)
 		{
 			// VR手柄操作
 			// 平移模式
@@ -280,7 +297,6 @@ public class PlayerController : MonoBehaviour
 						// 乘以z方向的距离即可
 						Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
 						moveSelected(d);
-						positionPanel.GetComponent<PosInput>().updateValue();
 					}
 					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
 					{
@@ -292,7 +308,6 @@ public class PlayerController : MonoBehaviour
 						{
 							moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
 						}
-						positionPanel.GetComponent<PosInput>().updateValue();
 					}
 				}
 				// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
@@ -308,7 +323,6 @@ public class PlayerController : MonoBehaviour
 						{
 							rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
 						}
-						rotatePanel.GetComponent<RottInput>().updateValue();
 					}
 				}
 				// 缩放模式
@@ -324,14 +338,13 @@ public class PlayerController : MonoBehaviour
 						{
 							scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
 						}
-						scalePanel.GetComponent<ScaleInput>().updateValue();
 					}
 				}
 			}
 			// 未选中物体，控制自己
 			else
 			{
-				if (DpnDaydreamController.ClickButton && DpnDaydreamController.IsTouching)
+				if (DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching)
 				{
 					if (touchVector.y > 0)
 					{
@@ -822,9 +835,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updatePosXfromInput()
+	public void updatePosXfromInput(string s)
 	{
-		string s = positionPanel.GetComponent<PosInput>().xText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -840,9 +852,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updatePosYfromInput()
+	public void updatePosYfromInput(string s)
 	{
-		string s = positionPanel.GetComponent<PosInput>().yText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -859,9 +870,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updatePosZfromInput()
+	public void updatePosZfromInput(string s)
 	{
-		string s = positionPanel.GetComponent<PosInput>().zText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -877,9 +887,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateRottXfromInput()
+	public void updateRottXfromInput(string s)
 	{
-		string s = rotatePanel.GetComponent<RottInput>().xText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -895,9 +904,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateRottYfromInput()
+	public void updateRottYfromInput(string s)
 	{
-		string s = rotatePanel.GetComponent<RottInput>().yText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -913,9 +921,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateRottZfromInput()
+	public void updateRottZfromInput(string s)
 	{
-		string s = rotatePanel.GetComponent<RottInput>().zText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -931,9 +938,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateScaXfromInput()
+	public void updateScaXfromInput(string s)
 	{
-		string s = scalePanel.GetComponent<ScaleInput>().xText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -949,9 +955,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateScaYfromInput()
+	public void updateScaYfromInput(string s)
 	{
-		string s = scalePanel.GetComponent<ScaleInput>().yText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -967,9 +972,8 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void updateScaZfromInput()
+	public void updateScaZfromInput(string s)
 	{
-		string s = scalePanel.GetComponent<ScaleInput>().zText.text;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;

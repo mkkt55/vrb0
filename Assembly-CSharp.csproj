@@ -54,11 +54,24 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Core\PlayerController.cs" />
+     <Compile Include="Assets\Core\SubScripts\ColorPanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\ELightColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\ELightIntensity.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\LightIntensity.cs" />
      <Compile Include="Assets\Core\SubScripts\LightPanel.cs" />
-     <Compile Include="Assets\Core\SubScripts\PosInput.cs" />
-     <Compile Include="Assets\Core\SubScripts\RottInput.cs" />
-     <Compile Include="Assets\Core\SubScripts\ScaleInput.cs" />
+     <Compile Include="Assets\Core\SubScripts\PosButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\PosButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\PosButtonZ.cs" />
+     <Compile Include="Assets\Core\SubScripts\RottButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\RottButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\RottButtonZ.cs" />
+     <Compile Include="Assets\Core\SubScripts\ScaleButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\ScaleButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\ScaleButtonZ.cs" />
      <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
+     <Compile Include="Assets\Core\SubScripts\TriangleColorButton.cs" />
+     <Compile Include="Assets\Core\SubScripts\VrbColor.cs" />
      <Compile Include="Assets\Core\VrbEditableEdge.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />
      <Compile Include="Assets\Core\VrbEditableVertex.cs" />
@@ -127,6 +140,16 @@
      <Compile Include="Assets\DPN\Utilities\SampleGUI.cs" />
      <Compile Include="Assets\DPN\Utilities\TestMotion.cs" />
      <Compile Include="Assets\DPN\Utilities\VolumeTips\DpnVolumeTips.cs" />
+     <Compile Include="Assets\Tales From The Rift\CanvasKeyboard\Demo\CanvasKeyboardEditableButton.cs" />
+     <Compile Include="Assets\Tales From The Rift\CanvasKeyboard\Demo\ToggleKeyboard.cs" />
+     <Compile Include="Assets\Tales From The Rift\CanvasKeyboard\Scripts\CanvasKeyboard.cs" />
+     <Compile Include="Assets\Tales From The Rift\CanvasKeyboard\Scripts\CanvasKeyboardASCII.cs" />
+     <Compile Include="Assets\Tales From The Rift\CanvasKeyboard\Scripts\OpenCanvasKeyboard.cs" />
+     <Compile Include="Assets\Tales From The Rift\Gaze\Demo\ButtonListener.cs" />
+     <Compile Include="Assets\Tales From The Rift\Gaze\Demo\CubeListener.cs" />
+     <Compile Include="Assets\Tales From The Rift\Gaze\Demo\GazeCrosshairOnOff.cs" />
+     <Compile Include="Assets\Tales From The Rift\Gaze\GazeInputModule.cs" />
+     <Compile Include="Assets\Tales From The Rift\Gaze\GazeInputModuleCrosshair.cs" />
      <None Include="Assets\DPN\Utilities\shdCube.shader" />
      <None Include="Assets\DPN\Utilities\hiddenmesh.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\ReticleShader.shader" />
