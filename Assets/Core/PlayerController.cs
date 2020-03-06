@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
 	public GameObject rotatePanel;
 	public GameObject scalePanel;
 	public GameObject lightPanel;
+	public GameObject matPanel;
 
 	public GameObject mainMenu;
 
@@ -114,7 +115,7 @@ public class PlayerController : MonoBehaviour
 	void Start()
 	{
 		eventData = new PointerEventData(EventSystem.current);
-		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas/ColorPanel");
+		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas");
 		colorPanel.SetActive(false);
 
 		moveSpeed = 30;
@@ -143,6 +144,9 @@ public class PlayerController : MonoBehaviour
 
 		lightPanel = GameObject.Find("PlayerController/InfoCanvas/LightPanel");
 		lightPanel.SetActive(false);
+		
+		matPanel = GameObject.Find("PlayerController/InfoCanvas/MaterialPanel");
+		matPanel.SetActive(false);
 
 		mainMenu = GameObject.Find("MainMenu");
 
@@ -196,7 +200,7 @@ public class PlayerController : MonoBehaviour
 
 		lightPanel.GetComponent<LightPanel>().init();
 
-		textIndicator = GameObject.Find("PlayerController/DpnCameraRig/Canvas/Panel");
+		textIndicator = GameObject.Find("PlayerController/DpnCameraRig/TextIndicatorCanvas");
 		textIndicator.SetActive(false);
 
 		setMoveMode();
@@ -291,8 +295,8 @@ public class PlayerController : MonoBehaviour
 					{
 						// 假设手柄指向前方距离为1的x-y平面上，手柄射线与这个面的交点和上一帧相比，在平面上的向量移动长度。
 						Vector3 dvPerDist = (orientation * Vector3.forward - orientationLastFrame * Vector3.forward);
-						dvPerDist.x = dvPerDist.x * Mathf.Sqrt(dvPerDist.x * dvPerDist.x + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
-						dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+						//dvPerDist.x = dvPerDist.x * Mathf.Sqrt(dvPerDist.x * dvPerDist.x + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+						//dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
 						dvPerDist.z = 0;
 						// 乘以z方向的距离即可
 						Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
@@ -480,6 +484,7 @@ public class PlayerController : MonoBehaviour
 		if (t.getType().Equals("object"))
 		{
 			transformPanel.SetActive(true);
+			matPanel.SetActive(true);
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
@@ -515,6 +520,7 @@ public class PlayerController : MonoBehaviour
 	{
 		transformPanel.SetActive(false);
 		lightPanel.SetActive(false);
+		matPanel.SetActive(false);
 		if (!isMultiSelect && selected.Count > 0)
 		{
 			selected[0].deSelect();
@@ -526,6 +532,7 @@ public class PlayerController : MonoBehaviour
 	{
 		transformPanel.SetActive(false);
 		lightPanel.SetActive(false);
+		matPanel.SetActive(false);
 		for (int i = 0; i < selected.Count; i++)
 		{
 			selected[i].deSelect();

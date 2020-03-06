@@ -55,21 +55,25 @@
   <ItemGroup>
      <Compile Include="Assets\Core\PlayerController.cs" />
      <Compile Include="Assets\Core\SubScripts\ColorPanel.cs" />
-     <Compile Include="Assets\Core\SubScripts\ELightColor.cs" />
-     <Compile Include="Assets\Core\SubScripts\ELightIntensity.cs" />
+     <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightIntensity.cs" />
+     <Compile Include="Assets\Core\SubScripts\GlobalSettings\ExportSavePathButton.cs" />
+     <Compile Include="Assets\Core\SubScripts\GlobalSettings\ProjectSavePathButton.cs" />
+     <Compile Include="Assets\Core\SubScripts\GlobalSettings\RenderSavePathButton.cs" />
      <Compile Include="Assets\Core\SubScripts\LightColor.cs" />
      <Compile Include="Assets\Core\SubScripts\LightIntensity.cs" />
      <Compile Include="Assets\Core\SubScripts\LightPanel.cs" />
-     <Compile Include="Assets\Core\SubScripts\PosButtonX.cs" />
-     <Compile Include="Assets\Core\SubScripts\PosButtonY.cs" />
-     <Compile Include="Assets\Core\SubScripts\PosButtonZ.cs" />
-     <Compile Include="Assets\Core\SubScripts\RottButtonX.cs" />
-     <Compile Include="Assets\Core\SubScripts\RottButtonY.cs" />
-     <Compile Include="Assets\Core\SubScripts\RottButtonZ.cs" />
-     <Compile Include="Assets\Core\SubScripts\ScaleButtonX.cs" />
-     <Compile Include="Assets\Core\SubScripts\ScaleButtonY.cs" />
-     <Compile Include="Assets\Core\SubScripts\ScaleButtonZ.cs" />
+     <Compile Include="Assets\Core\SubScripts\ObjectColor.cs" />
      <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonZ.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\RottButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\RottButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\RottButtonZ.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonX.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonY.cs" />
+     <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonZ.cs" />
      <Compile Include="Assets\Core\SubScripts\TriangleColorButton.cs" />
      <Compile Include="Assets\Core\SubScripts\VrbColor.cs" />
      <Compile Include="Assets\Core\VrbEditableEdge.cs" />
@@ -153,11 +157,11 @@
      <None Include="Assets\DPN\Utilities\shdCube.shader" />
      <None Include="Assets\DPN\Utilities\hiddenmesh.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\ReticleShader.shader" />
-     <None Include="Assets\Core\Resources\ShowFrameOnly.shader" />
+     <None Include="Assets\Core\Resources\Materials\ShowFrameOnly.shader" />
      <None Include="Assets\DPN\GUI\Shaders\DpnGuiTransparentOverlayShader.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\Teleport.shader" />
      <None Include="Assets\DPN\MultiLayer\Dpn-MultiLayer-UI-Default.shader" />
-     <None Include="Assets\Core\Resources\SelectedEffect.shader" />
+     <None Include="Assets\Core\Resources\Materials\Texture.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\DpnUnityCompatibility.cginc" />
      <None Include="Assets\DPN\Utilities\DpnUILayer.shader" />
      <None Include="Assets\DPN\Utilities\DpnBoundary\DpnBoundary.shader" />
@@ -166,7 +170,8 @@
      <None Include="Assets\DPN\Utilities\DaydreamController\Flip\Diffuse_Fresnel_Opacity.shader" />
      <None Include="Assets\DPN\Utilities\CursorMaterial\ControllerRay.shader" />
      <None Include="Assets\DPN\MultiLayer\DpnUILayer_New.shader" />
-     <None Include="Assets\Core\Resources\DoubleSided.shader" />
+     <None Include="Assets\Core\Resources\Materials\DoubleSided.shader" />
+     <None Include="Assets\Core\Resources\Materials\RimLight.shader" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/asus/Desktop/vrb0/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

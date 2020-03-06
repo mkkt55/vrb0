@@ -21,7 +21,7 @@ namespace TalesFromTheRift
 		public void CloseKeyboard() 
 		{
 			isOpening = false;
-			CanvasKeyboard.Close ();
+			CanvasKeyboard.Close();
 		}
 	}
 }

@@ -17,6 +17,7 @@ namespace TalesFromTheRift
 		
 		public static CanvasKeyboard Open(Canvas canvas, GameObject inputObject = null, CanvasKeyboardType keyboardType = CanvasKeyboardType.ASCIICapable)
 		{
+			OpenCanvasKeyboard.isOpening = true;
 			// Don't open the keyboard if it is already open for the current input object
 			CanvasKeyboard keyboard = GameObject.FindObjectOfType<CanvasKeyboard>();
 			if (keyboard == null || (keyboard != null && keyboard.inputObject != inputObject))
@@ -31,6 +32,7 @@ namespace TalesFromTheRift
 		
 		public static void Close()
 		{
+			OpenCanvasKeyboard.isOpening = false;
 			CanvasKeyboard[] kbs = GameObject.FindObjectsOfType<CanvasKeyboard>();
 			foreach (CanvasKeyboard kb in kbs)
 			{

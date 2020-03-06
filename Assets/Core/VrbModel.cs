@@ -704,6 +704,8 @@ public class VrbObject : VrbTarget
 		all.Add(this);
 	}
 
+	public VrbColor vrbc = new VrbColor(Color.white);
+
 	public Vector3 positionVector; // 位置
 	public Vector3 rotationVector = Vector3.zero; // 旋转
 	public Vector3 scaleVector = Vector3.one; // 三方向scale
@@ -847,6 +849,7 @@ public class VrbObject : VrbTarget
 		// 展示Mesh，且可操作。
 		VrbSelectableObject so = gameObject.GetComponent<VrbSelectableObject>();
 		so.o = this;
+		so.colorLastFrame = vrbc.color;
 
 		meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		meshCollider = gameObject.GetComponent<MeshCollider>();
@@ -856,7 +859,6 @@ public class VrbObject : VrbTarget
 		defaultColor = material.color;
 		defaultMat = material;
 		selectedColor = new Color(1f, 0.6f, 0.6f);
-		selectedMat = new Material(Shader.Find("Custom/SelectedEffect"));
 
 		GameObject rui = Resources.Load("Object-UI") as GameObject;
 		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());

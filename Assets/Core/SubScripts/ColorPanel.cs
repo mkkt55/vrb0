@@ -35,17 +35,17 @@ public class ColorPanel : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		img = transform.Find("Image").GetComponent<Image>();
+		img = transform.Find("ColorPanel/Image").GetComponent<Image>();
 
-		rs = transform.Find("RSlider").GetComponent<Slider>();
-		gs = transform.Find("GSlider").GetComponent<Slider>();
-		bs = transform.Find("BSlider").GetComponent<Slider>();
-		a_s = transform.Find("ASlider").GetComponent<Slider>();
+		rs = transform.Find("ColorPanel/RSlider").GetComponent<Slider>();
+		gs = transform.Find("ColorPanel/GSlider").GetComponent<Slider>();
+		bs = transform.Find("ColorPanel/BSlider").GetComponent<Slider>();
+		a_s = transform.Find("ColorPanel/ASlider").GetComponent<Slider>();
 
-		rt = transform.Find("RValue").GetComponent<Text>();
-		gt = transform.Find("GValue").GetComponent<Text>();
-		bt = transform.Find("BValue").GetComponent<Text>();
-		at = transform.Find("AValue").GetComponent<Text>();
+		rt = transform.Find("ColorPanel/RValue").GetComponent<Text>();
+		gt = transform.Find("ColorPanel/GValue").GetComponent<Text>();
+		bt = transform.Find("ColorPanel/BValue").GetComponent<Text>();
+		at = transform.Find("ColorPanel/AValue").GetComponent<Text>();
 	}
 
     // Update is called once per frame

@@ -4,5 +4,15 @@ using UnityEngine;
 
 public class VrbColor
 {
-	public Color color; 
+	public Color color;
+
+	public VrbColor(Color c)
+	{
+		color = c;
+	}
+
+	public VrbColor()
+	{
+		
+	}
 }
