@@ -63,6 +63,7 @@
      <Compile Include="Assets\Core\SubScripts\LightColor.cs" />
      <Compile Include="Assets\Core\SubScripts\LightIntensity.cs" />
      <Compile Include="Assets\Core\SubScripts\LightPanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\MaterialDropDown.cs" />
      <Compile Include="Assets\Core\SubScripts\ObjectColor.cs" />
      <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonX.cs" />
@@ -76,6 +77,7 @@
      <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonZ.cs" />
      <Compile Include="Assets\Core\SubScripts\TriangleColorButton.cs" />
      <Compile Include="Assets\Core\SubScripts\VrbColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\VrbTargetScript.cs" />
      <Compile Include="Assets\Core\VrbEditableEdge.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />
      <Compile Include="Assets\Core\VrbEditableVertex.cs" />

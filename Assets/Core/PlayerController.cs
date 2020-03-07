@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
 	public GameObject orientationIndicator;
 
-	public GameObject placementTarget;
+	public VrbPlaceTarget placementTarget;
 
 	public GameObject textIndicator;
 
@@ -195,8 +195,9 @@ public class PlayerController : MonoBehaviour
 
 		orientationIndicator = GameObject.Find("OrientationIndicator");
 
-		placementTarget = GameObject.Find("PlacementTarget");
-		placementTarget.SetActive(false);
+		placementTarget = new VrbPlaceTarget();
+		placementTarget.constructModel();
+		placementTarget.hideModel();
 
 		lightPanel.GetComponent<LightPanel>().init();
 
@@ -273,15 +274,7 @@ public class PlayerController : MonoBehaviour
 
 		if (isPlacement)
 		{
-			if (DpnDaydreamController.TriggerButton)
-			{
-				// 假设手柄指向前方距离为1的x-y平面上，手柄与平面的交点
-				Vector3 pointOnXyPlane = orientation * Vector3.forward * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
-				pointOnXyPlane.x = pointOnXyPlane.x * Mathf.Sqrt(pointOnXyPlane.x * pointOnXyPlane.x + pointOnXyPlane.z * pointOnXyPlane.z) / Mathf.Abs(pointOnXyPlane.z);
-				pointOnXyPlane.y = pointOnXyPlane.y * Mathf.Sqrt(pointOnXyPlane.y * pointOnXyPlane.y + pointOnXyPlane.z * pointOnXyPlane.z) / Mathf.Abs(pointOnXyPlane.z);
-				pointOnXyPlane.z = 0;
-				placementTarget.transform.position = pointOnXyPlane;
-			}
+			
 		}
 		else if (!OpenCanvasKeyboard.isOpening)
 		{
@@ -498,8 +491,8 @@ public class PlayerController : MonoBehaviour
 		else if (t.getType().Equals("face"))
 		{
 			transformPanel.SetActive(true);
-			rotatePanel.SetActive(false);
-			scalePanel.SetActive(false);
+			rotatePanel.SetActive(true);
+			scalePanel.SetActive(true);
 		}
 		else if (t.getType().Equals("edge"))
 		{
@@ -508,6 +501,12 @@ public class PlayerController : MonoBehaviour
 			scalePanel.SetActive(false);
 		}
 		else if (t.getType().Equals("vertex"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(false);
+			scalePanel.SetActive(false);
+		}
+		else if (t.getType().Equals("target"))
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
@@ -771,12 +770,12 @@ public class PlayerController : MonoBehaviour
 	{
 		if (s.Equals("Cube"))
 		{
-			VrbModel.createCube(placementTarget.transform.position.x, placementTarget.transform.position.y, 0, 100, 100, 100).displayModel();
+			VrbModel.createCube(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 100, 100, 100).displayModel();
 		}
 
 		if (s.Equals("Directional") || s.Equals("Point") || s.Equals("Spot"))
 		{
-			(new VrbLight(placementTarget.transform.position.x, placementTarget.transform.position.y, 0, s)).displayModel();
+			(new VrbLight(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, s)).displayModel();
 		}
 	}
 
@@ -785,7 +784,8 @@ public class PlayerController : MonoBehaviour
 		if (!lightButtonSubCanvas.activeSelf)
 		{
 			isPlacement = true;
-			placementTarget.SetActive(true);
+			placementTarget.displayModel();
+			
 			lightButtonSubCanvas.SetActive(true);
 		}
 		else
@@ -793,7 +793,7 @@ public class PlayerController : MonoBehaviour
 			if (!placeButtonSubCanvas.activeSelf)
 			{
 				isPlacement = false;
-				placementTarget.SetActive(false);
+				placementTarget.hideModel();
 			}
 			lightButtonSubCanvas.SetActive(false);
 		}
@@ -828,7 +828,7 @@ public class PlayerController : MonoBehaviour
 		if (!placeButtonSubCanvas.activeSelf)
 		{
 			isPlacement = true;
-			placementTarget.SetActive(true);
+			placementTarget.displayModel();
 			placeButtonSubCanvas.SetActive(true);
 		}
 		else
@@ -836,7 +836,7 @@ public class PlayerController : MonoBehaviour
 			if (!lightButtonSubCanvas.activeSelf)
 			{
 				isPlacement = false;
-				placementTarget.SetActive(false);
+				placementTarget.hideModel();
 			}
 			placeButtonSubCanvas.SetActive(false);
 		}

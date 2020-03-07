@@ -403,6 +403,12 @@ public class VrbFace : VrbTarget
 			ftOriginal[i].vrbc = vrbc;
 		}
 	}
+	public Color matColor;
+	public void updateMatColor(Color c)
+	{
+		material.color = c;
+		matColor = c;
+	}
 
 	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
 
@@ -711,6 +717,7 @@ public class VrbObject : VrbTarget
 	public Vector3 scaleVector = Vector3.one; // 三方向scale
 
 	public string name;
+	public string matStr = VrbMat.types[0];
 
 	public List<VrbFace> faces;
 	public List<VrbVertex> vertices;
@@ -856,6 +863,7 @@ public class VrbObject : VrbTarget
 
 		meshCollider.sharedMesh = mesh;
 		material = meshRenderer.material;
+		material.color = vrbc.color;
 		defaultColor = material.color;
 		defaultMat = material;
 		selectedColor = new Color(1f, 0.6f, 0.6f);
@@ -876,12 +884,12 @@ public class VrbObject : VrbTarget
 
 	public virtual void deSelect()
 	{
-		material.color = defaultColor;
+		material.color = vrbc.color;
 		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
 		UiItem.GetComponent<VrbObjectUI>().isSelected = false;
 	}
 
-	public void displayModel()
+	public virtual void displayModel()
 	{
 		if (constructed == false)
 		{
@@ -894,7 +902,7 @@ public class VrbObject : VrbTarget
 		displayed = true;
 	}
 
-	public void hideModel()
+	public virtual void hideModel()
 	{
 		if (gameObject != null)
 		{
@@ -909,6 +917,7 @@ public class VrbObject : VrbTarget
 		for (int i = 0; i < faces.Count; i++)
 		{
 			faces[i].displayModel();
+			faces[i].updateMatColor(vrbc.color);
 		}
 		for (int i = 0; i < vertices.Count; i++)
 		{
@@ -1383,4 +1392,52 @@ public static class VrbModel
 		VrbObject.all.Remove(o);
 	}
 
+}
+
+public class VrbPlaceTarget:VrbObject
+{
+	public VrbPlaceTarget() : base(0, 0, 0, "target")
+	{
+		
+	}
+
+	public override void constructModel()
+	{
+		gameObject = GameObject.Instantiate(Resources.Load<GameObject>("VrbTargetPrefab"));
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		gameObject.GetComponentInChildren<VrbTargetScript>().o = this;
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
+
+		defaultColor = gameObject.GetComponentInChildren<MeshRenderer>().material.color;
+	}
+
+	public override string getType()
+	{
+		return "target";
+	}
+
+	public override void select()
+	{
+		gameObject.GetComponentInChildren<MeshRenderer>().material.color = new Color(1f, 0.6f, 0.6f);
+		UiItem.GetComponent<Image>().color = new Color(1f, 0.6f, 0.6f);
+	}
+
+	public override void deSelect()
+	{
+		gameObject.GetComponentInChildren<MeshRenderer>().material.color = defaultColor;
+		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+	}
+
+	public override void displayModel()
+	{
+		gameObject.SetActive(true);
+		UiItem.SetActive(true);
+	}
+
+	public override void hideModel()
+	{
+		gameObject.SetActive(false);
+		UiItem.SetActive(false);
+	}
 }
