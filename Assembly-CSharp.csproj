@@ -55,6 +55,7 @@
   <ItemGroup>
      <Compile Include="Assets\Core\PlayerController.cs" />
      <Compile Include="Assets\Core\SubScripts\ColorPanel.cs" />
+     <Compile Include="Assets\Core\SubScripts\DistanceDisplayer.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightColor.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightIntensity.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ExportSavePathButton.cs" />
@@ -65,6 +66,7 @@
      <Compile Include="Assets\Core\SubScripts\LightPanel.cs" />
      <Compile Include="Assets\Core\SubScripts\MaterialDropDown.cs" />
      <Compile Include="Assets\Core\SubScripts\ObjectColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\ObserveButtonScript.cs" />
      <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonX.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonY.cs" />
@@ -76,7 +78,10 @@
      <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonY.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\ScaleButtonZ.cs" />
      <Compile Include="Assets\Core\SubScripts\TriangleColorButton.cs" />
+     <Compile Include="Assets\Core\SubScripts\VrbCenterMeasurer.cs" />
      <Compile Include="Assets\Core\SubScripts\VrbColor.cs" />
+     <Compile Include="Assets\Core\SubScripts\VrbMeasurerScript.cs" />
+     <Compile Include="Assets\Core\SubScripts\VrbSideMeasurerScript.cs" />
      <Compile Include="Assets\Core\SubScripts\VrbTargetScript.cs" />
      <Compile Include="Assets\Core\VrbEditableEdge.cs" />
      <Compile Include="Assets\Core\VrbEditableFace.cs" />

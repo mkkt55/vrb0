@@ -7,6 +7,15 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 {
 	public VrbFace f;
 	public Color colorLastFrame;
+
+	void OnEnable()
+	{
+		if (f != null)
+		{
+			gameObject.GetComponent<MeshRenderer>().material.color = f.matVrbc.color;
+		}
+	}
+
 	void Start()
 	{
 

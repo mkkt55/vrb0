@@ -10,8 +10,14 @@ using dpn;
 
 public class PlayerController : MonoBehaviour
 {
+	public bool observeMode = false;
 	public GameObject editableModel;
 	PointerEventData eventData;
+
+	public VrbMeasurer measurer;
+	public VrbLeftMeasurer leftMeasurer;
+	public VrbRightMeasurer rightMeasurer;
+	public GameObject distanceDisplayer;
 
 	public List<VrbTarget> selected = new List<VrbTarget>();
 	public bool isMultiSelect = false;
@@ -77,7 +83,6 @@ public class PlayerController : MonoBehaviour
 	public GameObject editButtonSubCanvas;
 
 	public GameObject multiSelectButton;
-	public GameObject multiSelectButtonSubCanvas;
 
 	public GameObject dpnCamera;
 
@@ -95,12 +100,11 @@ public class PlayerController : MonoBehaviour
 
 	public float moveSpeed; //操作物体时的移动速度
 	public float moveSelfSpeed; //摄像机的移动速度
-	public float rotateSelfSpeed;
 	public float rotateSpeed;
 	public float scaleSpeed;
 
 	public Color defaultButtonColor = Color.white;
-	public Color selectedButtonColor = Color.red;
+	public Color selectedButtonColor = new Color(1f, 0.6f, 0.6f);
 
 	// 获取手柄的输入参数
 	Vector3 rp;
@@ -114,14 +118,14 @@ public class PlayerController : MonoBehaviour
 
 	void Start()
 	{
+
 		eventData = new PointerEventData(EventSystem.current);
 		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas");
 		colorPanel.SetActive(false);
 
 		moveSpeed = 30;
 		moveSelfSpeed = 20;
-		rotateSelfSpeed = 30;
-		rotateSpeed = 20;
+		rotateSpeed = 40;
 		scaleSpeed = 0.1f;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
@@ -187,7 +191,6 @@ public class PlayerController : MonoBehaviour
 		editButtonSubCanvas = GameObject.Find("MainMenu/EditButton/SubCanvas");
 
 		multiSelectButton = GameObject.Find("MainMenu/MultiSelectButton");
-		multiSelectButtonSubCanvas = GameObject.Find("MainMenu/MultiSelectButton/SubCanvas");
 
 		dpnCamera = GameObject.Find("PlayerController/DpnCameraRig");
 
@@ -208,8 +211,15 @@ public class PlayerController : MonoBehaviour
 		exitEdit();
 		exitMultiSelect();
 
-		
-		VrbObject o = VrbModel.createCube(0, -60, 0, 100, 100, 100);
+		measurer = new VrbMeasurer();
+		leftMeasurer = VrbMeasurer.l;
+		rightMeasurer = VrbMeasurer.r;
+		measurer.hideModel();
+
+		distanceDisplayer = GameObject.Find("PlayerController/InfoCanvas/DistancePanel");
+		distanceDisplayer.SetActive(false);
+
+		VrbObject o = VrbModel.createCube(0, -100, 0, 100, 100, 100);
 		o.displayModel();
 	}
 
@@ -272,9 +282,26 @@ public class PlayerController : MonoBehaviour
 
 
 
-		if (isPlacement)
+		if (observeMode)
 		{
-			
+			if (DpnDaydreamController.TriggerButton)
+			{
+				Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
+				d.x = 0;
+				d.z = 0;
+				dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
+			}
+			else if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
+			{
+				if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
+				{
+					dpnCamera.transform.Translate(touchVector.x * Time.deltaTime * moveSelfSpeed, 0, 0);
+				}
+				else
+				{
+					dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
+				}
+			}
 		}
 		else if (!OpenCanvasKeyboard.isOpening)
 		{
@@ -284,7 +311,7 @@ public class PlayerController : MonoBehaviour
 			{
 				if (oMode == 0)
 				{
-					if (DpnDaydreamController.TriggerButton && !DpnDaydreamController.TriggerButtonDown && !DpnDaydreamController.TriggerButtonUp)
+					if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
 					{
 						// 假设手柄指向前方距离为1的x-y平面上，手柄射线与这个面的交点和上一帧相比，在平面上的向量移动长度。
 						Vector3 dvPerDist = (orientation * Vector3.forward - orientationLastFrame * Vector3.forward);
@@ -310,7 +337,7 @@ public class PlayerController : MonoBehaviour
 				// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
 				else if (oMode == 1)
 				{
-					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+					if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
 					{
 						if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
 						{
@@ -318,7 +345,22 @@ public class PlayerController : MonoBehaviour
 						}
 						else
 						{
-							rotateSelected(touchVector.x * Vector3.down * Time.deltaTime * rotateSpeed);
+							rotateSelected(touchVector.x * Vector3.back * Time.deltaTime * rotateSpeed);
+						}
+					}
+					else if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
+					{
+						Vector3 d0 = orientation * Vector3.forward;
+						//float dist = (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+						//Vector3 d = d0 * dist;
+						Vector3 d = d0;
+						if (Mathf.Abs(d0.x) >= Mathf.Abs(d0.y))
+						{
+							rotateSelected(d.x * Vector3.down * Time.deltaTime * rotateSpeed);
+						}
+						else
+						{
+							rotateSelected(d.y * Vector3.right * Time.deltaTime * rotateSpeed);
 						}
 					}
 				}
@@ -341,26 +383,22 @@ public class PlayerController : MonoBehaviour
 			// 未选中物体，控制自己
 			else
 			{
-				if (DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching)
+				if (DpnDaydreamController.TriggerButton)
 				{
-					if (touchVector.y > 0)
-					{
-						dpnCamera.transform.Translate(0, 0, Time.deltaTime * moveSelfSpeed);
-					}
-					else
-					{
-						dpnCamera.transform.Translate(0, 0, -Time.deltaTime * moveSelfSpeed);
-					}
+					Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
+					d.x = 0;
+					d.z = 0;
+					dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
 				}
-				if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+				else if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
 				{
 					if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
 					{
-						gameObject.transform.Rotate(0, -touchVector.x * Time.deltaTime * rotateSelfSpeed, 0);
+						dpnCamera.transform.Translate(touchVector.x * Time.deltaTime * moveSelfSpeed, 0, 0);
 					}
 					else
 					{
-						gameObject.transform.Rotate(touchVector.y * Time.deltaTime * rotateSelfSpeed, 0, 0);
+						dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
 					}
 				}
 			}
@@ -409,6 +447,11 @@ public class PlayerController : MonoBehaviour
 		}
 		if (!mbze)
 		{
+			_v.z = 0;
+		}
+		if (selected[0].getType().Equals("left-measurer") || selected[0].getType().Equals("right-measurer"))
+		{
+			_v.y = 0;
 			_v.z = 0;
 		}
 		for (int i = 0; i < selected.Count; i++)
@@ -481,6 +524,12 @@ public class PlayerController : MonoBehaviour
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
+		else if (t.getType().Equals("measurer"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(true);
+			scalePanel.SetActive(true);
+		}
 		else if (t.getType().Equals("light"))
 		{
 			transformPanel.SetActive(true);
@@ -501,6 +550,12 @@ public class PlayerController : MonoBehaviour
 			scalePanel.SetActive(false);
 		}
 		else if (t.getType().Equals("vertex"))
+		{
+			transformPanel.SetActive(true);
+			rotatePanel.SetActive(false);
+			scalePanel.SetActive(false);
+		}
+		else if (t.getType().Equals("left-measurer") || t.getType().Equals("right-measurer"))
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
@@ -554,14 +609,12 @@ public class PlayerController : MonoBehaviour
 	public void enterMultiSelect()
 	{
 		multiSelectButton.GetComponent<Image>().color = selectedButtonColor;
-		multiSelectButtonSubCanvas.SetActive(true);
 		isMultiSelect = true;
 	}
 
 	public void exitMultiSelect()
 	{
 		multiSelectButton.GetComponent<Image>().color = defaultButtonColor;
-		multiSelectButtonSubCanvas.SetActive(false);
 		isMultiSelect = false;
 	}
 
@@ -772,8 +825,23 @@ public class PlayerController : MonoBehaviour
 		{
 			VrbModel.createCube(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 100, 100, 100).displayModel();
 		}
-
-		if (s.Equals("Directional") || s.Equals("Point") || s.Equals("Spot"))
+		else if (s.Equals("Quad"))
+		{
+			VrbModel.createQuad(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 100, 100).displayModel();
+		}
+		else if (s.Equals("Circle"))
+		{
+			VrbModel.createCircle(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 50).displayModel();
+		}
+		else if (s.Equals("Sphere"))
+		{
+			VrbModel.createSphere(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 50).displayModel();
+		}
+		else if (s.Equals("Cylinder"))
+		{
+			VrbModel.createCylinder(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 50, 200).displayModel();
+		}
+		else if (s.Equals("Directional") || s.Equals("Point") || s.Equals("Spot"))
 		{
 			(new VrbLight(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, s)).displayModel();
 		}
@@ -1020,8 +1088,24 @@ public class PlayerController : MonoBehaviour
 
 		transformPanel.SetActive(false);
 		lightPanel.SetActive(false);
+		matPanel.SetActive(false);
 		selected.Clear();
 	}
+
+	public void switchMeasurer()
+	{
+		if (measurer.gameObject.activeSelf)
+		{
+			measurer.hideModel();
+			distanceDisplayer.SetActive(false);
+		}
+		else
+		{
+			measurer.displayModel();
+			distanceDisplayer.SetActive(true);
+		}
+	}
+	
 	/*
 	/// <summary>
 	/// 鼠键控制player移动

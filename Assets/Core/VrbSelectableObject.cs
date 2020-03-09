@@ -25,6 +25,10 @@ public class VrbSelectableObject : MonoBehaviour, IPointerClickHandler
 		{
 			o.material.color = o.vrbc.color;
 			colorLastFrame = o.vrbc.color;
+			for (int i = 0; i < o.faces.Count; i++)
+			{
+				o.faces[i].matVrbc.color = o.vrbc.color;
+			}
 		}
 	}
 

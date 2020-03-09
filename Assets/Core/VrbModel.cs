@@ -396,6 +396,7 @@ public class VrbFace : VrbTarget
 	}
 
 	public VrbColor vrbc = new VrbColor();
+	public VrbColor matVrbc = new VrbColor();
 	public void updateColor()
 	{
 		for (int i = 0; i < ftOriginal.Count; i++)
@@ -594,7 +595,7 @@ public class VrbFace : VrbTarget
 
 	public void deSelect()
 	{
-		material.color = vrbc.color;
+		material.color = matVrbc.color;
 	}
 
 	public void displayModel()
@@ -968,6 +969,10 @@ public class VrbObject : VrbTarget
 	{
 		for (int i = 0; i < all.Count; i++)
 		{
+			if (all[i] == VrbMeasurer.m || all[i] == VrbMeasurer.l || all[i] == VrbMeasurer.r || all[i] == VrbPlaceTarget.pt)
+			{
+				continue;
+			}
 			all[i].displayModel();
 		}
 	}
@@ -1004,7 +1009,7 @@ public class VrbObject : VrbTarget
 		return gameObject;
 	}
 
-	public Vector3 getPosition()
+	public virtual Vector3 getPosition()
 	{
 		return gameObject.transform.position;
 	}
@@ -1108,27 +1113,54 @@ public class VrbLight : VrbObject
 public static class VrbModel
 {
 	// 三角形面片，记录顶点索引
-	//public void createQuad()
-	//{
-	//	Vector3 p0 = new VrbVertex(100, 200, 0);
-	//	Vector3 p1 = new VrbVertex(100, 0, 0);
-	//	Vector3 p2 = new VrbVertex(-100, 0, 0);
-	//	Vector3 p3 = new VrbVertex(-100, 200, 0);
+	public static VrbObject createQuad(float xp, float yp, float zp, float xl, float yl)
+	{
+		VrbVertex p0 = new VrbVertex(xl/2, yl/2, 0);
+		VrbVertex p1 = new VrbVertex(xl/2, -yl/2, 0);
+		VrbVertex p2 = new VrbVertex(-xl/2, yl/2, 0);
+		VrbVertex p3 = new VrbVertex(-xl/2, -yl/2, 0);
 
-	//	int t0 = createTriangle(0, 1, 2);
-	//	int t1 = createTriangle(0, 2, 3);
+		VrbTriangle t0 = new VrbTriangle(p0, p1, p2);
+		VrbTriangle t1 = new VrbTriangle(p1, p2, p3);
 
-	//	List<int> f0 = createFace(new List<int>());
-	//	f0.Add(t0);
-	//	f0.Add(t1);
+		List<VrbTriangle> tl = new List<VrbTriangle>();
+		tl.Add(t0);
+		tl.Add(t1);
 
-	//	List<int> fList = new List<int>();
-	//	fList.Add(f0);
-	//	new VrbObject(fList);
-	//}
+		VrbFace f0 = new VrbFace(tl);
+
+		List<VrbFace> fList = new List<VrbFace>();
+		fList.Add(f0);
+		return new VrbObject(xp, yp, zp, fList, "Quad");
+	}
+
+	public static VrbObject createCircle(float xp, float yp, float zp, float r)
+	{
+		int num = 100;
+		float angle = 2 * Mathf.PI / num;
+		VrbVertex p0 = new VrbVertex(xp, yp, zp);
+		List<VrbVertex> vList = new List<VrbVertex>();
+		for (int i = 0; i < num; i++)
+		{
+			VrbVertex v = new VrbVertex(xp + r * Mathf.Cos(angle * i), yp + r * Mathf.Sin(angle * i), zp);
+			vList.Add(v);
+		}
+
+		List<VrbTriangle> tList = new List<VrbTriangle>();
+		for (int i = 0; i < num - 1; i++)
+		{
+			tList.Add(new VrbTriangle(p0, vList[i], vList[i + 1]));
+		}
+		tList.Add(new VrbTriangle(p0, vList[num - 1], vList[0]));
+
+		VrbFace f0 = new VrbFace(tList);
+
+		List<VrbFace> fList = new List<VrbFace>();
+		fList.Add(f0);
+		return new VrbObject(xp, yp, zp, fList, "Circle");
+	}
 
 	// 前三个是位置坐标，后三个是大小
-
 	public static VrbObject createCube(float xp, float yp, float zp, float xl, float yl, float zl)
 	{
 		VrbVertex p0 = new VrbVertex(xl / 2, yl / 2, zl / 2);
@@ -1193,6 +1225,123 @@ public static class VrbModel
 		fList.Add(f4);
 		fList.Add(f5);
 		return new VrbObject(xp, yp, zp, fList, "Cube");
+	}
+
+	public static VrbObject createCylinder(float xp, float yp, float zp, float r, float h)
+	{
+		int num = 20;
+		float angle = Mathf.PI * 2 / num;
+		VrbVertex v0 = new VrbVertex(xp, yp + h / 2, zp);
+		VrbVertex v1 = new VrbVertex(xp, yp - h / 2, zp);
+
+		List<VrbVertex> vList0 = new List<VrbVertex>();
+		List<VrbVertex> vList1 = new List<VrbVertex>();
+
+		for (int i = 0; i < num; i++)
+		{
+			VrbVertex v = new VrbVertex(xp + r * Mathf.Cos(angle * i), yp + h /2, zp + r * Mathf.Sin(angle * i));
+			vList0.Add(v);
+			v = new VrbVertex(xp + r * Mathf.Cos(angle * i), yp - h / 2, zp + r * Mathf.Sin(angle * i));
+			vList1.Add(v);
+		}
+
+		// 上下两面
+		List<VrbTriangle> tList0 = new List<VrbTriangle>();
+		List<VrbTriangle> tList1 = new List<VrbTriangle>();
+		for (int i = 0; i < num - 1; i++)
+		{
+			tList0.Add(new VrbTriangle(v0, vList0[i], vList0[i + 1]));
+			tList1.Add(new VrbTriangle(v1, vList1[i], vList1[i + 1]));
+		}
+		tList0.Add(new VrbTriangle(v0, vList0[num - 1], vList0[0]));
+		tList1.Add(new VrbTriangle(v1, vList1[num - 1], vList1[0]));
+		VrbFace f0 = new VrbFace(tList0);
+		VrbFace f1 = new VrbFace(tList1);
+
+		List<VrbFace> fList = new List<VrbFace>();
+		fList.Add(f0);
+		fList.Add(f1);
+		for (int i = 0; i < num - 1; i++)
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vList0[i], vList0[i + 1], vList1[i]));
+			temp.Add(new VrbTriangle(vList0[i + 1], vList1[i], vList1[i + 1]));
+			fList.Add(new VrbFace(temp));
+		}
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vList0[num - 1], vList0[0], vList1[num - 1]));
+			temp.Add(new VrbTriangle(vList0[0], vList1[num - 1], vList1[0]));
+			fList.Add(new VrbFace(temp));
+		}
+
+		return new VrbObject(xp, yp, zp, fList, "Cylinder");
+	}
+
+	public static VrbObject createSphere(float xp, float yp, float zp, float r)
+	{
+		List<List<VrbVertex>> vLists = new List<List<VrbVertex>>();
+		int num = 20;
+		float angleHorizontal = 2 * Mathf.PI / num;
+		float angleVertical = Mathf.PI / num;
+		VrbVertex vTop = new VrbVertex(xp, r, zp);
+		VrbVertex vBottom = new VrbVertex(xp, -r, zp);
+		for (int i = 1; i < num - 1; i++)
+		{
+			float rh = r * Mathf.Sin(angleVertical * i);
+			float yh = r * Mathf.Cos(angleVertical * i);
+			List<VrbVertex> vList = new List<VrbVertex>();
+			for (int j = 0; j < num; j++)
+			{
+				vList.Add(new VrbVertex(rh * Mathf.Cos(angleHorizontal * j), yh, rh * Mathf.Sin(angleHorizontal * j)));
+			}
+			vLists.Add(vList);
+		}
+
+		List<VrbFace> fList = new List<VrbFace>();
+		for (int i = 0; i < vLists[0].Count - 1; i++)
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vTop, vLists[0][i], vLists[0][i + 1]));
+			fList.Add(new VrbFace(temp));
+		}
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vTop, vLists[0][num - 1], vLists[0][0]));
+			fList.Add(new VrbFace(temp));
+		}
+
+		for (int i = 0; i < vLists.Count - 1; i++)
+		{
+			for (int j = 0; j < vLists[i].Count - 1; j++)
+			{
+				List<VrbTriangle> temp = new List<VrbTriangle>();
+				temp.Add(new VrbTriangle(vLists[i][j], vLists[i][j + 1], vLists[i + 1][j]));
+				temp.Add(new VrbTriangle(vLists[i][j + 1], vLists[i + 1][j], vLists[i + 1][j + 1]));
+				fList.Add(new VrbFace(temp));
+			}
+			{
+				List<VrbTriangle> temp = new List<VrbTriangle>();
+				temp.Add(new VrbTriangle(vLists[i][vLists[i].Count - 1], vLists[i][0], vLists[i + 1][vLists[i].Count - 1]));
+				temp.Add(new VrbTriangle(vLists[i][0], vLists[i + 1][vLists[i].Count - 1], vLists[i + 1][0]));
+				fList.Add(new VrbFace(temp));
+			}
+		}
+
+		List<VrbVertex> last = vLists[vLists.Count - 1];
+		for (int i = 0; i < last.Count - 1; i++)
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vBottom, last[i], last[i + 1]));
+			fList.Add(new VrbFace(temp));
+		}
+		{
+			List<VrbTriangle> temp = new List<VrbTriangle>();
+			temp.Add(new VrbTriangle(vBottom, last[last.Count - 1], last[0]));
+			fList.Add(new VrbFace(temp));
+		}
+
+		return new VrbObject(xp, yp, zp, fList, "Sphere");
 	}
 
 	public static bool openModel(string path)
@@ -1396,9 +1545,10 @@ public static class VrbModel
 
 public class VrbPlaceTarget:VrbObject
 {
-	public VrbPlaceTarget() : base(0, 0, 0, "target")
+	public static VrbPlaceTarget pt;
+	public VrbPlaceTarget() : base(0, 0, 0, "Target")
 	{
-		
+		pt = this;
 	}
 
 	public override void constructModel()
@@ -1438,6 +1588,177 @@ public class VrbPlaceTarget:VrbObject
 	public override void hideModel()
 	{
 		gameObject.SetActive(false);
+		UiItem.SetActive(false);
+	}
+}
+
+
+public class VrbMeasurer : VrbObject
+{
+	public static VrbMeasurer m;
+	public static GameObject g;
+	public static VrbLeftMeasurer l;
+	public static VrbRightMeasurer r;
+	public VrbMeasurer() : base(0, 0, 0, "Measurer")
+	{
+		constructModel();
+		l = new VrbLeftMeasurer();
+		r = new VrbRightMeasurer();
+		
+		l.constructModel();
+		r.constructModel();
+		m = this;
+	}
+
+	public override void constructModel()
+	{
+		gameObject = GameObject.Instantiate(Resources.Load<GameObject>("Measurer"));
+		g = gameObject;
+
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
+
+		gameObject.transform.position = new Vector3(0, -200, -100);
+	}
+
+	public override string getType()
+	{
+		return "measurer";
+	}
+
+	public override void select()
+	{
+		l.select();
+		r.select();
+		UiItem.GetComponent<Image>().color = new Color(1f, 0.6f, 0.6f);
+	}
+
+	public override void deSelect()
+	{
+		l.deSelect();
+		r.deSelect();
+		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+	}
+
+	public override void displayModel()
+	{
+		gameObject.SetActive(true);
+		UiItem.SetActive(true);
+		l.displayModel();
+		r.displayModel();
+	}
+
+	public override void hideModel()
+	{
+		gameObject.SetActive(false);
+		UiItem.SetActive(false);
+		l.hideModel();
+		r.hideModel();
+	}
+}
+
+public class VrbLeftMeasurer : VrbObject
+{
+	public VrbLeftMeasurer() : base(0, 0, 0, "LeftMeasurer")
+	{
+
+	}
+
+	public override void constructModel()
+	{
+		gameObject = VrbMeasurer.g.transform.Find("Left/Measurer-side/default").gameObject;
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		gameObject.GetComponent<VrbSideMeasurerScript>().o = this;
+
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
+
+		defaultColor = gameObject.GetComponent<MeshRenderer>().material.color;
+	}
+
+	public override string getType()
+	{
+		return "left-measurer";
+	}
+
+	public override Vector3 getPosition()
+	{
+		return gameObject.transform.Find("PosMarker").position;
+	}
+
+	public override void select()
+	{
+		gameObject.GetComponent<MeshRenderer>().material.color = new Color(1f, 0.6f, 0.6f);
+		UiItem.GetComponent<Image>().color = new Color(1f, 0.6f, 0.6f);
+	}
+
+	public override void deSelect()
+	{
+		gameObject.GetComponent<MeshRenderer>().material.color = defaultColor;
+		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+	}
+
+	public override void displayModel()
+	{
+		UiItem.SetActive(true);
+	}
+
+	public override void hideModel()
+	{
+		UiItem.SetActive(false);
+	}
+}
+
+
+public class VrbRightMeasurer : VrbObject
+{
+	public VrbRightMeasurer() : base(0, 0, 0, "RightMeasurer")
+	{
+
+	}
+
+	public override void constructModel()
+	{
+		gameObject = VrbMeasurer.g.transform.Find("Right/Measurer-side/default").gameObject;
+		GameObject rui = Resources.Load("Object-UI") as GameObject;
+		gameObject.GetComponent<VrbSideMeasurerScript>().o = this;
+
+		UiItem = GameObject.Instantiate(rui, GameObject.Find("PlayerController").GetComponent<PlayerController>().scrollContent.GetComponent<Transform>());
+		UiItem.GetComponent<VrbObjectUI>().o = this;
+
+		defaultColor = gameObject.GetComponent<MeshRenderer>().material.color;
+	}
+
+	public override string getType()
+	{
+		return "right-measurer";
+	}
+
+	public override Vector3 getPosition()
+	{
+		return gameObject.transform.Find("PosMarker").position;
+	}
+
+	public override void select()
+	{
+		gameObject.GetComponent<MeshRenderer>().material.color = new Color(1f, 0.6f, 0.6f);
+		UiItem.GetComponent<Image>().color = new Color(1f, 0.6f, 0.6f);
+	}
+
+	public override void deSelect()
+	{
+		gameObject.GetComponent<MeshRenderer>().material.color = defaultColor;
+		UiItem.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+	}
+
+	public override void displayModel()
+	{
+		UiItem.SetActive(true);
+	}
+
+	public override void hideModel()
+	{
 		UiItem.SetActive(false);
 	}
 }
