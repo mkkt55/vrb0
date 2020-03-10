@@ -16,6 +16,8 @@ public class MaterialDropDown : MonoBehaviour
 	public Dropdown mat;
 	public int valueLastFrame;
 
+	public VrbColor vrbc;
+
 	void Awake()
 	{
 		VrbMat.mats[0] = Resources.Load<Material>("Materials/Vrb-Default");
@@ -34,7 +36,7 @@ public class MaterialDropDown : MonoBehaviour
 
 		if (selected.Count > 0)
 		{
-			if (selected[0].getType().Equals("object")){
+			if (selected[0].getType() == VrbTargetType.Object){
 				if (((VrbObject)selected[0]).matStr.Equals(VrbMat.types[0]))
 				{
 					mat.value = 0;
@@ -59,14 +61,13 @@ public class MaterialDropDown : MonoBehaviour
         if (mat.value != valueLastFrame)
 		{
 			setMaterial();
-			Debug.LogWarning("aa");
 			valueLastFrame = mat.value;
 		}
     }
 
 	void setMaterial()
 	{
-		VrbObject vrbo = (VrbObject)selected[mat.value];
+		VrbObject vrbo = (VrbObject)selected[0];
 		vrbo.matStr = VrbMat.types[mat.value];
 		vrbo.material = VrbMat.mats[mat.value];
 		vrbo.gameObject.GetComponent<MeshRenderer>().material = vrbo.material;

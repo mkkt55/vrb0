@@ -5,9 +5,15 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+public enum VrbTargetType
+{
+	Vertex,Edge,Face,Object,Light,PlaceTarget,Measurer,LeftMeasurer,RightMeasurer
+}
+
 public interface VrbTarget
 {
-	string getType();
+	VrbTargetType getType();
 	void move(Vector3 m);
 	void rotate(Vector3 a);
 	void scale(Vector3 s);
@@ -25,17 +31,19 @@ public class VrbVertex : VrbTarget
 {
 	public static List<VrbVertex> all = new List<VrbVertex>();
 
-	public int index;
+	private int index;
 	public int getIndex()
 	{
 		return index;
 	}
 
-	public void addToStatic()
+	private void addToStatic()
 	{
 		index = all.Count;
 		all.Add(this);
 	}
+
+	List<VrbFace> rFaces = new List<VrbFace>();
 
 	public Vector3 vector3;
 	public GameObject gameObject;
@@ -48,7 +56,6 @@ public class VrbVertex : VrbTarget
 	public VrbVertex(float _x, float _y, float _z)
 	{
 		addToStatic();
-
 		vector3 = new Vector3(_x, _y, _z);
 	}
 
@@ -114,9 +121,9 @@ public class VrbVertex : VrbTarget
 		displayed = false;
 	}
 
-	public string getType()
+	public VrbTargetType getType()
 	{
-		return "vertex";
+		return VrbTargetType.Vertex;
 	}
 
 	public void move(Vector3 dv)
@@ -159,15 +166,8 @@ public class VrbTriangle
 {
 	public static List<VrbTriangle> all = new List<VrbTriangle>();
 
-	public int index;
-	public int getIndex()
-	{
-		return index;
-	}
-
 	public void addToStatic()
 	{
-		index = all.Count;
 		all.Add(this);
 	}
 
@@ -177,7 +177,6 @@ public class VrbTriangle
 	public VrbEdge e0;
 	public VrbEdge e1;
 	public VrbEdge e2;
-	public VrbColor vrbc;
 
 	public List<Vector3> vectors
 	{
@@ -199,10 +198,7 @@ public class VrbTriangle
 			return list;
 		}
 	}
-
-	public Color color_0;
-	public Color color_1;
-
+	
 	public VrbTriangle(VrbVertex _v0, VrbVertex _v1, VrbVertex _v2)
 	{
 		v0 = _v0;
@@ -221,16 +217,9 @@ public class VrbTriangle
 public class VrbEdge : VrbTarget
 {
 	public static List<VrbEdge> all = new List<VrbEdge>();
-
-	public int index;
-	public int getIndex()
-	{
-		return index;
-	}
-
+	
 	public void addToStatic()
 	{
-		index = all.Count;
 		all.Add(this);
 	}
 
@@ -326,9 +315,9 @@ public class VrbEdge : VrbTarget
 		displayed = false;
 	}
 	
-	public string getType()
+	public VrbTargetType getType()
 	{
-		return "edge";
+		return VrbTargetType.Edge;
 	}
 
 	public void move(Vector3 dv)
@@ -368,7 +357,6 @@ public class VrbEdge : VrbTarget
 
 	public Vector3 getRotate()
 	{
-		//return gameObject.transform.rotation * Vector3.forward;
 		return Vector3.zero;
 	}
 
@@ -382,33 +370,19 @@ public class VrbEdge : VrbTarget
 public class VrbFace : VrbTarget
 {
 	public static List<VrbFace> all = new List<VrbFace>();
-
-	public int index;
-	public int getIndex()
-	{
-		return index;
-	}
-
+	
 	public void addToStatic()
 	{
-		index = all.Count;
 		all.Add(this);
 	}
 
 	public VrbColor vrbc = new VrbColor();
 	public VrbColor matVrbc = new VrbColor();
-	public void updateColor()
-	{
-		for (int i = 0; i < ftOriginal.Count; i++)
-		{
-			ftOriginal[i].vrbc = vrbc;
-		}
-	}
-	public Color matColor;
+
 	public void updateMatColor(Color c)
 	{
 		material.color = c;
-		matColor = c;
+		matVrbc.color = c;
 	}
 
 	public List<VrbTriangle> ftOriginal; // 面中的int代表三角面片在VrbModel.triangles数组的起始位置，即永远是3的倍数。
@@ -572,7 +546,7 @@ public class VrbFace : VrbTarget
 		MeshFilter mf = gameObject.GetComponent<MeshFilter>();
 		if (mf != null)
 		{
-			mf.sharedMesh = mesh;
+			mf.mesh = mesh;
 		}
 		// 展示Mesh，且可操作。
 		VrbEditableFace ef = gameObject.GetComponent<VrbEditableFace>();
@@ -620,9 +594,9 @@ public class VrbFace : VrbTarget
 		displayed = false;
 	}
 
-	public string getType()
+	public VrbTargetType getType()
 	{
-		return "face";
+		return VrbTargetType.Face;
 	}
 
 	public void move(Vector3 dv)
@@ -699,15 +673,8 @@ public class VrbObject : VrbTarget
 	public static List<VrbObject> all = new List<VrbObject>();
 	public static VrbObject editingObject = null;
 
-	public int index;
-	public int getIndex()
-	{
-		return index;
-	}
-
 	public void addToStatic()
 	{
-		index = all.Count;
 		all.Add(this);
 	}
 
@@ -851,7 +818,7 @@ public class VrbObject : VrbTarget
 		meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter != null)
 		{
-			meshFilter.sharedMesh = mesh;
+			meshFilter.mesh = mesh;
 		}
 
 		// 展示Mesh，且可操作。
@@ -977,9 +944,9 @@ public class VrbObject : VrbTarget
 		}
 	}
 
-	public virtual string getType()
+	public virtual VrbTargetType getType()
 	{
-		return "object";
+		return VrbTargetType.Object;
 	}
 
 	public void move(Vector3 dv)
@@ -1102,9 +1069,9 @@ public class VrbLight : VrbObject
 		constructed = true;
 	}
 
-	public override string getType()
+	public override VrbTargetType getType()
 	{
-		return "light";
+		return VrbTargetType.Light;
 	}
 }
 
@@ -1112,6 +1079,85 @@ public class VrbLight : VrbObject
 // 便于Unity中调试
 public static class VrbModel
 {
+	public static void saveProject(string path)
+	{
+		StringBuilder sb = new StringBuilder();
+		foreach (VrbVertex v in VrbVertex.all)
+		{
+			sb.AppendLine(string.Format("v {0} {1} {2}", v.vector3.x, v.vector3.y, v.vector3.z));
+		}
+		sb.AppendLine();
+		sb.AppendLine();
+		foreach (VrbObject o in VrbObject.all)
+		{
+			if (o.getType() != VrbTargetType.Light && o.getType() != VrbTargetType.Object)
+			{
+				continue;
+			}
+			sb.AppendLine("o start");
+			sb.AppendLine("name " + o.name);
+			sb.AppendLine("mat " + o.matStr);
+			sb.AppendLine();
+			foreach (VrbFace f in o.faces)
+			{
+				sb.AppendLine("f start");
+				sb.AppendLine(string.Format("color {0} {1} {2} {3}", f.vrbc.color.r, f.vrbc.color.g, f.vrbc.color.b, f.vrbc.color.a));
+				foreach (VrbTriangle t in f.ftOriginal)
+				{
+					sb.AppendLine(string.Format("t {0} {1} {2}", t.v0.getIndex(), t.v1.getIndex(), t.v2.getIndex()));
+				}
+				sb.AppendLine("f end");
+				sb.AppendLine();
+			}
+			sb.AppendLine("o end");
+			sb.AppendLine();
+		}
+
+
+		if (!Directory.Exists(path))
+			Directory.CreateDirectory(path);
+		StreamWriter sw = new StreamWriter(path + "/model.vrbp", false);
+		sw.Write(sb.ToString());
+		sw.Close();
+
+		StreamWriter sw2 = new StreamWriter(path + "/setting.conf", false);
+		sw2.Write("");
+		sw2.Close();
+	}
+
+	public static void openProject(string path)
+	{
+		foreach (VrbFace f in VrbFace.all)
+		{
+			foreach (VrbEdge e in f.fEdges)
+			{
+				GameObject.Destroy(e.gameObject);
+			}
+			foreach (VrbVertex v in f.fVertices)
+			{
+				GameObject.Destroy(v.gameObject);
+			}
+			GameObject.Destroy(f.gameObject);
+		}
+		VrbFace.all.Clear();
+		VrbEdge.all.Clear();
+		VrbTriangle.all.Clear();
+		VrbVertex.all.Clear();
+
+		foreach (VrbObject o in VrbObject.all)
+		{
+			if (o.getType() == VrbTargetType.Object || o.getType() == VrbTargetType.Light)
+			{
+				GameObject.Destroy(o.UiItem);
+				GameObject.Destroy(o.gameObject);
+			}
+		}
+		VrbObject.all.Clear();
+
+
+
+	}
+
 	// 三角形面片，记录顶点索引
 	public static VrbObject createQuad(float xp, float yp, float zp, float xl, float yl)
 	{
@@ -1353,8 +1399,6 @@ public static class VrbModel
 	{
 		if (VrbObject.all.Count > 0)
 		{
-			//string data = ObjExporterScript.MeshToString(VrbObject.all[0].meshFilter, VrbObject.all[0].meshRenderer, VrbObject.all[0].getGameObject().transform);
-			//ObjExporter.WriteToFile(data, "D:/zz.obj");
 			string s = MeshToString(VrbObject.all[0].mesh , null);
 			using (StreamWriter sw = new StreamWriter(path))
 			{
@@ -1562,9 +1606,9 @@ public class VrbPlaceTarget:VrbObject
 		defaultColor = gameObject.GetComponentInChildren<MeshRenderer>().material.color;
 	}
 
-	public override string getType()
+	public override VrbTargetType getType()
 	{
-		return "target";
+		return VrbTargetType.PlaceTarget;
 	}
 
 	public override void select()
@@ -1591,7 +1635,6 @@ public class VrbPlaceTarget:VrbObject
 		UiItem.SetActive(false);
 	}
 }
-
 
 public class VrbMeasurer : VrbObject
 {
@@ -1622,9 +1665,9 @@ public class VrbMeasurer : VrbObject
 		gameObject.transform.position = new Vector3(0, -200, -100);
 	}
 
-	public override string getType()
+	public override VrbTargetType getType()
 	{
-		return "measurer";
+		return VrbTargetType.Measurer;
 	}
 
 	public override void select()
@@ -1677,9 +1720,9 @@ public class VrbLeftMeasurer : VrbObject
 		defaultColor = gameObject.GetComponent<MeshRenderer>().material.color;
 	}
 
-	public override string getType()
+	public override VrbTargetType getType()
 	{
-		return "left-measurer";
+		return VrbTargetType.LeftMeasurer;
 	}
 
 	public override Vector3 getPosition()
@@ -1710,7 +1753,6 @@ public class VrbLeftMeasurer : VrbObject
 	}
 }
 
-
 public class VrbRightMeasurer : VrbObject
 {
 	public VrbRightMeasurer() : base(0, 0, 0, "RightMeasurer")
@@ -1730,9 +1772,9 @@ public class VrbRightMeasurer : VrbObject
 		defaultColor = gameObject.GetComponent<MeshRenderer>().material.color;
 	}
 
-	public override string getType()
+	public override VrbTargetType getType()
 	{
-		return "right-measurer";
+		return VrbTargetType.RightMeasurer;
 	}
 
 	public override Vector3 getPosition()

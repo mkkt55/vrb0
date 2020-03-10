@@ -14,6 +14,10 @@ public class ObjectColor : MonoBehaviour, IPointerClickHandler
 	public GameObject pc;
 	public List<VrbTarget> selected;
 
+	public VrbObject o;
+
+	public Dropdown dropdown;
+
 	void OnEnable()
 	{
 		if (vrbc == null)
@@ -21,6 +25,7 @@ public class ObjectColor : MonoBehaviour, IPointerClickHandler
 			img = GetComponent<Image>();
 			pc = GameObject.Find("PlayerController");
 			selected = pc.GetComponent<PlayerController>().selected;
+			dropdown = transform.parent.parent.GetComponentInChildren<Dropdown>();
 		}
 		if (selected != null && selected.Count > 0)
 		{
@@ -39,15 +44,31 @@ public class ObjectColor : MonoBehaviour, IPointerClickHandler
 	{
 		if (!colorLastFrame.Equals(vrbc.color))
 		{
-			img.color = vrbc.color;
-			colorLastFrame = vrbc.color;
+			switch(dropdown.value)
+			{
+				case 0:
+					img.color = vrbc.color;
+					colorLastFrame = vrbc.color;
+					break;
+				case 1:
+					img.color = vrbc.color;
+					colorLastFrame = vrbc.color;
+					o.material.SetColor("_RimColor", vrbc.color);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		pc.GetComponent<PlayerController>().selected[0].deSelect();
-		PlayerController.colorPanel.GetComponent<ColorPanel>().cRef = vrbc;
-		PlayerController.colorPanel.SetActive(true);
+		if (pc.GetComponent<PlayerController>().selected[0].getType() == VrbTargetType.Object)
+		{
+			o = (VrbObject)pc.GetComponent<PlayerController>().selected[0];
+			pc.GetComponent<PlayerController>().selected[0].deSelect();
+			PlayerController.colorPanel.GetComponent<ColorPanel>().cRef = vrbc;
+			PlayerController.colorPanel.SetActive(true);
+		}
 	}
 }

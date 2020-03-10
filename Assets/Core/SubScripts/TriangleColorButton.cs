@@ -23,7 +23,7 @@ public class TriangleColorButton : MonoBehaviour, IPointerClickHandler
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		if (selected != null && selected.Count > 0 && selected[0].getType().Equals("face"))
+		if (selected != null && selected.Count > 0 && selected[0].getType() == VrbTargetType.Face)
 		{
 			PlayerController.colorPanel.GetComponent<ColorPanel>().cRef = ((VrbFace)selected[0]).vrbc;
 			PlayerController.colorPanel.SetActive(true);

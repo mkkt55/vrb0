@@ -31,7 +31,6 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 
 		if (colorLastFrame != f.vrbc.color)
 		{
-			f.updateColor();
 			colorLastFrame = f.vrbc.color;
 			f.mesh.SetColors(f.fColors);
 		}

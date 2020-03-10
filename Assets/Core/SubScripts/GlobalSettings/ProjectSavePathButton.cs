@@ -22,10 +22,6 @@ public class ProjectSavePathButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		if (!path.text.Equals(pathLastFrame))
-		{
-			VrbSettingData.projectSavePath = path.text;
-			pathLastFrame = path.text;
-		}
+		
 	}
 }

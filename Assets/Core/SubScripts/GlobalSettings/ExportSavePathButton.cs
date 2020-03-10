@@ -22,10 +22,6 @@ public class ExportSavePathButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		if (!path.text.Equals(pathLastFrame))
-		{
-			VrbSettingData.exportSavePath = path.text;
-			pathLastFrame = path.text;
-		}
+		
 	}
 }

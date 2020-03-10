@@ -31,7 +31,7 @@ public class LightPanel : MonoBehaviour
 
 	public void updateValue()
 	{
-		if (playerController.GetComponent<PlayerController>().selected.Count > 0 && playerController.GetComponent<PlayerController>().selected[0].getType().Equals("light"))
+		if (playerController.GetComponent<PlayerController>().selected.Count > 0 && playerController.GetComponent<PlayerController>().selected[0].getType() == VrbTargetType.Light)
 		{
 			VrbLight vrbl = (VrbLight)playerController.GetComponent<PlayerController>().selected[0];
 			for (int i = 0;i < typeDropdown.options.Count; i++)
@@ -48,7 +48,7 @@ public class LightPanel : MonoBehaviour
 	public void setValue()
 	{
 		List<VrbTarget> temp = playerController.GetComponent<PlayerController>().selected;
-		if (temp.Count > 0 && temp[0].getType().Equals("light"))
+		if (temp.Count > 0 && temp[0].getType() == VrbTargetType.Light)
 		{
 			VrbLight vrbl = (VrbLight)temp[0];
 			if (typeDropdown.value == 0)

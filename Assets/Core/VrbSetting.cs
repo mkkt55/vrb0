@@ -13,8 +13,20 @@ public static class VrbSettingData
 	public static string skybox = "StarryNight";
 
 	// Project settings.
-	public static string projectSavePath = Application.persistentDataPath + "/" + projectName;
-	public static string exportSavePath = Application.persistentDataPath + "/" + projectName + "/Object.obj";
+	public static string projectSavePath
+	{
+		get
+		{
+			return Application.persistentDataPath + "/" + projectName;
+		}
+	}
+	public static string exportSavePath
+	{
+		get
+		{
+			return Application.persistentDataPath + "/" + projectName + "/export";
+		}
+	}
 
 	// Render settings.
 	public static string renderer = "default";

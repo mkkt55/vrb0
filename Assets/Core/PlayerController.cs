@@ -408,6 +408,7 @@ public class PlayerController : MonoBehaviour
 		{
 			Application.Quit();
 		}
+		saveProject();
 	}
 
 	public void updateInputValue()
@@ -449,7 +450,7 @@ public class PlayerController : MonoBehaviour
 		{
 			_v.z = 0;
 		}
-		if (selected[0].getType().Equals("left-measurer") || selected[0].getType().Equals("right-measurer"))
+		if (selected[0].getType() == VrbTargetType.LeftMeasurer || selected[0].getType() == VrbTargetType.RightMeasurer)
 		{
 			_v.y = 0;
 			_v.z = 0;
@@ -504,7 +505,7 @@ public class PlayerController : MonoBehaviour
 	public void select(VrbTarget t)
 	{
 		// 如果在编辑模式下选中，则只能是选中了InfoCanvas上的物体。
-		if (isEditing && t.getType().Equals("object"))
+		if (isEditing && t.getType() == VrbTargetType.Object)
 		{
 			return;
 		}
@@ -517,51 +518,51 @@ public class PlayerController : MonoBehaviour
 			clearAllSelection();
 			selected.Add(t);
 		}
-		if (t.getType().Equals("object"))
+		if (t.getType() == VrbTargetType.Object)
 		{
 			transformPanel.SetActive(true);
 			matPanel.SetActive(true);
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
-		else if (t.getType().Equals("measurer"))
+		else if (t.getType() == VrbTargetType.Measurer)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
-		else if (t.getType().Equals("light"))
+		else if (t.getType() == VrbTargetType.Light)
 		{
 			transformPanel.SetActive(true);
 			lightPanel.SetActive(true);
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
-		else if (t.getType().Equals("face"))
+		else if (t.getType() == VrbTargetType.Face)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(true);
 			scalePanel.SetActive(true);
 		}
-		else if (t.getType().Equals("edge"))
+		else if (t.getType() == VrbTargetType.Edge)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
 			scalePanel.SetActive(false);
 		}
-		else if (t.getType().Equals("vertex"))
+		else if (t.getType() == VrbTargetType.Vertex)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
 			scalePanel.SetActive(false);
 		}
-		else if (t.getType().Equals("left-measurer") || t.getType().Equals("right-measurer"))
+		else if (t.getType() == VrbTargetType.LeftMeasurer || t.getType() == VrbTargetType.RightMeasurer)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
 			scalePanel.SetActive(false);
 		}
-		else if (t.getType().Equals("target"))
+		else if (t.getType() == VrbTargetType.PlaceTarget)
 		{
 			transformPanel.SetActive(true);
 			rotatePanel.SetActive(false);
@@ -787,7 +788,7 @@ public class PlayerController : MonoBehaviour
 
 	public void enterEdit()
 	{
-		if (selected.Count > 0 && selected[0].getType() == "object")
+		if (selected.Count > 0 && selected[0].getType() == VrbTargetType.Object)
 		{
 			editButton.GetComponent<Image>().color = selectedButtonColor;
 			editButtonSubCanvas.SetActive(true);
@@ -806,10 +807,8 @@ public class PlayerController : MonoBehaviour
 
 	public void saveModel()
 	{
-		string filePath;
-		filePath = "d:/zz.obj";
-		VrbModel.saveModel(filePath);
-		textIndicator.GetComponent<TextIndicator>().display("Object exported to " + filePath);
+		VrbModel.saveModel(VrbSettingData.exportSavePath);
+		textIndicator.GetComponent<TextIndicator>().display("Object exported to " + VrbSettingData.exportSavePath);
 	}
 
 	public void openModel()
@@ -1068,19 +1067,19 @@ public class PlayerController : MonoBehaviour
 	{
 		for (int i = 0; i < selected.Count; i++)
 		{
-			if (selected[i].getType().Equals("light") || selected[i].getType().Equals("object"))
+			if (selected[i].getType() == VrbTargetType.Light || selected[i].getType() == VrbTargetType.Object)
 			{
 				VrbModel.deleteObject((VrbObject)selected[i]);
 			}
-			else if (selected[i].getType().Equals("face"))
+			else if (selected[i].getType() == VrbTargetType.Face)
 			{
 				VrbModel.deleteFace((VrbFace)selected[i]);
 			}
-			else if (selected[i].getType().Equals("vertex"))
+			else if (selected[i].getType() == VrbTargetType.Vertex)
 			{
 				VrbModel.deleteVertex((VrbVertex)selected[i]);
 			}
-			else if (selected[i].getType().Equals("edge"))
+			else if (selected[i].getType() == VrbTargetType.Edge)
 			{
 				VrbModel.deleteEdge((VrbEdge)selected[i]);
 			}
@@ -1105,36 +1104,28 @@ public class PlayerController : MonoBehaviour
 			distanceDisplayer.SetActive(true);
 		}
 	}
-	
-	/*
-	/// <summary>
-	/// 鼠键控制player移动
-	/// </summary>
-	void WASD()
+
+	public void openToSetEnvironmentLight()
 	{
-		if (Input.GetMouseButton(1))
+		if (!settingButtonSubCanvas.activeSelf)
 		{
-			if (Input.GetAxis("Mouse X") != 0)
-			{
-				//Debug.Log(Input.GetAxis("Mouse X"));
-				if (Input.GetAxis("Mouse X") < 0.1f && Input.GetAxis("Mouse X") > -0.1f)
-				{
-					// return;
-				}
-				this.gameObject.transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * Time.fixedDeltaTime * 200, 0));//摄像机的旋转速度
-																														  //clearArrow(false);
-			}
-			if (Input.GetAxis("Mouse Y") != 0)
-			{
-				if (Input.GetAxis("Mouse Y") < 0.1f && Input.GetAxis("Mouse Y") > -0.1f)
-				{
-					Debug.Log("返回");
-					//  return;
-				}
-				Eye.transform.Rotate(new Vector3(Input.GetAxis("Mouse Y") * Time.fixedDeltaTime * -200, 0, 0));//摄像机的旋转速度
-			}
+			settingButtonSubCanvas.SetActive(true);
+			transform.Find("SettingCanvas/SettingPanel").GetComponent<VrbSetting>().switchToEnvironmentPanel();
 		}
-		
+		else
+		{
+			settingButtonSubCanvas.SetActive(false);
+		}
 	}
-	*/
+
+	public void saveProject()
+	{
+		VrbModel.saveProject(VrbSettingData.projectSavePath);
+		textIndicator.GetComponent<TextIndicator>().display("Project saved to " + VrbSettingData.projectSavePath);
+	}
+
+	public void openProject()
+	{
+
+	}
 }
