@@ -28,7 +28,7 @@ public class TextIndicator : MonoBehaviour
 		{
 			gameObject.SetActive(true);
 			t.text = s;
-			Invoke("disappear", 5);
+			//Invoke("disappear", 5);
 		}
 	}
 

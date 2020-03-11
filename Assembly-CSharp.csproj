@@ -53,9 +53,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Core\OpenProjectCanvasScript.cs" />
      <Compile Include="Assets\Core\PlayerController.cs" />
      <Compile Include="Assets\Core\SubScripts\ColorPanel.cs" />
      <Compile Include="Assets\Core\SubScripts\DistanceDisplayer.cs" />
+     <Compile Include="Assets\Core\SubScripts\EnterProjectNameScript.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightColor.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ELightIntensity.cs" />
      <Compile Include="Assets\Core\SubScripts\GlobalSettings\ExportSavePathButton.cs" />
@@ -67,6 +69,7 @@
      <Compile Include="Assets\Core\SubScripts\MaterialDropDown.cs" />
      <Compile Include="Assets\Core\SubScripts\ObjectColor.cs" />
      <Compile Include="Assets\Core\SubScripts\ObserveButtonScript.cs" />
+     <Compile Include="Assets\Core\SubScripts\ProjectItem.cs" />
      <Compile Include="Assets\Core\SubScripts\TextIndicator.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonX.cs" />
      <Compile Include="Assets\Core\SubScripts\TransformPanel\PosButtonY.cs" />

@@ -1094,22 +1094,22 @@ public static class VrbModel
 			{
 				continue;
 			}
-			sb.AppendLine("o start");
+			sb.AppendLine("o-start");
 			sb.AppendLine("name " + o.name);
 			sb.AppendLine("mat " + o.matStr);
 			sb.AppendLine();
 			foreach (VrbFace f in o.faces)
 			{
-				sb.AppendLine("f start");
+				sb.AppendLine("f-start");
 				sb.AppendLine(string.Format("color {0} {1} {2} {3}", f.vrbc.color.r, f.vrbc.color.g, f.vrbc.color.b, f.vrbc.color.a));
 				foreach (VrbTriangle t in f.ftOriginal)
 				{
 					sb.AppendLine(string.Format("t {0} {1} {2}", t.v0.getIndex(), t.v1.getIndex(), t.v2.getIndex()));
 				}
-				sb.AppendLine("f end");
+				sb.AppendLine("f-end");
 				sb.AppendLine();
 			}
-			sb.AppendLine("o end");
+			sb.AppendLine("o-end");
 			sb.AppendLine();
 		}
 
@@ -1120,13 +1120,35 @@ public static class VrbModel
 		sw.Write(sb.ToString());
 		sw.Close();
 
+
+		sb = new StringBuilder();
+		sb.AppendLine(string.Format("elc {0} {1} {2} {3}", VrbSettingData.elColor.r, VrbSettingData.elColor.g, VrbSettingData.elColor.b, VrbSettingData.elColor.a));
+		sb.AppendLine(string.Format("eli {0}", VrbSettingData.elIntensity));
+		sb.AppendLine(string.Format("skybox {0}", VrbSettingData.skybox));
+
 		StreamWriter sw2 = new StreamWriter(path + "/setting.conf", false);
-		sw2.Write("");
+		sw2.Write(sb.ToString());
 		sw2.Close();
 	}
 
-	public static void openProject(string path)
+	public static void deleteAll()
 	{
+		VrbObject.exitEdit();
+		PlayerController pc = GameObject.Find("PlayerController").GetComponent<PlayerController>();
+		pc.openProjectCanvas.SetActive(false);
+		pc.saveProjectCanvas.SetActive(false);
+		pc.transformPanel.SetActive(false);
+		pc.lightPanel.SetActive(false);
+		pc.matPanel.SetActive(false);
+
+		pc.projectButtonSubCanvas.SetActive(false);
+		pc.settingButtonSubCanvas.SetActive(false);
+		pc.placeButtonSubCanvas.SetActive(false);
+		pc.lightButtonSubCanvas.SetActive(false);
+		pc.textIndicator.SetActive(false);
+		pc.distanceDisplayer.SetActive(false);
+
+
 		foreach (VrbFace f in VrbFace.all)
 		{
 			foreach (VrbEdge e in f.fEdges)
@@ -1153,9 +1175,70 @@ public static class VrbModel
 			}
 		}
 		VrbObject.all.Clear();
+	}
 
+	public static void openProject(string path)
+	{
+		deleteAll();
+		StreamReader sr = new StreamReader(path + "/model.vrbp");
+		StreamReader sr2 = new StreamReader(path + "/setting.conf");
 
+		string line = "";
+		while ((line = sr.ReadLine()) != null)
+		{
+			if (line == "\n")
+			{
+				continue;
+			}
+			string[] strArr = line.Substring(0, line.Length - 1).Split(' ');
+			if (strArr[0] == "v")
+			{
+				float x = float.Parse(strArr[1]);
+				float y = float.Parse(strArr[2]);
+				float z = float.Parse(strArr[3]);
+				new VrbVertex(x, y, z);
+			}
+			else if(strArr[0] == "o-start")
+			{
+				line = sr.ReadLine();
+				string name = line.Substring(0, line.Length - 1).Split(' ')[1];
+				line = sr.ReadLine();
+				string mat = line.Substring(0, line.Length - 1).Split(' ')[1];
 
+				line = sr.ReadLine();
+				List<VrbFace> fs = new List<VrbFace>();
+				while (line.Split(' ')[0] != "o-end")
+				{
+					if (line.Split(' ')[0] == "f-start")
+					{
+						line = sr.ReadLine();
+						string []cArr = line.Substring(0, line.Length - 1).Split(' ');
+						float r = float.Parse(cArr[1]);
+						float g = float.Parse(cArr[2]);
+						float b = float.Parse(cArr[3]);
+						float a = float.Parse(cArr[4]);
+
+						Color c = new Color(r, g, b, a);
+
+						List<VrbTriangle> temp = new List<VrbTriangle>();
+						while (line.Split(' ')[0] != "f-end")
+						{
+							if (line.Split(' ')[0] == "t")
+							{
+								string[] tArr = line.Substring(0, line.Length - 1).Split(' ');
+								temp.Add(new VrbTriangle(VrbVertex.all[int.Parse(tArr[1])], VrbVertex.all[int.Parse(tArr[2])], VrbVertex.all[int.Parse(tArr[3])]));
+							}
+						}
+						fs.Add(new VrbFace(temp));
+					}
+					line = sr.ReadLine();
+				}
+				new VrbObject(10, 200, 30, fs);
+			}
+		}
+
+		sr.Close();
+		sr2.Close();
 	}
 
 	// 三角形面片，记录顶点索引

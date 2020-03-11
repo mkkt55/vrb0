@@ -10,6 +10,9 @@ using dpn;
 
 public class PlayerController : MonoBehaviour
 {
+	public GameObject openProjectCanvas;
+	public GameObject saveProjectCanvas;
+
 	public bool observeMode = false;
 	public GameObject editableModel;
 	PointerEventData eventData;
@@ -129,7 +132,13 @@ public class PlayerController : MonoBehaviour
 		scaleSpeed = 0.1f;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
-		
+
+
+		openProjectCanvas = GameObject.Find("PlayerController/OpenProjectCanvas");
+		openProjectCanvas.SetActive(false);
+		saveProjectCanvas = GameObject.Find("PlayerController/SaveProjectCanvas");
+		saveProjectCanvas.SetActive(false);
+
 		editableModel = GameObject.Find("EditableModel");
 
 		infoCanvas = GameObject.Find("PlayerController/InfoCanvas");
@@ -408,7 +417,8 @@ public class PlayerController : MonoBehaviour
 		{
 			Application.Quit();
 		}
-		saveProject();
+
+		//saveProject();
 	}
 
 	public void updateInputValue()
@@ -1120,12 +1130,35 @@ public class PlayerController : MonoBehaviour
 
 	public void saveProject()
 	{
+		saveProjectCanvas.SetActive(true);
+	}
+
+	public void realSaveProject()
+	{
 		VrbModel.saveProject(VrbSettingData.projectSavePath);
-		textIndicator.GetComponent<TextIndicator>().display("Project saved to " + VrbSettingData.projectSavePath);
+		textIndicator.GetComponent<TextIndicator>().display("Project saved to: " + VrbSettingData.projectSavePath);
+	}
+
+	public void closeSaveProjectCanvas()
+	{
+		saveProjectCanvas.SetActive(false);
 	}
 
 	public void openProject()
 	{
+		openProjectCanvas.SetActive(true);
+	}
 
+	public void closeOpenProjectCanvas()
+	{
+		openProjectCanvas.SetActive(false);
+	}
+
+	public void newProject()
+	{
+		VrbModel.deleteAll();
+
+		VrbObject o = VrbModel.createCube(0, -100, 0, 100, 100, 100);
+		o.displayModel();
 	}
 }
