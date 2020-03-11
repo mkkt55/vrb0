@@ -147,8 +147,9 @@ d6b4b1f58f185158a93020d0cdf140f0 Assembly-CSharp.dll:.VrbEditableFace
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.VrbTargetScript
 b3ab2106268377ffe25dd18ac23dca28 Unity.TextMeshPro.dll:TMPro.TMP_Asset
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.VrbEditableVertex
-117e61443400bdfae7a014aeb88d8eb5 Assembly-CSharp.dll:.ObjectColor
+f4ffc628b5dc26a27fe75583961dbdaa Assembly-CSharp.dll:.ObjectColor
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.RottButtonY
+5674649e295c7700d2281725061ec3e7 Assembly-CSharp.dll:.ProjectItem
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.FlipBootPair
 18c222bef9ae745ce69ddde9b74337ca Assembly-CSharp.dll:dpn.DpnPointerPhysicsRaycaster
 117e61443400bdfae7a014aeb88d8eb5 Assembly-CSharp.dll:.LightColor
@@ -165,7 +166,7 @@ f4e4bf30cb1330a843c93255418ad38e Assembly-CSharp.dll:dpn.DPVR_Controller
 87a4d7cc43170799ee4df9a567b78736 Assembly-CSharp.dll:dpn.DpnBoundary
 4fd8bf02e3089425d3502e26c44ba31a Unity.TextMeshPro.dll:TMPro.TextContainer
 c6b1c172efbc61c63ea55c26419522a9 Assembly-CSharp.dll:.ELightIntensity
-58ee3c4eb10f5c55be5045dedd03337a Assembly-CSharp.dll:.PlayerController
+1d252e943511bb44db8971897e88f0f3 Assembly-CSharp.dll:.PlayerController
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.ScaleButtonX
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.DpnBasePeripheral
 e6ae40841db498b6e673877ac45ad208 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
@@ -183,6 +184,7 @@ ad9173d3a69d99153f38ed4b62226129 UnityEngine.Networking.dll:UnityEngine.Networki
 9b895dcabbc1faf095c000c32d471fd0 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformChild
 5887ef1bc706b22b773d253fd443ceef UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformVisualizer
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.ScaleButtonY
+71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.EnterProjectNameScript
 247fe270e1fed1c83265026fb92e62ea Assembly-CSharp.dll:dpn.DpnFinalRenderObject
 510fefd6a544e16a3ffefa557ddcba39 Unity.TextMeshPro.dll:TMPro.PackageResourceImporterWindow
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.DpnPointerManager
@@ -216,11 +218,13 @@ ae83e830e7a90c0aff918c4c2e520825 Assembly-CSharp.dll:dpn.DpnPointerGraphicRaycas
 a4f0a4f62100f1a4fb5cbe0e00dde83f Unity.TextMeshPro.dll:TMPro.TextMeshProUGUI
 dd210bf02f9f22d0edbebbf41740845e Assembly-CSharp.dll:dpn.DpnCameraRig
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.DpnDevice
+1a39ca33a993776ff84d3408327f3cea Assembly-CSharp.dll:.ObserveButtonScript
 2c7a68820a77d6cda9896603e9c88215 Assembly-CSharp.dll:dpn.DPVRBaseSteamController
 5fc094978ce3e3591a7500ed380d854a Unity.Analytics.DataPrivacy.dll:UnityEngine.Analytics.DataPrivacyButton
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.RottButtonZ
 d6b4b1f58f185158a93020d0cdf140f0 Assembly-CSharp.dll:.VrbSelectableObject
 d251bf88db6c95a6b1aa0b69298da9ef UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
+6f3b3e4dbd0164d6d1e13cd5d0fa6494 Assembly-CSharp.dll:.OpenProjectCanvasScript
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.VrbCenterMeasurer
 f293dfcac80d44eafe8a9ff2d852c67c Assembly-CSharp.dll:.VrbSelectableLight
 35d42483cc1e2031e7ee40f2ed8f54ea Assembly-CSharp.dll:.SampleGUI
@@ -242,4 +246,3 @@ c6666661329916e218bee7f5e79e60f5 Unity.TextMeshPro.dll:TMPro.TextMeshPro
 900630045dcc1a399da5b7d32a52bca8 Assembly-CSharp.dll:dpn.DpnVolumeTips
 f365853f7917431cfb1893dc2cd5acac Assembly-CSharp.dll:.ColorPanel
 f3e53b11055c66d43770e475fcca8fed Assembly-CSharp.dll:.ExportSavePathButton
-1a39ca33a993776ff84d3408327f3cea Assembly-CSharp.dll:.ObserveButtonScript

@@ -8,15 +8,18 @@ public class ProjectItem : MonoBehaviour, IPointerClickHandler
 {
 	public string dir;
 	public Text t;
-	public void OnPointerClick(PointerEventData eventData)
-	{
-		VrbModel.openProject(Application.persistentDataPath + "/" + dir);
-		GameObject.Find("PlayerController/OpenProjectCanvas").SetActive(false);
-	}
+	GameObject canvas;
 
 	void OnEnable()
 	{
 		t = GetComponent<Text>();
+		canvas = GameObject.Find("PlayerController/OpenProjectCanvas");
+	}
+
+	public void OnPointerClick(PointerEventData eventData)
+	{
+		VrbModel.openProject(Application.persistentDataPath + "/" + dir);
+		canvas.SetActive(false);
 	}
 
 	// Start is called before the first frame update

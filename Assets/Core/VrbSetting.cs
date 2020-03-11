@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
@@ -7,6 +8,7 @@ using UnityEngine.Rendering;
 public static class VrbSettingData
 {
 	public static string projectName = "Untitled";
+	public static string exportName = "Untitled";
 	// Environment settings.
 	public static Color elColor = Color.white;
 	public static float elIntensity = 1;
@@ -24,7 +26,11 @@ public static class VrbSettingData
 	{
 		get
 		{
-			return Application.persistentDataPath + "/" + projectName + "/export";
+			if (!Directory.Exists(Application.persistentDataPath + "/" + projectName + "/export"))
+			{
+				Directory.CreateDirectory(Application.persistentDataPath + "/" + projectName + "/export");
+			}
+			return Application.persistentDataPath + "/" + projectName + "/export/" + exportName + ".obj";
 		}
 	}
 

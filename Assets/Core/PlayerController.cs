@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
 	public GameObject openProjectCanvas;
 	public GameObject saveProjectCanvas;
 
+	public GameObject exportModelCanvas;
+
 	public bool observeMode = false;
 	public GameObject editableModel;
 	PointerEventData eventData;
@@ -121,6 +123,8 @@ public class PlayerController : MonoBehaviour
 
 	void Start()
 	{
+		exportModelCanvas = GameObject.Find("PlayerController/SaveModelCanvas");
+		exportModelCanvas.SetActive(false);
 
 		eventData = new PointerEventData(EventSystem.current);
 		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas");
@@ -312,7 +316,7 @@ public class PlayerController : MonoBehaviour
 				}
 			}
 		}
-		else if (!OpenCanvasKeyboard.isOpening)
+		else if (true)
 		{
 			// VR手柄操作
 			// 平移模式
@@ -817,14 +821,28 @@ public class PlayerController : MonoBehaviour
 
 	public void saveModel()
 	{
-		VrbModel.saveModel(VrbSettingData.exportSavePath);
-		textIndicator.GetComponent<TextIndicator>().display("Object exported to " + VrbSettingData.exportSavePath);
+		exportModelCanvas.SetActive(true);
+	}
+
+	public void closeSaveModelCanvas()
+	{
+		exportModelCanvas.SetActive(false);
+	}
+
+	public void realSaveModel()
+	{
+		if (selected.Count > 0 && selected[0].getType() == VrbTargetType.Object)
+		{
+			VrbModel.saveModel(VrbSettingData.exportSavePath, ((VrbObject)selected[0]).mesh);
+			textIndicator.GetComponent<TextIndicator>().display("Object exported to " + VrbSettingData.exportSavePath);
+			exportModelCanvas.SetActive(false);
+		}
 	}
 
 	public void openModel()
 	{
 		string filePath;
-		filePath = "/vrb/zz.obj";
+		filePath = "/vrb/test.obj";
 		VrbModel.openModel(filePath);
 	}
 
@@ -1137,6 +1155,7 @@ public class PlayerController : MonoBehaviour
 	{
 		VrbModel.saveProject(VrbSettingData.projectSavePath);
 		textIndicator.GetComponent<TextIndicator>().display("Project saved to: " + VrbSettingData.projectSavePath);
+		saveProjectCanvas.SetActive(false);
 	}
 
 	public void closeSaveProjectCanvas()

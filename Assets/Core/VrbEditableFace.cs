@@ -38,7 +38,6 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
 
 	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
 	{
-		Debug.LogWarning("seleeef");
 		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(f);
 	}
 }

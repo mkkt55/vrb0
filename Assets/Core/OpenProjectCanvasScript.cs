@@ -24,14 +24,15 @@ public class OpenProjectCanvasScript : MonoBehaviour
 		//获取指定路径下面的所有资源文件  
 		if (Directory.Exists(fullPath))
 		{
-			Debug.LogWarning(fullPath);
 			DirectoryInfo dir = new DirectoryInfo(fullPath);
 			DirectoryInfo[] projects = dir.GetDirectories();
 
 			for (int i = 0; i < projects.Length; i++)
 			{
-				Debug.LogWarning("Name:" + projects[i].Name);
-
+				if (projects[i].Name == "Unity")
+				{
+					continue;
+				}
 				GameObject g = Resources.Load<GameObject>("ProjectItem");
 				GameObject rg = GameObject.Instantiate(g, content.transform);
 				rg.GetComponent<ProjectItem>().dir = projects[i].Name;

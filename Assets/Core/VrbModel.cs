@@ -329,8 +329,8 @@ public class VrbEdge : VrbTarget
 	public void rotate(Vector3 a)
 	{
 		Vector3 center = (v0.vector3 + v1.vector3) / 2;
-		v0.vector3 = Quaternion.Euler(a) * (v0.vector3 - center) + v0.vector3;
-		v1.vector3 = Quaternion.Euler(a) * (v1.vector3 - center) + v1.vector3;
+		v0.vector3 = Quaternion.Euler(a) * (v0.vector3 - center) + center;
+		v1.vector3 = Quaternion.Euler(a) * (v1.vector3 - center) + center;
 	}
 
 	public void scale(Vector3 s)
@@ -533,11 +533,11 @@ public class VrbFace : VrbTarget
 		mesh.SetVertices(fVectors);
 		mesh.SetTriangles(fTriangles, 0);
 		mesh.RecalculateNormals();
-		mesh.SetColors(fColors);
 	}
 
 	public void constructModel()
 	{
+		mesh.SetColors(fColors);
 		GameObject r = Resources.Load("VrbFace") as GameObject;
 		gameObject = GameObject.Instantiate(r);
 
@@ -557,6 +557,7 @@ public class VrbFace : VrbTarget
 		meshCollider = gameObject.GetComponent<MeshCollider>();
 		meshCollider.sharedMesh = mesh;
 
+		meshRender.material.color = matVrbc.color;
 		material = meshRender.material;
 
 		constructed = true;
@@ -801,8 +802,8 @@ public class VrbObject : VrbTarget
 		mesh = new Mesh();
 		mesh.SetVertices(vectors);
 		mesh.SetTriangles(triangles, 0);
-		mesh.SetColors(color);
 		mesh.RecalculateNormals();
+		mesh.SetColors(color);
 	}
 
 	public virtual void constructModel()
@@ -959,6 +960,17 @@ public class VrbObject : VrbTarget
 	{
 		gameObject.transform.Rotate(a);
 		rotationVector += a;
+
+		Vector3 totalPos = Vector3.zero;
+		for (int i = 0; i < vertices.Count; i++)
+		{
+			totalPos += vertices[i].vector3;
+		}
+		Vector3 center = (totalPos) / vertices.Count;
+		for (int i = 0; i < vertices.Count; i++)
+		{
+			vertices[i].vector3 = Quaternion.Euler(a) * (vertices[i].vector3 - center) + center;
+		}
 	}
 
 	public void scale(Vector3 s)
@@ -969,6 +981,22 @@ public class VrbObject : VrbTarget
 		sv.z *= s.z;
 		gameObject.transform.localScale = sv;
 		scaleVector = sv;
+
+
+		Vector3 totalPos = Vector3.zero;
+		for (int i = 0; i < vertices.Count; i++)
+		{
+			totalPos += vertices[i].vector3;
+		}
+		Vector3 center = (totalPos) / vertices.Count;
+		for (int i = 0; i < vertices.Count; i++)
+		{
+			Vector3 dv = vertices[i].vector3 - center;
+			dv.x *= s.x;
+			dv.y *= s.y;
+			dv.z *= s.z;
+			vertices[i].vector3 = dv + center;
+		}
 	}
 
 	public GameObject getGameObject()
@@ -1097,6 +1125,10 @@ public static class VrbModel
 			sb.AppendLine("o-start");
 			sb.AppendLine("name " + o.name);
 			sb.AppendLine("mat " + o.matStr);
+			sb.AppendLine(string.Format("mat-color {0} {1} {2} {3}", o.vrbc.color.r, o.vrbc.color.g, o.vrbc.color.b, o.vrbc.color.a));
+			sb.AppendLine(string.Format("position {0} {1} {2}", o.getPosition().x, o.getPosition().y, o.getPosition().z));
+			sb.AppendLine(string.Format("rotation {0} {1} {2}", o.getRotate().x, o.getRotate().y, o.getRotate().z));
+			sb.AppendLine(string.Format("scale {0} {1} {2}", o.getScale().x, o.getScale().y, o.getScale().z));
 			sb.AppendLine();
 			foreach (VrbFace f in o.faces)
 			{
@@ -1186,11 +1218,8 @@ public static class VrbModel
 		string line = "";
 		while ((line = sr.ReadLine()) != null)
 		{
-			if (line == "\n")
-			{
-				continue;
-			}
-			string[] strArr = line.Substring(0, line.Length - 1).Split(' ');
+			Debug.LogWarning(line);
+			string[] strArr = line.Split(' ');
 			if (strArr[0] == "v")
 			{
 				float x = float.Parse(strArr[1]);
@@ -1201,18 +1230,35 @@ public static class VrbModel
 			else if(strArr[0] == "o-start")
 			{
 				line = sr.ReadLine();
-				string name = line.Substring(0, line.Length - 1).Split(' ')[1];
+				string name = line.Split(' ')[1];
 				line = sr.ReadLine();
-				string mat = line.Substring(0, line.Length - 1).Split(' ')[1];
+				string mat = line.Split(' ')[1];
+				line = sr.ReadLine();
+				string[] cs = line.Split(' ');
+				Color matColor = new Color(float.Parse(cs[1]), float.Parse(cs[2]), float.Parse(cs[3]), float.Parse(cs[4]));
+
+
+				line = sr.ReadLine();
+				string[] s = line.Split(' ');
+				Vector3 position = new Vector3(float.Parse(s[1]), float.Parse(s[2]), float.Parse(s[3]));
+
+				line = sr.ReadLine();
+				s = line.Split(' ');
+				Quaternion rotate = Quaternion.Euler(float.Parse(s[1]), float.Parse(s[2]), float.Parse(s[3]));
+
+				line = sr.ReadLine();
+				s = line.Split(' ');
+				Vector3 scale = new Vector3(float.Parse(s[1]), float.Parse(s[2]), float.Parse(s[3]));
 
 				line = sr.ReadLine();
 				List<VrbFace> fs = new List<VrbFace>();
-				while (line.Split(' ')[0] != "o-end")
+				while (line != "o-end")
 				{
-					if (line.Split(' ')[0] == "f-start")
+					Debug.LogWarning(line);
+					if (line == "f-start")
 					{
 						line = sr.ReadLine();
-						string []cArr = line.Substring(0, line.Length - 1).Split(' ');
+						string []cArr = line.Split(' ');
 						float r = float.Parse(cArr[1]);
 						float g = float.Parse(cArr[2]);
 						float b = float.Parse(cArr[3]);
@@ -1221,23 +1267,57 @@ public static class VrbModel
 						Color c = new Color(r, g, b, a);
 
 						List<VrbTriangle> temp = new List<VrbTriangle>();
-						while (line.Split(' ')[0] != "f-end")
+
+						line = sr.ReadLine();
+						while (line != "f-end")
 						{
-							if (line.Split(' ')[0] == "t")
+							string[] tArr = line.Split(' ');
+							if (tArr[0] == "t")
 							{
-								string[] tArr = line.Substring(0, line.Length - 1).Split(' ');
 								temp.Add(new VrbTriangle(VrbVertex.all[int.Parse(tArr[1])], VrbVertex.all[int.Parse(tArr[2])], VrbVertex.all[int.Parse(tArr[3])]));
 							}
+							line = sr.ReadLine();
 						}
-						fs.Add(new VrbFace(temp));
+						VrbFace f = new VrbFace(temp);
+						f.vrbc.color = c;
+						f.matVrbc.color = matColor;
+						fs.Add(f);
 					}
 					line = sr.ReadLine();
 				}
-				new VrbObject(10, 200, 30, fs);
+				VrbObject vrbo = new VrbObject(position, fs);
+				vrbo.vrbc.color = matColor;
+				vrbo.displayModel();
+				vrbo.gameObject.transform.rotation = rotate;
+				vrbo.gameObject.transform.localScale = scale;
 			}
 		}
 
 		sr.Close();
+
+		string ss;
+		ss = sr.ReadLine();
+		string[] sArr = ss.Split(' ');
+		if (sArr[0] == "elc")
+		{
+			VrbSettingData.elColor = new Color(float.Parse(sArr[1]), float.Parse(sArr[2]), float.Parse(sArr[3]), float.Parse(sArr[4]));
+			RenderSettings.ambientLight = VrbSettingData.elColor;
+		}
+		sr.ReadLine();
+		if (sArr[1] == "eli")
+		{
+			VrbSettingData.elIntensity = float.Parse(sArr[1]);
+			RenderSettings.ambientIntensity = VrbSettingData.elIntensity;
+		}
+		sr.ReadLine();
+		if (sArr[0] == "skybox")
+		{
+			VrbSettingData.skybox = sArr[1];
+
+			string rPath = "Beautify/" + sArr[1];
+			RenderSettings.skybox = Resources.Load<Material>(rPath);
+		}
+		
 		sr2.Close();
 	}
 
@@ -1478,11 +1558,13 @@ public static class VrbModel
 		return true;
 	}
 
-	public static bool saveModel(string path)
+	public static bool saveModel(string path, Mesh mts)
 	{
-		if (VrbObject.all.Count > 0)
+		FileInfo f = new FileInfo(path);
+
+		if (mts != null)
 		{
-			string s = MeshToString(VrbObject.all[0].mesh , null);
+			string s = MeshToString(mts , null);
 			using (StreamWriter sw = new StreamWriter(path))
 			{
 				sw.Write(s);
