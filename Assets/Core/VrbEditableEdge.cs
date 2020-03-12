@@ -8,6 +8,19 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 	public VrbEdge e;
 	public Vector3 v0;
 	public Vector3 v1;
+	
+	public GameObject pc;
+	public PlayerController pcpc;
+
+	void OnEnable()
+	{
+		if (pc == null)
+		{
+			pc = GameObject.Find("PlayerController");
+			pcpc = pc.GetComponent<PlayerController>();
+		}
+	}
+
 	// Start is called before the first frame update
 	void Start()
     {
@@ -15,8 +28,13 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
+		if (!pcpc.performedSomeOperation)
+		{
+			return;
+		}
+
 		v0 = e.v0.vector3;
 		v1 = e.v1.vector3;
 		transform.position = (e.v0.vector3 + e.v1.vector3) / 2;

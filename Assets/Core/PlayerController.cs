@@ -10,6 +10,7 @@ using dpn;
 
 public class PlayerController : MonoBehaviour
 {
+	public bool performedSomeOperation = false;
 	public GameObject openProjectCanvas;
 	public GameObject saveProjectCanvas;
 
@@ -103,10 +104,10 @@ public class PlayerController : MonoBehaviour
 	public bool isEditing = false;
 	public bool isPlacement = false;
 
-	public float moveSpeed; //操作物体时的移动速度
-	public float moveSelfSpeed; //摄像机的移动速度
-	public float rotateSpeed;
-	public float scaleSpeed;
+	public float moveSpeed = 200; //操作物体时的移动速度
+	public float moveSelfSpeed = 300; //摄像机的移动速度
+	public float rotateSpeed = 40;
+	public float scaleSpeed = 0.1f;
 
 	public Color defaultButtonColor = Color.white;
 	public Color selectedButtonColor = new Color(1f, 0.6f, 0.6f);
@@ -130,10 +131,6 @@ public class PlayerController : MonoBehaviour
 		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas");
 		colorPanel.SetActive(false);
 
-		moveSpeed = 30;
-		moveSelfSpeed = 20;
-		rotateSpeed = 40;
-		scaleSpeed = 0.1f;
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 
@@ -238,6 +235,9 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
+		performedSomeOperation = false;
+
+
 		updateInputValue();
 		
 		//RaycastHit hit;
@@ -473,6 +473,7 @@ public class PlayerController : MonoBehaviour
 		{
 			selected[i].move(_v);
 		}
+		performedSomeOperation = true;
 	}
 
 	public void rotateSelected(Vector3 _v)
@@ -494,6 +495,7 @@ public class PlayerController : MonoBehaviour
 			selected[i].rotate(_v);
 			selected[i].rotate(_v);
 		}
+		performedSomeOperation = true;
 	}
 
 	public void scaleSelected(Vector3 _v)
@@ -514,6 +516,7 @@ public class PlayerController : MonoBehaviour
 		{
 			selected[i].scale(_v);
 		}
+		performedSomeOperation = true;
 	}
 
 	public void select(VrbTarget t)
@@ -939,6 +942,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updatePosXfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -956,6 +960,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updatePosYfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -974,6 +979,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updatePosZfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -991,6 +997,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateRottXfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -1008,6 +1015,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateRottYfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -1025,6 +1033,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateRottZfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -1042,6 +1051,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateScaXfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -1059,6 +1069,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateScaYfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;
@@ -1076,6 +1087,7 @@ public class PlayerController : MonoBehaviour
 
 	public void updateScaZfromInput(string s)
 	{
+		performedSomeOperation = true;
 		if (s.Equals("") || s.Equals("-"))
 		{
 			return;

@@ -539,7 +539,10 @@ public class VrbFace : VrbTarget
 	{
 		mesh.SetColors(fColors);
 		GameObject r = Resources.Load("VrbFace") as GameObject;
+
 		gameObject = GameObject.Instantiate(r);
+		VrbEditableFace ef = gameObject.GetComponent<VrbEditableFace>();
+		ef.f = this;
 
 		gameObject.transform.parent = GameObject.Find("EditableModel").transform;
 
@@ -548,9 +551,6 @@ public class VrbFace : VrbTarget
 		{
 			mf.mesh = mesh;
 		}
-		// 展示Mesh，且可操作。
-		VrbEditableFace ef = gameObject.GetComponent<VrbEditableFace>();
-		ef.f = this;
 
 		MeshRenderer meshRender = gameObject.GetComponent<MeshRenderer>();
 
@@ -561,6 +561,8 @@ public class VrbFace : VrbTarget
 		material = meshRender.material;
 
 		constructed = true;
+
+		ef.init();
 	}
 
 	public void select()
@@ -813,8 +815,6 @@ public class VrbObject : VrbTarget
 
 		gameObject.transform.parent = GameObject.Find("Layout").transform;
 		gameObject.transform.position = positionVector;
-		gameObject.transform.rotation = Quaternion.Euler(rotationVector);
-		gameObject.transform.localScale = scaleVector;
 
 		meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter != null)
@@ -903,6 +903,7 @@ public class VrbObject : VrbTarget
 	{
 		if (editingObject != null)
 		{
+			VrbModel.closeAllPanel();
 			for (int i = 0; i < editingObject.faces.Count; i++)
 			{
 				editingObject.faces[i].hideModel();
@@ -1163,15 +1164,16 @@ public static class VrbModel
 		sw2.Close();
 	}
 
-	public static void deleteAll()
+	public static void closeAllPanel()
 	{
-		VrbObject.exitEdit();
 		PlayerController pc = GameObject.Find("PlayerController").GetComponent<PlayerController>();
 		pc.openProjectCanvas.SetActive(false);
 		pc.saveProjectCanvas.SetActive(false);
 		pc.transformPanel.SetActive(false);
 		pc.lightPanel.SetActive(false);
 		pc.matPanel.SetActive(false);
+		pc.exportModelCanvas.SetActive(false);
+
 
 		pc.projectButtonSubCanvas.SetActive(false);
 		pc.settingButtonSubCanvas.SetActive(false);
@@ -1179,7 +1181,12 @@ public static class VrbModel
 		pc.lightButtonSubCanvas.SetActive(false);
 		pc.textIndicator.SetActive(false);
 		pc.distanceDisplayer.SetActive(false);
+	}
 
+	public static void deleteAll()
+	{
+		VrbObject.exitEdit();
+		closeAllPanel();
 
 		foreach (VrbFace f in VrbFace.all)
 		{

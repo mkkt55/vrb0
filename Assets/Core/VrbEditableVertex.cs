@@ -6,6 +6,18 @@ using UnityEngine.EventSystems;
 public class VrbEditableVertex : MonoBehaviour, IPointerClickHandler
 {
 	public VrbVertex v;
+
+	public GameObject pc;
+	public PlayerController pcpc;
+
+	void OnEnable()
+	{
+		if (pc == null)
+		{
+			pc = GameObject.Find("PlayerController");
+			pcpc = pc.GetComponent<PlayerController>();
+		}
+	}
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -13,8 +25,12 @@ public class VrbEditableVertex : MonoBehaviour, IPointerClickHandler
 	}
 
 	// Update is called once per frame
-	void Update()
+	void LateUpdate()
 	{
+		if (!pcpc.performedSomeOperation)
+		{
+			return;
+		}
 		transform.position = v.vector3;
 	}
 
