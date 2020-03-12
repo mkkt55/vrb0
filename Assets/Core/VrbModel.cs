@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public enum VrbTargetType
 {
-	Vertex,Edge,Face,Object,Light,PlaceTarget,Measurer,LeftMeasurer,RightMeasurer
+	Vertex, Edge, Face, Object, Light, PlaceTarget, Measurer, LeftMeasurer, RightMeasurer
 }
 
 public interface VrbTarget
@@ -297,7 +297,7 @@ public class VrbEdge : VrbTarget
 
 	public void displayModel()
 	{
-		if (constructed == false)
+		if (!constructed)
 		{
 			constructModel();
 		}
@@ -884,6 +884,7 @@ public class VrbObject : VrbTarget
 
 	public void enterEdit()
 	{
+		VrbModel.closeAllPanel();
 		hideAll();
 		for (int i = 0; i < faces.Count; i++)
 		{
@@ -905,6 +906,7 @@ public class VrbObject : VrbTarget
 	{
 		if (editingObject != null)
 		{
+			GameObject.Find("PlayerController").GetComponent<PlayerController>().clearAllSelection();
 			VrbModel.closeAllPanel();
 			for (int i = 0; i < editingObject.faces.Count; i++)
 			{
@@ -1180,6 +1182,7 @@ public static class VrbModel
 		pc.projectButtonSubCanvas.SetActive(false);
 		pc.settingButtonSubCanvas.SetActive(false);
 		pc.placeButtonSubCanvas.SetActive(false);
+		pc.placeButtonSubCanvas2.SetActive(false);
 		pc.lightButtonSubCanvas.SetActive(false);
 		pc.textIndicator.SetActive(false);
 		pc.distanceDisplayer.SetActive(false);
@@ -1711,6 +1714,7 @@ public static class VrbModel
 		}
 
 		GameObject.Destroy(e.gameObject);
+		VrbEdge.all.Remove(e);
 	}
 
 	public static void deleteFace(VrbFace f)

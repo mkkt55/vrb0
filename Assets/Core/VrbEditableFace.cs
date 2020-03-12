@@ -33,9 +33,22 @@ public class VrbEditableFace : MonoBehaviour, IPointerClickHandler
     {
 		if (pcpc.performedSomeOperation)
 		{
+			//List<Vector3> v = f.fVectors;
+			//for (int i= 0; i < v.Count; i++)
+			//{
+			//	Debug.LogWarning(i+": "+v[i]);
+			//}
+			//List<int> t = f.fTriangles;
+			//for (int i = 0; i < t.Count; i++)
+			//{
+			//	Debug.LogWarning(i + ": " + t[i]);
+			//}
+			f.mesh.Clear();
 			f.mesh.SetVertices(f.fVectors);
 			f.mesh.SetTriangles(f.fTriangles, 0);
+			f.mesh.SetColors(f.fColors);
 			f.mesh.RecalculateNormals();
+			GetComponent<MeshFilter>().mesh = f.mesh;
 			f.meshCollider.sharedMesh = f.mesh;
 		}
 

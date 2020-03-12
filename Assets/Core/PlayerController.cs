@@ -81,6 +81,7 @@ public class PlayerController : MonoBehaviour
 
 	public GameObject placeButton;
 	public GameObject placeButtonSubCanvas;
+	public GameObject placeButtonSubCanvas2;
 
 	public GameObject lightButton;
 	public GameObject lightButtonSubCanvas;
@@ -126,8 +127,8 @@ public class PlayerController : MonoBehaviour
 	void Start()
 	{
 		moveSpeed = 200; //操作物体时的移动速度
-		moveSelfSpeed = 300; //摄像机的移动速度
-		rotateSpeed = 40;
+		moveSelfSpeed = 200; //摄像机的移动速度
+		rotateSpeed = 60;
 		scaleSpeed = 0.1f;
 
 		exportModelCanvas = GameObject.Find("PlayerController/SaveModelCanvas");
@@ -197,7 +198,9 @@ public class PlayerController : MonoBehaviour
 
 		placeButton = GameObject.Find("MainMenu/PlaceButton");
 		placeButtonSubCanvas = GameObject.Find("MainMenu/PlaceButton/SubCanvas");
+		placeButtonSubCanvas2 = GameObject.Find("MainMenu/PlaceButton/SubCanvas2");
 		placeButtonSubCanvas.SetActive(false);
+		placeButtonSubCanvas2.SetActive(false);
 
 		lightButton = GameObject.Find("MainMenu/LightButton");
 		lightButtonSubCanvas = GameObject.Find("MainMenu/LightButton/SubCanvas");
@@ -1065,7 +1068,11 @@ public class PlayerController : MonoBehaviour
 
 	public void placeObject(string s)
 	{
-		if (s.Equals("Cube"))
+		if (isEditing && s.Equals("Vertex"))
+		{
+			new VrbVertex(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, placementTarget.gameObject.transform.position.z).displayModel();
+		}
+		else if (s.Equals("Cube"))
 		{
 			VrbModel.createCube(placementTarget.gameObject.transform.position.x, placementTarget.gameObject.transform.position.y, 0, 100, 100, 100).displayModel();
 		}
@@ -1102,7 +1109,7 @@ public class PlayerController : MonoBehaviour
 		}
 		else
 		{
-			if (!placeButtonSubCanvas.activeSelf)
+			if (!placeButtonSubCanvas.activeSelf && !placeButtonSubCanvas2.activeSelf)
 			{
 				isPlacement = false;
 				placementTarget.hideModel();
@@ -1137,11 +1144,20 @@ public class PlayerController : MonoBehaviour
 
 	public void switchPlacement()
 	{
-		if (!placeButtonSubCanvas.activeSelf)
+		if (!placeButtonSubCanvas.activeSelf && !placeButtonSubCanvas2.activeSelf)
 		{
 			isPlacement = true;
 			placementTarget.displayModel();
-			placeButtonSubCanvas.SetActive(true);
+			if (isEditing)
+			{
+				placeButtonSubCanvas2.SetActive(true);
+				placeButtonSubCanvas.SetActive(false);
+			}
+			else
+			{
+				placeButtonSubCanvas.SetActive(true);
+				placeButtonSubCanvas2.SetActive(false);
+			}
 		}
 		else
 		{
@@ -1151,6 +1167,7 @@ public class PlayerController : MonoBehaviour
 				placementTarget.hideModel();
 			}
 			placeButtonSubCanvas.SetActive(false);
+			placeButtonSubCanvas2.SetActive(false);
 		}
 	}
 
@@ -1405,5 +1422,209 @@ public class PlayerController : MonoBehaviour
 
 		VrbObject o = VrbModel.createCube(0, -100, 0, 100, 100, 100);
 		o.displayModel();
+	}
+
+	public void connetVertexToEdge()
+	{
+		performedSomeOperation = true;
+		List<VrbVertex> vList = new List<VrbVertex>();
+		for (int i = 0; i < selected.Count; i++)
+		{
+			if (selected[i].getType() == VrbTargetType.Vertex)
+			{
+				vList.Add((VrbVertex)selected[i]);
+			}
+		}
+		if (vList.Count > 1)
+		{
+			for (int i = 0; i < vList.Count - 1; i++)
+			{
+				VrbEdge.addEdge(vList[i], vList[i + 1]).displayModel();
+			}
+		}
+		transformPanel.SetActive(false);
+		clearAllSelection();
+	}
+
+	public void connetVertexToFace()
+	{
+		performedSomeOperation = true;
+		List<VrbVertex> vList = new List<VrbVertex>();
+		for (int i = 0; i < selected.Count; i++)
+		{
+			if (selected[i].getType() == VrbTargetType.Vertex)
+			{
+				vList.Add((VrbVertex)selected[i]);
+			}
+		}
+		if (vList.Count > 2)
+		{
+			List<VrbTriangle> tList = new List<VrbTriangle>();
+			for (int i = 0; i < vList.Count - 2; i++)
+			{
+				tList.Add(new VrbTriangle(vList[i], vList[i + 1], vList[i + 2]));
+			}
+			VrbFace nf = new VrbFace(tList);
+			nf.matVrbc.color = VrbObject.editingObject.vrbc.color;
+			nf.displayModel();
+			VrbObject.editingObject.faces.Add(nf);
+		}
+		transformPanel.SetActive(false);
+		clearAllSelection();
+	}
+
+	public void divideEdge()
+	{
+		performedSomeOperation = true;
+		List<VrbEdge> eList = new List<VrbEdge>();
+		for (int i = 0; i < selected.Count; i++)
+		{
+			if (selected[i].getType() == VrbTargetType.Edge)
+			{
+				eList.Add((VrbEdge)selected[i]);
+			}
+		}
+
+		foreach (VrbEdge e in eList)
+		{
+			GameObject.Destroy(e.gameObject);
+			VrbEdge.all.Remove(e);
+
+			Vector3 pos = e.getPosition();
+			VrbVertex nv = new VrbVertex(pos.x, pos.y, pos.z);
+			nv.displayModel();
+			foreach (VrbFace f in VrbFace.all)
+			{
+				VrbTriangle tToRemove = null;
+				if (f.fEdges.IndexOf(e) != -1)
+				{
+					foreach (VrbTriangle t in f.ftOriginal)
+					{
+						if (t.e0 == e)
+						{
+							tToRemove = t;
+							VrbTriangle t1 = new VrbTriangle(t.v0, t.v2, nv);
+							VrbTriangle t2 = new VrbTriangle(t.v1, t.v2, nv);
+							f.ftOriginal.Add(t1);
+							f.ftOriginal.Add(t2);
+							f.calSelf();
+							foreach (VrbEdge ee in f.fEdges)
+							{
+								ee.displayModel();
+							}
+							break;
+						}
+						if (t.e1 == e)
+						{
+							tToRemove = t;
+							VrbTriangle t1 = new VrbTriangle(t.v0, t.v2, nv);
+							VrbTriangle t2 = new VrbTriangle(t.v0, t.v1, nv);
+							f.ftOriginal.Add(t1);
+							f.ftOriginal.Add(t2);
+							f.calSelf();
+							foreach (VrbEdge ee in f.fEdges)
+							{
+								ee.displayModel();
+							}
+							break;
+						}
+						if (t.e2 == e)
+						{
+							tToRemove = t;
+							VrbTriangle t1 = new VrbTriangle(t.v1, t.v2, nv);
+							VrbTriangle t2 = new VrbTriangle(t.v1, t.v0, nv);
+							f.ftOriginal.Add(t1);
+							f.ftOriginal.Add(t2);
+							f.calSelf();
+							foreach (VrbEdge ee in f.fEdges)
+							{
+								ee.displayModel();
+							}
+							break;
+						}
+					}
+				}
+				if (tToRemove != null)
+				{
+					f.ftOriginal.Remove(tToRemove);
+					VrbTriangle.all.Remove(tToRemove);
+				}
+			}
+		}
+		VrbObject.editingObject.calSelf();
+		transformPanel.SetActive(false);
+		clearAllSelection();
+	}
+
+	public void mergeFace()
+	{
+		performedSomeOperation = true;
+		List<VrbFace> fList = new List<VrbFace>();
+		for (int i = 0; i < selected.Count; i++)
+		{
+			if (selected[i].getType() == VrbTargetType.Face)
+			{
+				fList.Add((VrbFace)selected[i]);
+			}
+		}
+
+		List<VrbTriangle> tList = new List<VrbTriangle>();
+		foreach (VrbFace f in fList)
+		{
+			GameObject.Destroy(f.gameObject);
+			foreach(VrbEdge e in f.fEdges)
+			{
+				e.hideModel();
+			}
+
+			foreach (VrbTriangle t in f.ftOriginal)
+			{
+				tList.Add(t);
+			}
+
+			VrbFace.all.Remove(f);
+			VrbObject.editingObject.faces.Remove(f);
+		}
+		VrbFace nf = new VrbFace(tList);
+		nf.matVrbc.color = VrbObject.editingObject.vrbc.color;
+		foreach (VrbEdge ee in nf.fEdges)
+		{
+			ee.displayModel();
+		}
+		nf.displayModel();
+		VrbObject.editingObject.faces.Add(nf);
+
+		transformPanel.SetActive(false);
+		clearAllSelection();
+	}
+
+	public void divideFace()
+	{
+		if (selected.Count > 0 && selected[0].getType() == VrbTargetType.Face)
+		{
+			VrbFace oldf = (VrbFace)selected[0];
+
+			VrbFace.all.Remove(oldf);
+			VrbObject.editingObject.faces.Remove(oldf);
+			GameObject.Destroy(oldf.gameObject);
+			
+			foreach(VrbTriangle t in oldf.ftOriginal)
+			{
+				List<VrbTriangle> ntList = new List<VrbTriangle>();
+				ntList.Add(t);
+
+				VrbFace nf = new VrbFace(ntList);
+				nf.matVrbc.color = VrbObject.editingObject.vrbc.color;
+				foreach (VrbEdge ee in nf.fEdges)
+				{
+					ee.displayModel();
+				}
+				nf.displayModel();
+				VrbObject.editingObject.faces.Add(nf);
+			}
+
+		}
+		transformPanel.SetActive(false);
+		clearAllSelection();
 	}
 }

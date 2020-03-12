@@ -13,6 +13,6 @@ public class VrbColor
 
 	public VrbColor()
 	{
-		
+		color = Color.white;
 	}
 }
