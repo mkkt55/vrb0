@@ -104,6 +104,7 @@ public class PlayerController : MonoBehaviour
 	public bool isEditing = false;
 	public bool isPlacement = false;
 
+	// 在这里改是没有用的，挂进unity就已经是当时的值了
 	public float moveSpeed = 200; //操作物体时的移动速度
 	public float moveSelfSpeed = 300; //摄像机的移动速度
 	public float rotateSpeed = 40;
@@ -124,6 +125,11 @@ public class PlayerController : MonoBehaviour
 
 	void Start()
 	{
+		moveSpeed = 200; //操作物体时的移动速度
+		moveSelfSpeed = 300; //摄像机的移动速度
+		rotateSpeed = 40;
+		scaleSpeed = 0.1f;
+
 		exportModelCanvas = GameObject.Find("PlayerController/SaveModelCanvas");
 		exportModelCanvas.SetActive(false);
 
@@ -236,8 +242,7 @@ public class PlayerController : MonoBehaviour
 	void Update()
 	{
 		performedSomeOperation = false;
-
-
+		
 		updateInputValue();
 		
 		//RaycastHit hit;
@@ -265,56 +270,10 @@ public class PlayerController : MonoBehaviour
 		//}
 
 		//txt.text = "Orientation: x = " + ori.x + ", y = " + ori.y + ", z = " + ori.z + ", w = " + ori.w;
-
-
-		//键盘鼠标控制
-		if (Input.GetKey(KeyCode.A))
-		{
-			moveSelected(Vector3.left);
-		}
-		if (Input.GetKey(KeyCode.D))
-		{
-			moveSelected(Vector3.right);
-		}
-		if (Input.GetKey(KeyCode.W))
-		{
-			moveSelected(Vector3.forward);
-		}
-		if (Input.GetKey(KeyCode.S))
-		{
-			moveSelected(Vector3.back);
-		}
-		if (Input.GetKey(KeyCode.Q))
-		{
-			moveSelected(Vector3.up);
-		}
-		if (Input.GetKey(KeyCode.E))
-		{
-			moveSelected(Vector3.down);
-		}
-
-
-
+		
 		if (observeMode)
 		{
-			if (DpnDaydreamController.TriggerButton)
-			{
-				Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
-				d.x = 0;
-				d.z = 0;
-				dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
-			}
-			else if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
-			{
-				if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
-				{
-					dpnCamera.transform.Translate(touchVector.x * Time.deltaTime * moveSelfSpeed, 0, 0);
-				}
-				else
-				{
-					dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
-				}
-			}
+			controlCamera();
 		}
 		else if (true)
 		{
@@ -324,96 +283,24 @@ public class PlayerController : MonoBehaviour
 			{
 				if (oMode == 0)
 				{
-					if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
-					{
-						// 假设手柄指向前方距离为1的x-y平面上，手柄射线与这个面的交点和上一帧相比，在平面上的向量移动长度。
-						Vector3 dvPerDist = (orientation * Vector3.forward - orientationLastFrame * Vector3.forward);
-						//dvPerDist.x = dvPerDist.x * Mathf.Sqrt(dvPerDist.x * dvPerDist.x + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
-						//dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
-						dvPerDist.z = 0;
-						// 乘以z方向的距离即可
-						Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
-						moveSelected(d);
-					}
-					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
-					{
-						if (touchVector.y >= 0)
-						{
-							moveSelected(Vector3.forward * Time.deltaTime * moveSpeed);
-						}
-						else
-						{
-							moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
-						}
-					}
+
+					moveControl();
 				}
 				// 旋转模式，绕手柄射线的延长轴旋转，触屏的左右决定的旋转方向，距离决定速度
 				else if (oMode == 1)
 				{
-					if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
-					{
-						if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
-						{
-							rotateSelected(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
-						}
-						else
-						{
-							rotateSelected(touchVector.x * Vector3.back * Time.deltaTime * rotateSpeed);
-						}
-					}
-					else if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
-					{
-						Vector3 d0 = orientation * Vector3.forward;
-						//float dist = (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
-						//Vector3 d = d0 * dist;
-						Vector3 d = d0;
-						if (Mathf.Abs(d0.x) >= Mathf.Abs(d0.y))
-						{
-							rotateSelected(d.x * Vector3.down * Time.deltaTime * rotateSpeed);
-						}
-						else
-						{
-							rotateSelected(d.y * Vector3.right * Time.deltaTime * rotateSpeed);
-						}
-					}
+					rotateControl();
 				}
 				// 缩放模式
 				else if (oMode == 2)
 				{
-					if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
-					{
-						if (touchVector.x < 0)
-						{
-							scaleSelected(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
-						}
-						else
-						{
-							scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
-						}
-					}
+					scaleControl();
 				}
 			}
 			// 未选中物体，控制自己
 			else
 			{
-				if (DpnDaydreamController.TriggerButton)
-				{
-					Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
-					d.x = 0;
-					d.z = 0;
-					dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
-				}
-				else if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
-				{
-					if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
-					{
-						dpnCamera.transform.Translate(touchVector.x * Time.deltaTime * moveSelfSpeed, 0, 0);
-					}
-					else
-					{
-						dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
-					}
-				}
+				controlCamera();
 			}
 		}
 
@@ -450,6 +337,188 @@ public class PlayerController : MonoBehaviour
 		orientationIndicator.transform.rotation = orientation;
 	}
 
+	void moveControl()
+	{
+		//键盘鼠标控制
+		if (Input.GetKey(KeyCode.A))
+		{
+			moveSelected(Vector3.left);
+		}
+		if (Input.GetKey(KeyCode.D))
+		{
+			moveSelected(Vector3.right);
+		}
+		if (Input.GetKey(KeyCode.W))
+		{
+			moveSelected(Vector3.forward);
+		}
+		if (Input.GetKey(KeyCode.S))
+		{
+			moveSelected(Vector3.back);
+		}
+		if (Input.GetKey(KeyCode.Q))
+		{
+			moveSelected(Vector3.up);
+		}
+		if (Input.GetKey(KeyCode.E))
+		{
+			moveSelected(Vector3.down);
+		}
+
+		if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
+		{
+			// 假设手柄指向前方距离为1的x-y平面上，手柄射线与这个面的交点和上一帧相比，在平面上的向量移动长度。
+			Vector3 dvPerDist = (orientation * Vector3.forward - orientationLastFrame * Vector3.forward);
+			//dvPerDist.x = dvPerDist.x * Mathf.Sqrt(dvPerDist.x * dvPerDist.x + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+			//dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
+			dvPerDist.z = 0;
+			// 乘以z方向的距离即可
+			Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+			moveSelected(d);
+		}
+		if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
+		{
+			if (touchVector.y >= 0)
+			{
+				moveSelected(Vector3.forward * Time.deltaTime * moveSpeed);
+			}
+			else
+			{
+				moveSelected(Vector3.back * Time.deltaTime * moveSpeed);
+			}
+		}
+	}
+
+	void rotateControl()
+	{
+		if (Input.GetKey(KeyCode.A))
+		{
+			rotateSelected(Vector3.left);
+		}
+		if (Input.GetKey(KeyCode.D))
+		{
+			rotateSelected(Vector3.right);
+		}
+		if (Input.GetKey(KeyCode.W))
+		{
+			rotateSelected(Vector3.forward);
+		}
+		if (Input.GetKey(KeyCode.S))
+		{
+			rotateSelected(Vector3.back);
+		}
+		if (Input.GetKey(KeyCode.Q))
+		{
+			rotateSelected(Vector3.up);
+		}
+		if (Input.GetKey(KeyCode.E))
+		{
+			rotateSelected(Vector3.down);
+		}
+
+		if (!DpnDaydreamController.TriggerButton && DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+		{
+			if (Mathf.Abs(touchVector.y) >= Mathf.Abs(touchVector.x))
+			{
+				rotateSelected(touchVector.y * Vector3.right * Time.deltaTime * rotateSpeed);
+			}
+			else
+			{
+				rotateSelected(touchVector.x * Vector3.back * Time.deltaTime * rotateSpeed);
+			}
+		}
+		else if (DpnDaydreamController.TriggerButton && DpnDaydreamController.ClickButton)
+		{
+			Vector3 d0 = orientation * Vector3.forward;
+			//float dist = (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+			//Vector3 d = d0 * dist;
+			Vector3 d = d0;
+			if (Mathf.Abs(d0.x) >= Mathf.Abs(d0.y))
+			{
+				rotateSelected(d.x * Vector3.down * Time.deltaTime * rotateSpeed);
+			}
+			else
+			{
+				rotateSelected(d.y * Vector3.right * Time.deltaTime * rotateSpeed);
+			}
+		}
+	}
+
+	void scaleControl()
+	{
+		//键盘鼠标控制
+		if (Input.GetKey(KeyCode.Q))
+		{
+			scaleSelected(new Vector3(1.01f, 1.01f, 1.01f));
+		}
+		if (Input.GetKey(KeyCode.E))
+		{
+			scaleSelected(new Vector3(0.99f, 0.99f, 0.99f));
+		}
+
+		if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+		{
+			if (touchVector.x < 0)
+			{
+				scaleSelected(Vector3.one * (1 - Time.deltaTime * scaleSpeed));
+			}
+			else
+			{
+				scaleSelected(Vector3.one * (1 + Time.deltaTime * scaleSpeed));
+			}
+		}
+	}
+
+
+	void controlCamera()
+	{
+		//键盘鼠标控制
+		if (Input.GetKey(KeyCode.A))
+		{
+			dpnCamera.transform.Translate(Vector3.left);
+		}
+		if (Input.GetKey(KeyCode.D))
+		{
+			dpnCamera.transform.Translate(Vector3.right);
+		}
+		if (Input.GetKey(KeyCode.W))
+		{
+			dpnCamera.transform.Translate(Vector3.forward);
+		}
+		if (Input.GetKey(KeyCode.S))
+		{
+			dpnCamera.transform.Translate(Vector3.back);
+		}
+		if (Input.GetKey(KeyCode.Q))
+		{
+			dpnCamera.transform.Translate(Vector3.up);
+		}
+		if (Input.GetKey(KeyCode.E))
+		{
+			dpnCamera.transform.Translate(Vector3.down);
+		}
+
+
+		if (DpnDaydreamController.IsTouching && DpnDaydreamController.TriggerButton)
+		{
+			Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
+			d.x = 0;
+			d.z = 0;
+			dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
+		}
+		else if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+		{
+			if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
+			{
+				dpnCamera.transform.Translate(touchVector.x * Time.deltaTime * moveSelfSpeed, 0, 0);
+			}
+			else
+			{
+				dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
+			}
+		}
+	}
+
 	public void moveSelected(Vector3 _v)
 	{
 		if (!mbxe)
@@ -469,9 +538,47 @@ public class PlayerController : MonoBehaviour
 			_v.y = 0;
 			_v.z = 0;
 		}
+		// 避免重复移动
+		List<VrbVertex> vList = new List<VrbVertex>();
 		for (int i = 0; i < selected.Count; i++)
 		{
-			selected[i].move(_v);
+			if (selected[i].getType() == VrbTargetType.Face)
+			{
+				foreach(VrbVertex v in ((VrbFace)selected[i]).fVertices)
+				{
+					if (vList.IndexOf(v) == -1)
+					{
+						vList.Add(v);
+					}
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Edge)
+			{
+				if (vList.IndexOf(((VrbEdge)selected[i]).v0) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v0);
+				}
+
+				if (vList.IndexOf(((VrbEdge)selected[i]).v1) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v1);
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Vertex)
+			{
+				if (vList.IndexOf((VrbVertex)selected[i]) == -1)
+				{
+					vList.Add((VrbVertex)selected[i]);
+				}
+			}
+			else
+			{
+				selected[i].move(_v);
+			}
+		}
+		foreach(VrbVertex v in vList)
+		{
+			v.move(_v);
 		}
 		performedSomeOperation = true;
 	}
@@ -490,11 +597,61 @@ public class PlayerController : MonoBehaviour
 		{
 			_v.z = 0;
 		}
+
+		List<VrbVertex> vList = new List<VrbVertex>();
 		for (int i = 0; i < selected.Count; i++)
 		{
-			selected[i].rotate(_v);
-			selected[i].rotate(_v);
+			if (selected[i].getType() == VrbTargetType.Face)
+			{
+				foreach (VrbVertex v in ((VrbFace)selected[i]).fVertices)
+				{
+					if (vList.IndexOf(v) == -1)
+					{
+						vList.Add(v);
+					}
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Edge)
+			{
+				if (vList.IndexOf(((VrbEdge)selected[i]).v0) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v0);
+				}
+
+				if (vList.IndexOf(((VrbEdge)selected[i]).v1) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v1);
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Vertex)
+			{
+				if (vList.IndexOf((VrbVertex)selected[i]) == -1)
+				{
+					vList.Add((VrbVertex)selected[i]);
+				}
+			}
+			else
+			{
+				selected[i].rotate(_v);
+			}
 		}
+
+		if (vList.Count != 0)
+		{
+
+			Vector3 center = Vector3.zero;
+			foreach (VrbVertex v in vList)
+			{
+				center += v.vector3;
+			}
+			center = center / vList.Count;
+
+			foreach (VrbVertex v in vList)
+			{
+				v.vector3 = Quaternion.Euler(_v) * (v.vector3 - center) + center;
+			}
+		}
+
 		performedSomeOperation = true;
 	}
 
@@ -502,20 +659,77 @@ public class PlayerController : MonoBehaviour
 	{
 		if (!sbxe)
 		{
-			_v.x = 0;
+			_v.x = 1;
 		}
 		if (!sbye)
 		{
-			_v.y = 0;
+			_v.y = 1;
 		}
 		if (!sbze)
 		{
-			_v.z = 0;
+			_v.z = 1;
 		}
+
+
+		List<VrbVertex> vList = new List<VrbVertex>();
 		for (int i = 0; i < selected.Count; i++)
 		{
-			selected[i].scale(_v);
+			if (selected[i].getType() == VrbTargetType.Face)
+			{
+				foreach (VrbVertex v in ((VrbFace)selected[i]).fVertices)
+				{
+					if (vList.IndexOf(v) == -1)
+					{
+						vList.Add(v);
+					}
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Edge)
+			{
+				if (vList.IndexOf(((VrbEdge)selected[i]).v0) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v0);
+				}
+
+				if (vList.IndexOf(((VrbEdge)selected[i]).v1) == -1)
+				{
+					vList.Add(((VrbEdge)selected[i]).v1);
+				}
+			}
+			else if (selected[i].getType() == VrbTargetType.Vertex)
+			{
+				if (vList.IndexOf((VrbVertex)selected[i]) == -1)
+				{
+					vList.Add((VrbVertex)selected[i]);
+				}
+			}
+			else
+			{
+				selected[i].scale(_v);
+			}
 		}
+
+		if (vList.Count != 0)
+		{
+
+			Vector3 center = Vector3.zero;
+			foreach (VrbVertex v in vList)
+			{
+				center += v.vector3;
+			}
+			center = center / vList.Count;
+
+			foreach (VrbVertex v in vList)
+			{
+				Vector3 temp = v.vector3 - center;
+				temp.x *= _v.x;
+				temp.y *= _v.y;
+				temp.z *= _v.z;
+				v.vector3 = temp + center;
+			}
+		}
+
+
 		performedSomeOperation = true;
 	}
 

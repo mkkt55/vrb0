@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -35,6 +36,16 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 			return;
 		}
 
+		init();
+	}
+
+	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+	{
+		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(e);
+	}
+
+	public void init()
+	{
 		v0 = e.v0.vector3;
 		v1 = e.v1.vector3;
 		transform.position = (e.v0.vector3 + e.v1.vector3) / 2;
@@ -92,10 +103,5 @@ public class VrbEditableEdge : MonoBehaviour, IPointerClickHandler
 		{
 			transform.localScale = new Vector3();
 		}
-	}
-
-	void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
-	{
-		GameObject.Find("PlayerController").GetComponent<PlayerController>().select(e);
 	}
 }

@@ -281,6 +281,8 @@ public class VrbEdge : VrbTarget
 		ep.e = this;
 
 		constructed = true;
+
+		ep.init();
 	}
 
 	public void select()
@@ -1292,7 +1294,7 @@ public static class VrbModel
 					}
 					line = sr.ReadLine();
 				}
-				VrbObject vrbo = new VrbObject(position, fs);
+				VrbObject vrbo = new VrbObject(position, fs, name);
 				vrbo.vrbc.color = matColor;
 				vrbo.displayModel();
 				vrbo.gameObject.transform.rotation = rotate;
@@ -1324,7 +1326,9 @@ public static class VrbModel
 			string rPath = "Beautify/" + sArr[1];
 			RenderSettings.skybox = Resources.Load<Material>(rPath);
 		}
-		
+
+		VrbSettingData.projectName = path.Substring(path.LastIndexOf("/"));
+
 		sr2.Close();
 	}
 

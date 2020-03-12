@@ -8047,7 +8047,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000031178593}
+  m_AnchoredPosition: {x: 0, y: -0.0000005243925}
   m_SizeDelta: {x: 0, y: 120}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &525170145
@@ -19418,6 +19418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b63d209bc7139249a7ebfeaf20f591e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  performedSomeOperation: 0
   openProjectCanvas: {fileID: 0}
   saveProjectCanvas: {fileID: 0}
   exportModelCanvas: {fileID: 0}
@@ -19483,7 +19484,7 @@ MonoBehaviour:
   rotateSpeed: 0
   scaleSpeed: 0
   defaultButtonColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedButtonColor: {r: 1, g: 0, b: 0, a: 1}
+  selectedButtonColor: {r: 1, g: 0.61960787, b: 0.61960787, a: 1}
 --- !u!114 &1378698199
 MonoBehaviour:
   m_ObjectHideFlags: 0

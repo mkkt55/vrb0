@@ -146,7 +146,7 @@ a9ca619b6e019f60384c263999722511 Assembly-CSharp.dll:dpn.DpnBasePeripheralDevice
 744228cecad481902c126ab0ab7a1389 Assembly-CSharp.dll:.VrbEditableFace
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.VrbTargetScript
 b3ab2106268377ffe25dd18ac23dca28 Unity.TextMeshPro.dll:TMPro.TMP_Asset
-71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:.VrbEditableVertex
+871e73bca0dfab5d8c47eb94a4e78937 Assembly-CSharp.dll:.VrbEditableVertex
 f4ffc628b5dc26a27fe75583961dbdaa Assembly-CSharp.dll:.ObjectColor
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.RottButtonY
 5674649e295c7700d2281725061ec3e7 Assembly-CSharp.dll:.ProjectItem
@@ -239,7 +239,7 @@ d791aa6007fa3640be1164ea75bb087d Unity.TextMeshPro.dll:TMPro.TMP_StyleSheet
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.PosButtonY
 c6666661329916e218bee7f5e79e60f5 Unity.TextMeshPro.dll:TMPro.TextMeshPro
 3165968ba45c74472d279ba04455fccb Unity.TextMeshPro.dll:TMPro.TMP_ColorGradient
-3f3805db64886ec4f84cae79fe52a104 Assembly-CSharp.dll:.VrbEditableEdge
+aa2e3fc7bf4cde91d4bbc80efe246873 Assembly-CSharp.dll:.VrbEditableEdge
 8773597233332cfd894cb619f564c3c9 Assembly-CSharp.dll:i3vr.I3vrArmModel
 0e4c3191d18e40e9fa8f2a56b5e7e4c9 Assembly-CSharp.dll:.VrbSetting
 8649814970b42d345b89944b862453cc Unity.TextMeshPro.dll:TMPro.TMP_SubMesh
