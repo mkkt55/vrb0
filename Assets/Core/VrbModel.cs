@@ -908,17 +908,17 @@ public class VrbObject : VrbTarget
 		{
 			GameObject.Find("PlayerController").GetComponent<PlayerController>().clearAllSelection();
 			VrbModel.closeAllPanel();
-			for (int i = 0; i < editingObject.faces.Count; i++)
+			for (int i = 0; i < VrbFace.all.Count; i++)
 			{
-				editingObject.faces[i].hideModel();
+				VrbFace.all[i].hideModel();
 			}
-			for (int i = 0; i < editingObject.vertices.Count; i++)
+			for (int i = 0; i < VrbVertex.all.Count; i++)
 			{
-				editingObject.vertices[i].hideModel();
+				VrbVertex.all[i].hideModel();
 			}
-			for (int i = 0; i < editingObject.edges.Count; i++)
+			for (int i = 0; i < VrbEdge.all.Count; i++)
 			{
-				editingObject.edges[i].hideModel();
+				VrbEdge.all[i].hideModel();
 			}
 			GameObject.Destroy(editingObject.gameObject);
 			GameObject.Destroy(editingObject.UiItem);
@@ -1308,20 +1308,20 @@ public static class VrbModel
 		sr.Close();
 
 		string ss;
-		ss = sr.ReadLine();
+		ss = sr2.ReadLine();
 		string[] sArr = ss.Split(' ');
 		if (sArr[0] == "elc")
 		{
 			VrbSettingData.elColor = new Color(float.Parse(sArr[1]), float.Parse(sArr[2]), float.Parse(sArr[3]), float.Parse(sArr[4]));
 			RenderSettings.ambientLight = VrbSettingData.elColor;
 		}
-		sr.ReadLine();
+		sr2.ReadLine();
 		if (sArr[1] == "eli")
 		{
 			VrbSettingData.elIntensity = float.Parse(sArr[1]);
 			RenderSettings.ambientIntensity = VrbSettingData.elIntensity;
 		}
-		sr.ReadLine();
+		sr2.ReadLine();
 		if (sArr[0] == "skybox")
 		{
 			VrbSettingData.skybox = sArr[1];
@@ -1330,7 +1330,7 @@ public static class VrbModel
 			RenderSettings.skybox = Resources.Load<Material>(rPath);
 		}
 
-		VrbSettingData.projectName = path.Substring(path.LastIndexOf("/"));
+		VrbSettingData.projectName = path.Substring(path.LastIndexOf("/") + 1);
 
 		sr2.Close();
 	}

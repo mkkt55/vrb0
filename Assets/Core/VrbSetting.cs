@@ -26,17 +26,27 @@ public static class VrbSettingData
 	{
 		get
 		{
-			if (!Directory.Exists(Application.persistentDataPath + "/" + projectName + "/export"))
+			if (!Directory.Exists(Application.persistentDataPath + projectName + "/export"))
 			{
-				Directory.CreateDirectory(Application.persistentDataPath + "/" + projectName + "/export");
+				Directory.CreateDirectory(Application.persistentDataPath + projectName + "/export");
 			}
-			return Application.persistentDataPath + "/" + projectName + "/export/" + exportName + ".obj";
+			return Application.persistentDataPath + projectName + "/export/" + exportName + ".obj";
 		}
 	}
 
 	// Render settings.
 	public static string renderer = "default";
-	public static string renderSavePath =Application.persistentDataPath + "/" + projectName + "/Render/";
+	public static string renderSavePath
+	{
+		get
+		{
+			if (!Directory.Exists(Application.persistentDataPath + projectName + "/render"))
+			{
+				Directory.CreateDirectory(Application.persistentDataPath + projectName + "/export");
+			}
+			return Application.persistentDataPath + projectName + "/render";
+		}
+	}
 }
 
 

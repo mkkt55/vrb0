@@ -12,7 +12,7 @@ public class LightPanel : MonoBehaviour
 	public void init()
 	{
 		playerController = GameObject.Find("PlayerController");
-		typeDropdown = GameObject.Find("PlayerController/InfoCanvas/LightPanel/TypePanel/Dropdown").GetComponent<Dropdown>();
+		typeDropdown = GameObject.Find("PlayerController/CameraUI/InfoCanvas/LightPanel/TypePanel/Dropdown").GetComponent<Dropdown>();
 	}
 
 	void OnEnable()

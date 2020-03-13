@@ -92,6 +92,7 @@ public class PlayerController : MonoBehaviour
 	public GameObject multiSelectButton;
 
 	public GameObject dpnCamera;
+	public GameObject dpnCameraRig;
 
 	public GameObject orientationIndicator;
 
@@ -108,8 +109,8 @@ public class PlayerController : MonoBehaviour
 	// 在这里改是没有用的，挂进unity就已经是当时的值了
 	public float moveSpeed = 200; //操作物体时的移动速度
 	public float moveSelfSpeed = 300; //摄像机的移动速度
-	public float rotateSpeed = 40;
-	public float scaleSpeed = 0.1f;
+	public float rotateSpeed = 60;
+	public float scaleSpeed = 0.3f;
 
 	public Color defaultButtonColor = Color.white;
 	public Color selectedButtonColor = new Color(1f, 0.6f, 0.6f);
@@ -128,94 +129,95 @@ public class PlayerController : MonoBehaviour
 	{
 		moveSpeed = 200; //操作物体时的移动速度
 		moveSelfSpeed = 200; //摄像机的移动速度
-		rotateSpeed = 60;
+		rotateSpeed = 90;
 		scaleSpeed = 0.1f;
 
-		exportModelCanvas = GameObject.Find("PlayerController/SaveModelCanvas");
+		exportModelCanvas = GameObject.Find("PlayerController/CameraUI/SaveModelCanvas");
 		exportModelCanvas.SetActive(false);
 
 		eventData = new PointerEventData(EventSystem.current);
-		colorPanel = GameObject.Find("PlayerController/DpnCameraRig/ColorCanvas");
+		colorPanel = GameObject.Find("PlayerController/CameraUI/DpnCameraRig/ColorCanvas");
 		colorPanel.SetActive(false);
 
 		//Cursor.visible = false;//隐藏鼠标
 		//Cursor.lockState = CursorLockMode.Locked;//把鼠标锁定到屏幕中间
 
 
-		openProjectCanvas = GameObject.Find("PlayerController/OpenProjectCanvas");
+		openProjectCanvas = GameObject.Find("PlayerController/CameraUI/OpenProjectCanvas");
 		openProjectCanvas.SetActive(false);
-		saveProjectCanvas = GameObject.Find("PlayerController/SaveProjectCanvas");
+		saveProjectCanvas = GameObject.Find("PlayerController/CameraUI/SaveProjectCanvas");
 		saveProjectCanvas.SetActive(false);
 
 		editableModel = GameObject.Find("EditableModel");
 
-		infoCanvas = GameObject.Find("PlayerController/InfoCanvas");
+		infoCanvas = GameObject.Find("PlayerController/CameraUI/InfoCanvas");
 
-		objectPanel = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel");
+		objectPanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/ObjectPanel");
 
-		scrollView = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel/ScrollView");
-		scrollContent = GameObject.Find("PlayerController/InfoCanvas/ObjectPanel/ScrollView/Viewport/Content");
+		scrollView = GameObject.Find("PlayerController/CameraUI/InfoCanvas/ObjectPanel/ScrollView");
+		scrollContent = GameObject.Find("PlayerController/CameraUI/InfoCanvas/ObjectPanel/ScrollView/Viewport/Content");
 
-		transformPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel");
+		transformPanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/TransformPanel");
 		transformPanel.SetActive(false);
 
-		positionPanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/PositionPanel");
-		rotatePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/RotatePanel");
-		scalePanel = GameObject.Find("PlayerController/InfoCanvas/TransformPanel/ScalePanel");
+		positionPanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/TransformPanel/PositionPanel");
+		rotatePanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/TransformPanel/RotatePanel");
+		scalePanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/TransformPanel/ScalePanel");
 
-		lightPanel = GameObject.Find("PlayerController/InfoCanvas/LightPanel");
+		lightPanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/LightPanel");
 		lightPanel.SetActive(false);
 		
-		matPanel = GameObject.Find("PlayerController/InfoCanvas/MaterialPanel");
+		matPanel = GameObject.Find("PlayerController/CameraUI/InfoCanvas/MaterialPanel");
 		matPanel.SetActive(false);
 
-		mainMenu = GameObject.Find("MainMenu");
+		mainMenu = GameObject.Find("PlayerController/CameraUI/MainMenu");
 
-		moveButton = GameObject.Find("MainMenu/MoveButton");
-		moveButtonSubCanvas = GameObject.Find("MainMenu/MoveButton/SubCanvas");
-		mbx = GameObject.Find("MainMenu/MoveButton/SubCanvas/X");
-		mby = GameObject.Find("MainMenu/MoveButton/SubCanvas/Y");
-		mbz = GameObject.Find("MainMenu/MoveButton/SubCanvas/Z");
+		moveButton = GameObject.Find("PlayerController/CameraUI/MainMenu/MoveButton");
+		moveButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/MoveButton/SubCanvas");
+		mbx = GameObject.Find("PlayerController/CameraUI/MainMenu/MoveButton/SubCanvas/X");
+		mby = GameObject.Find("PlayerController/CameraUI/MainMenu/MoveButton/SubCanvas/Y");
+		mbz = GameObject.Find("PlayerController/CameraUI/MainMenu/MoveButton/SubCanvas/Z");
 
-		rotateButton = GameObject.Find("MainMenu/RotateButton");
-		rotateButtonSubCanvas = GameObject.Find("MainMenu/RotateButton/SubCanvas");
-		rbx = GameObject.Find("MainMenu/RotateButton/SubCanvas/X");
-		rby = GameObject.Find("MainMenu/RotateButton/SubCanvas/Y");
-		rbz = GameObject.Find("MainMenu/RotateButton/SubCanvas/Z");
+		rotateButton = GameObject.Find("PlayerController/CameraUI/MainMenu/RotateButton");
+		rotateButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/RotateButton/SubCanvas");
+		rbx = GameObject.Find("PlayerController/CameraUI/MainMenu/RotateButton/SubCanvas/X");
+		rby = GameObject.Find("PlayerController/CameraUI/MainMenu/RotateButton/SubCanvas/Y");
+		rbz = GameObject.Find("PlayerController/CameraUI/MainMenu/RotateButton/SubCanvas/Z");
 
-		scaleButton = GameObject.Find("MainMenu/ScaleButton");
-		scaleButtonSubCanvas = GameObject.Find("MainMenu/ScaleButton/SubCanvas");
-		sbx = GameObject.Find("MainMenu/ScaleButton/SubCanvas/X");
-		sby = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Y");
-		sbz = GameObject.Find("MainMenu/ScaleButton/SubCanvas/Z");
+		scaleButton = GameObject.Find("PlayerController/CameraUI/MainMenu/ScaleButton");
+		scaleButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/ScaleButton/SubCanvas");
+		sbx = GameObject.Find("PlayerController/CameraUI/MainMenu/ScaleButton/SubCanvas/X");
+		sby = GameObject.Find("PlayerController/CameraUI/MainMenu/ScaleButton/SubCanvas/Y");
+		sbz = GameObject.Find("PlayerController/CameraUI/MainMenu/ScaleButton/SubCanvas/Z");
 
-		projectButton = GameObject.Find("MainMenu/ProjectButton");
-		projectButtonSubCanvas = GameObject.Find("MainMenu/ProjectButton/SubCanvas");
+		projectButton = GameObject.Find("PlayerController/CameraUI/MainMenu/ProjectButton");
+		projectButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/ProjectButton/SubCanvas");
 		projectButtonSubCanvas.SetActive(false);
 
-		settingButtonSubCanvas = GameObject.Find("PlayerController/SettingCanvas");
+		settingButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/SettingCanvas");
 		settingButtonSubCanvas.SetActive(false);
 
-		placeButton = GameObject.Find("MainMenu/PlaceButton");
-		placeButtonSubCanvas = GameObject.Find("MainMenu/PlaceButton/SubCanvas");
-		placeButtonSubCanvas2 = GameObject.Find("MainMenu/PlaceButton/SubCanvas2");
+		placeButton = GameObject.Find("PlayerController/CameraUI/MainMenu/PlaceButton");
+		placeButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/PlaceButton/SubCanvas");
+		placeButtonSubCanvas2 = GameObject.Find("PlayerController/CameraUI/MainMenu/PlaceButton/SubCanvas2");
 		placeButtonSubCanvas.SetActive(false);
 		placeButtonSubCanvas2.SetActive(false);
 
-		lightButton = GameObject.Find("MainMenu/LightButton");
-		lightButtonSubCanvas = GameObject.Find("MainMenu/LightButton/SubCanvas");
+		lightButton = GameObject.Find("PlayerController/CameraUI/MainMenu/LightButton");
+		lightButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/LightButton/SubCanvas");
 		lightButtonSubCanvas.SetActive(false);
 
-		editButton = GameObject.Find("MainMenu/EditButton");
-		editButtonSubCanvas = GameObject.Find("MainMenu/EditButton/SubCanvas");
+		editButton = GameObject.Find("PlayerController/CameraUI/MainMenu/EditButton");
+		editButtonSubCanvas = GameObject.Find("PlayerController/CameraUI/MainMenu/EditButton/SubCanvas");
 
-		multiSelectButton = GameObject.Find("MainMenu/MultiSelectButton");
+		multiSelectButton = GameObject.Find("PlayerController/CameraUI/MainMenu/MultiSelectButton");
 
-		dpnCamera = GameObject.Find("PlayerController/DpnCameraRig");
+		dpnCamera = GameObject.Find("PlayerController/CameraUI");
+		dpnCameraRig = GameObject.Find("PlayerController/CameraUI/DpnCameraRig");
 
 		txt = GameObject.Find("DebugText").GetComponent<Text>();
 
-		orientationIndicator = GameObject.Find("OrientationIndicator");
+		orientationIndicator = GameObject.Find("PlayerController/CameraUI/OrientationIndicator");
 
 		placementTarget = new VrbPlaceTarget();
 		placementTarget.constructModel();
@@ -223,7 +225,7 @@ public class PlayerController : MonoBehaviour
 
 		lightPanel.GetComponent<LightPanel>().init();
 
-		textIndicator = GameObject.Find("PlayerController/DpnCameraRig/TextIndicatorCanvas");
+		textIndicator = GameObject.Find("PlayerController/CameraUI/DpnCameraRig/TextIndicatorCanvas");
 		textIndicator.SetActive(false);
 
 		setMoveMode();
@@ -235,7 +237,7 @@ public class PlayerController : MonoBehaviour
 		rightMeasurer = VrbMeasurer.r;
 		measurer.hideModel();
 
-		distanceDisplayer = GameObject.Find("PlayerController/InfoCanvas/DistancePanel");
+		distanceDisplayer = GameObject.Find("PlayerController/CameraUI/InfoCanvas/DistancePanel");
 		distanceDisplayer.SetActive(false);
 
 		VrbObject o = VrbModel.createCube(0, -100, 0, 100, 100, 100);
@@ -376,7 +378,7 @@ public class PlayerController : MonoBehaviour
 			//dvPerDist.y = dvPerDist.y * Mathf.Sqrt(dvPerDist.y * dvPerDist.y + dvPerDist.z * dvPerDist.z) / Mathf.Abs(dvPerDist.z);
 			dvPerDist.z = 0;
 			// 乘以z方向的距离即可
-			Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCamera.transform.position).magnitude;
+			Vector3 d = dvPerDist * (selected[0].getGameObject().transform.position - dpnCameraRig.transform.position).magnitude;
 			moveSelected(d);
 		}
 		if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton && !DpnDaydreamController.TriggerButton)
@@ -502,14 +504,7 @@ public class PlayerController : MonoBehaviour
 		}
 
 
-		if (DpnDaydreamController.IsTouching && DpnDaydreamController.TriggerButton)
-		{
-			Vector3 d = DpnDaydreamController.Orientation * Vector3.forward;
-			d.x = 0;
-			d.z = 0;
-			dpnCamera.transform.Translate(0, 0, -d.z * Time.deltaTime * moveSelfSpeed);
-		}
-		else if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
+		if (DpnDaydreamController.IsTouching && DpnDaydreamController.ClickButton)
 		{
 			if (Mathf.Abs(touchVector.y) < Mathf.Abs(touchVector.x))
 			{
@@ -517,7 +512,15 @@ public class PlayerController : MonoBehaviour
 			}
 			else
 			{
-				dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
+				Vector3 vd = DpnDaydreamController.Orientation * Vector3.forward;
+				if (Mathf.Abs(vd.y) > Mathf.Abs(vd.z))
+				{
+					dpnCamera.transform.Translate(0, 0, touchVector.y * Time.deltaTime * moveSelfSpeed);
+				}
+				else
+				{
+					dpnCamera.transform.Translate(0, touchVector.y * Time.deltaTime * moveSelfSpeed, 0);
+				}
 			}
 		}
 	}

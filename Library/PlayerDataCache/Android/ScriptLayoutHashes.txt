@@ -166,7 +166,7 @@ f4e4bf30cb1330a843c93255418ad38e Assembly-CSharp.dll:dpn.DPVR_Controller
 87a4d7cc43170799ee4df9a567b78736 Assembly-CSharp.dll:dpn.DpnBoundary
 4fd8bf02e3089425d3502e26c44ba31a Unity.TextMeshPro.dll:TMPro.TextContainer
 c6b1c172efbc61c63ea55c26419522a9 Assembly-CSharp.dll:.ELightIntensity
-16fb4099e4639c39d974065bc2404110 Assembly-CSharp.dll:.PlayerController
+d3bc205e05025eb7a09cb7efa04e06d3 Assembly-CSharp.dll:.PlayerController
 8d9285496abcf1221aaf3b14d0ee0e36 Assembly-CSharp.dll:.ScaleButtonX
 71bb6a6b6c8f052f948db64c7dd3ca4f Assembly-CSharp.dll:dpn.DpnBasePeripheral
 e6ae40841db498b6e673877ac45ad208 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator

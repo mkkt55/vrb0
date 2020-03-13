@@ -24,7 +24,6 @@ public class RenderSavePathButton : MonoBehaviour
     {
         if (!path.text.Equals(pathLastFrame))
 		{
-			VrbSettingData.renderSavePath = path.text;
 			pathLastFrame = path.text;
 		}
     }

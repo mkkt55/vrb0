@@ -10,6 +10,11 @@ public class EnterExportNameScript : MonoBehaviour, IPointerClickHandler
 	GameObject pc;
 	Text t;
 
+	void OnEnable()
+	{
+		GetComponentInChildren<Text>().text = VrbSettingData.exportName;
+	}
+
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		t.text = "";

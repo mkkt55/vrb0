@@ -10,6 +10,11 @@ public class EnterProjectNameScript : MonoBehaviour,IPointerClickHandler
 	GameObject pc;
 	Text t;
 
+	void OnEnable()
+	{
+		GetComponentInChildren<Text>().text = VrbSettingData.projectName;
+	}
+
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		t.text = "";
